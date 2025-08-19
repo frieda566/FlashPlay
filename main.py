@@ -8,7 +8,6 @@ from deep_translator import GoogleTranslator
 
 class FlashcardApp:
     def __init__(self, root):
-        self.launch_game_race = None
         self.root = root
         self.root.title("Interactive Vocabulary Flashcards")
         self.flashcard_manager = FlashcardManager()
@@ -33,6 +32,13 @@ class FlashcardApp:
         flashcards = self.flashcard_manager.get_all_flashcards()
         if flashcards:
             MemoryGame(self.root, flashcards, on_exit=self.setup_main_menu)
+        else:
+            messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
+
+    def launch_game_race(self):
+        flashcards = self.flashcard_manager.get_all_flashcards()
+        if flashcards:
+            RaceGame(self.root, flashcards)
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
 
