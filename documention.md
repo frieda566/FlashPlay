@@ -19,4 +19,8 @@ Through e.g. tk.Button() you were able to create a Button and modify it within t
 - crating an overview on the structure on of the code 
   - Class Memory Game
   - mostly needed to google ones how to do it, then code blocks were also repetative in matter of design
+ 
+  - 18. August
+        online meeting together, planing next steps. Paula is reponsible for designing the main.py interface and Frieda is reosposible for the flashcards.py interface
+        major problem: Frieda cannot push the old repository and therfore no updates accour. Trying several approchaces to fix the bug however nothing works. No Reddit Account and no AI ChatBot was able to help us -> created a new repositories only way we were able to fix the problem
   - 
