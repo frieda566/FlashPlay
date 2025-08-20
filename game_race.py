@@ -47,6 +47,7 @@ class RaceGame:
         self.finish_x = 920
         self.lane_y_player = 110
         self.lane_y_opponent = 280
+        self.lane_half_height = 40
 
         self.opponent_speed_tick = 70
         self.opponent_tick_ms = 8000  # Opponent moves every 8 seconds
@@ -85,8 +86,17 @@ class RaceGame:
         self.canvas.create_text(self.start_x - 10, 20, text="START", anchor="w", font=("Helvetica", 10, "bold"))
         self.canvas.create_line(self.finish_x + 40, 0, self.finish_x + 40, self.canvas_height, fill=self.finish_color, width=4)
 
-        self.canvas.create_line(10, self.lane_y_player + 40, self.canvas_width - 10, self.lane_y_player + 40, fill="#c7c7c7")
-        self.canvas.create_line(10, self.lane_y_opponent + 40, self.canvas_width - 10, self.lane_y_opponent + 40, fill="#c7c7c7")
+        for cy in (self.lane_y_player, self.lane_y_opponent):
+            top = cy - self.lane_half_height
+            bot = cy + self.lane_half_height
+            self.canvas.create_line(
+                10, top, self.canvas_width - 10, top,
+                fill='#c7c7c7', width=2, dash=(10,8)
+            )
+            self.canvas.create_line(
+                10, bot, self.canvas_width - 10, bot,
+                fill='#c7c7c7', width=2, dash=(10,8)
+            )
 
         bottom_frame = tk.Frame(self.window, bg=self.bg)
         bottom_frame.pack(fill="both", expand=True, padx=40, pady=(6, 12))
@@ -94,7 +104,7 @@ class RaceGame:
         self.term_label = tk.Label(
             bottom_frame,
             text="",
-            font=("Helvetica", 28, "bold"),
+            font=("Helvetica", 32, "bold"),
             bg=self.bg,
             fg="#4a6340",
             wraplength=1000,
@@ -109,7 +119,7 @@ class RaceGame:
         self.answer_entry.pack(side="left", padx=(0, 10))
         self.answer_entry.bind("<Return>", lambda e: self.submit_answer())
 
-        submit_btn = tk.Button(entry_frame, text="Submit", command=self.submit_answer, font=("Helvetica", 14), bg=self.accent)
+        submit_btn = tk.Button(entry_frame, text="Submit", command=self.submit_answer, font=("Helvetica", 14, 'bold'), bg=self.accent)
         submit_btn.pack(side="left")
 
         self.info_label = tk.Label(bottom_frame, text="Answer as fast as you can! (≤8s = faster)", font=("Helvetica", 12), bg=self.bg)
@@ -118,14 +128,14 @@ class RaceGame:
         control_frame = tk.Frame(bottom_frame, bg=self.bg)
         control_frame.pack(pady=18)
 
-        self.play_again_btn = tk.Button(control_frame, text="Play Again", command=self.reset_game, state="disabled")
+        self.play_again_btn = tk.Button(control_frame, text="Play Again", command=self.reset_game, state="disabled", font=('Helvetica', 14, 'bold'), bg=self.accent, fg='white', relief='flat', cursor='hand2', padx=10, pady=6)
         self.play_again_btn.pack(side="left", padx=8)
 
-        close_btn = tk.Button(control_frame, text="Close", command=self.close)
-        close_btn.pack(side="left", padx=8)
+        close_btn = tk.Button(control_frame, text="Exit", command=self.close, font=('Helvetica', 14, 'bold'), bg=self.accent, fg='white', relief='flat', cursor='hand2', padx=12, pady=6)
+        close_btn.pack(side="left", padx=10)
 
     def _place_characters(self):
-        font_size = 12
+        font_size = 9
         if getattr(self, "player_item", None):
             self.canvas.delete(self.player_item)
         if getattr(self, "opponent_item", None):
@@ -135,7 +145,7 @@ class RaceGame:
             self.player_x,
             self.lane_y_player,
             text=self.player_art,
-            anchor="nw",
+            anchor="w",
             font=("Courier", font_size),
             fill=self.char_color,
         )
@@ -143,7 +153,7 @@ class RaceGame:
             self.opponent_x,
             self.lane_y_opponent,
             text=self.opponent_art,
-            anchor="nw",
+            anchor="w",
             font=("Courier", font_size),
             fill=self.char_color,
         )
