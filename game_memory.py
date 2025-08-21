@@ -472,7 +472,6 @@ class MemoryGame:
                 cw = self.card_widgets[i]
                 cw["matched"] = True
                 cw["button"].configure(state="disabled")
-                # Matched state: dark green inner rim, brown outer rim
                 cw["canvas"].set_card_colors(cw["canvas"].bg_color, self.colors["dark_green"], self.colors["brown"])
             self.matched_pairs.add(ca["pair_id"])
             if self._is_won():
@@ -487,18 +486,105 @@ class MemoryGame:
 
     def _game_over(self):
         elapsed = int(time.time() - self.start_time)
-        msg = (
+        stats = (
             "🎉 Congratulations! 🎉\n\n"
-            f"You completed the memory game!\n\n"
+            "You completed the memory game!\n\n"
             "📊 Your Stats:\n"
             f"• Moves: {self.moves}\n"
             f"• Time: {elapsed}s\n"
             f"• Pairs: {len(self.matched_pairs)}"
         )
-        if messagebox.askquestion("Game Complete!", msg + "\n\nPlay again?") == "yes":
+
+        # Create custom modal
+        popup = tk.Toplevel(self.root)
+        popup.transient(self.root)
+        popup.grab_set()
+        popup.configure(bg=self.colors["cream"])
+        popup.title("Game Complete!")
+        popup.resizable(False, False)
+
+        # Set fixed size and center the window
+        w, h = 400, 300
+        x = self.root.winfo_rootx() + (self.root.winfo_width() - w) // 2
+        y = self.root.winfo_rooty() + (self.root.winfo_height() - h) // 2
+        popup.geometry(f"{w}x{h}+{x}+{y}")
+
+        # Stats label (centered)
+        stats_label = tk.Label(
+            popup,
+            text=stats,
+            font=("Helvetica", 14, "bold"),
+            bg=self.colors["cream"],
+            fg=self.colors["dark_green"],
+            justify="center",
+            wraplength=360
+        )
+        stats_label.place(relx=0.5, rely=0.35, anchor="center")
+
+        button_container = tk.Frame(popup, bg=self.colors["cream"])
+        button_container.place(relx=0.5, rely=0.8, anchor="center")
+
+        btn_font = font.Font(family="Helvetica", size=11, weight="bold")
+
+        def create_popup_button(parent, text, command):
+
+            outer = tk.Frame(parent, bg=self.colors["brown"])
+
+            inner = tk.Frame(outer, bg=self.colors["sage"])
+
+            btn = tk.Button(
+                inner,
+                text=text,
+                font=btn_font,
+                bg=self.colors["sage"],
+                fg=self.colors["dark_green"],
+                activebackground=self.colors["lime"],
+                activeforeground=self.colors["dark_green"],
+                relief="flat",
+                bd=0,
+                padx=18,
+                pady=10,
+                cursor="hand2",
+                command=command,
+            )
+
+            btn.pack(expand=True, fill="both", padx=2, pady=2)
+
+            inner.pack(expand=True, fill="both", padx=3, pady=3)
+
+            outer.pack(side="left", padx=10)
+
+            def on_enter(_):
+                btn.configure(bg=self.colors["lime"])
+                inner.configure(bg=self.colors["lime"])
+
+            def on_leave(_):
+                btn.configure(bg=self.colors["sage"])
+                inner.configure(bg=self.colors["sage"])
+
+            btn.bind("<Enter>", on_enter)
+            btn.bind("<Leave>", on_leave)
+
+            return btn
+
+        def restart_and_close():
+            popup.destroy()
             self.reset_game()
-        else:
+
+        def menu_and_close():
+            popup.destroy()
             self.return_to_main_menu()
+
+        create_popup_button(button_container, "🔄 New Game", restart_and_close)
+        create_popup_button(button_container, "← Back to Menu", menu_and_close)
+
+        #keyboard shortcuts
+        popup.bind('<Return>', lambda e: restart_and_close())
+        popup.bind('<Escape>', lambda e: menu_and_close())
+
+        popup.focus_set()
+
+        popup.wait_window()
 
     # ------------------------ utilities / timers --------------------------
     def _after(self, ms, fn):

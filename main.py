@@ -1,4 +1,3 @@
-# main.py
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 from flashcards import FlashcardManager
