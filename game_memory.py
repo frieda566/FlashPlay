@@ -217,6 +217,10 @@ class MemoryGame:
             w.destroy()
         button_font = font.Font(family="Helvetica", size=11, weight="bold")
 
+        # Create a container frame to hold both buttons
+        button_container = tk.Frame(self.control_frame, bg=self.colors["cream"])
+        button_container.pack(expand=True)
+
         def card_button(parent, text, command):
             outer = tk.Frame(parent, bg=self.colors["brown"])
             inner = tk.Frame(outer, bg=self.colors["sage"])
@@ -251,8 +255,8 @@ class MemoryGame:
             btn.bind("<Leave>", on_leave)
             return btn
 
-        card_button(self.control_frame, "🔄 New Game", self.reset_game)
-        card_button(self.control_frame, "← Back to Menu", self.return_to_main_menu)
+        card_button(button_container, "🔄 New Game", self.reset_game)
+        card_button(button_container, "← Back to Menu", self.return_to_main_menu)
 
     # --------------------------- data ------------------------------------
     def _prepare_cards(self):
