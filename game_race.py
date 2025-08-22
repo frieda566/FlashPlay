@@ -35,11 +35,11 @@ class RaceGame:
         self.window.geometry("1200x800")
         self.window.configure(bg="#F7F6F0")
 
-        self.bg = "#F7F6F0"
+        self.bg = "#F6E8B1"
         self.track_bg = "#E6F0D9"
         self.accent = "#C8E3B0"
         self.finish_color = "#6A8F56"
-        self.char_color = "red"
+        self.char_color = "green"
 
         self.canvas_width = 1100
         self.canvas_height = 420
@@ -119,7 +119,7 @@ class RaceGame:
         self.answer_entry.pack(side="left", padx=(0, 10))
         self.answer_entry.bind("<Return>", lambda e: self.submit_answer())
 
-        submit_btn = tk.Button(entry_frame, text="Submit", command=self.submit_answer, font=("Helvetica", 14, 'bold'), bg=self.accent)
+        submit_btn = tk.Button(entry_frame, text="Submit", command=self.submit_answer, font=("Helvetica", 14, 'bold'), bg=self.accent, cursor="hand2")
         submit_btn.pack(side="left")
 
         self.info_label = tk.Label(bottom_frame, text="Answer as fast as you can! (≤8s = faster)", font=("Helvetica", 12), bg=self.bg)

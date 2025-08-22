@@ -27,6 +27,13 @@ class FlashcardManager:
         )
         self.conn.commit()
 
+    def update_flashcard(self, flashcard_id: int, new_term: str, new_translation: str):
+        self.cursor.execute(
+            'UPDATE flashcards SET term = ?, translation = ? WHERE id = ?',
+            (new_term, new_translation, flashcard_id)
+        )
+        self.conn.commit()
+
     def delete_flashcard(self, flashcard_id: int):
         self.cursor.execute('DELETE FROM flashcards WHERE id = ?', (flashcard_id,))
         self.conn.commit()

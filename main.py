@@ -5,7 +5,6 @@ from game_memory import MemoryGame
 from game_race import RaceGame
 from deep_translator import GoogleTranslator
 
-
 class FlashcardApp:
     def __init__(self, root):
         self.root = root
