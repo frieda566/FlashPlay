@@ -20,6 +20,8 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
         art = buf.getvalue()
     finally:
         sys.stdout = old
+
+    art = art.replace("meow", "").replace("woof", "")
     return art or placeholder
 
 class RaceGame:
@@ -54,6 +56,10 @@ class RaceGame:
         self.player_fast = 120
         self.player_slow = 60
         self.running = True
+
+        self.start_time = time.time()
+        self.moves = 0
+        self.correct_terms = []
 
         self.player_art = get_ascii_art("cat")
         self.opponent_art = get_ascii_art("dog")
@@ -136,11 +142,15 @@ class RaceGame:
 
     def _place_characters(self):
         font_size = 9
-        if getattr(self, "player_item", None):
-            self.canvas.delete(self.player_item)
-        if getattr(self, "opponent_item", None):
-            self.canvas.delete(self.opponent_item)
+        label_font_size = 14
+        label_offset = 60  # distance below ASCII art
 
+        # Remove previous items if they exist
+        for attr in ("player_item", "opponent_item", "player_label", "opponent_label"):
+            if getattr(self, attr, None):
+                self.canvas.delete(getattr(self, attr))
+
+        # Draw ASCII art
         self.player_item = self.canvas.create_text(
             self.player_x,
             self.lane_y_player,
@@ -156,6 +166,24 @@ class RaceGame:
             anchor="w",
             font=("Courier", font_size),
             fill=self.char_color,
+        )
+
+        # Draw labels below each character with color scheme
+        self.player_label = self.canvas.create_text(
+            self.player_x,
+            self.lane_y_player + label_offset,
+            text="You",
+            anchor="w",
+            font=("Helvetica", label_font_size, "bold"),
+            fill=self.char_color  # same green as ASCII art
+        )
+        self.opponent_label = self.canvas.create_text(
+            self.opponent_x,
+            self.lane_y_opponent + label_offset,
+            text="Your Opponent",
+            anchor="w",
+            font=("Helvetica", label_font_size, "bold"),
+            fill=self.finish_color  # soft earthy green to match scheme
         )
 
         self.canvas.update()
@@ -218,10 +246,16 @@ class RaceGame:
             messagebox.showinfo("No answer", "Please enter a translation (or Close to stop).", parent=self.window)
             return
 
+        # Track move
+        self.moves += 1
+
         self.answer_entry.config(state="disabled")
         elapsed = time.time() - self.question_start_time
 
         if user.lower() == correct.lower():
+            # Track correct flashcard before next_flashcard()
+            self.correct_terms.append(self.current_flashcard[0])
+
             if elapsed <= 8:
                 move_px = self.player_fast
                 self.info_label.config(text=f"Correct! Quick answer (+{move_px}px).")
@@ -279,6 +313,18 @@ class RaceGame:
             self._end_game("Opponent (Dragon) wins. Try again!")
             return
 
+    def _game_over(self):
+        elapsed = int(time.time() - self.start_time)
+        stats = (
+            "🎉 Congratulations! 🎉\n\n"
+            "You completed the memory game!\n\n"
+            "📊 Your Stats:\n"
+            f"• Moves: {self.moves}\n"
+            f"• Time: {elapsed}s\n"
+            f"• Correct Terms: {len(self.correct_terms)}"
+        )
+        messagebox.showinfo("Game Over", stats, parent=self.window)
+
     def _end_game(self, message):
         if self._opponent_after_id:
             try:
@@ -290,6 +336,9 @@ class RaceGame:
         messagebox.showinfo("Race Over", message, parent=self.window)
         self.play_again_btn.config(state="normal")
         self.answer_entry.config(state="disabled")
+
+        # Call game over stats
+        self._game_over()
 
     def reset_game(self):
         self.play_again_btn.config(state="disabled")
