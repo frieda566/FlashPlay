@@ -27,7 +27,7 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
 class RaceGame:
     def __init__(self, parent, flashcards):
         self.parent = parent
-        self.flashcards = flashcards or []
+        self.flashcards = flashcards
         if not self.flashcards:
             messagebox.showinfo("No flashcards", "No flashcards found. Add some before playing.", parent=self.parent)
             return
@@ -36,6 +36,14 @@ class RaceGame:
         self.window.title("Flashcard Race Game")
         self.window.geometry("1200x800")
         self.window.configure(bg="#F7F6F0")
+
+        self.colors = {
+            "cream": "#F7F6F0",
+            "brown": "#8B5E3C",
+            "sage": "#C8E3B0",
+            "lime": "#A8D08D",
+            "dark_green": "#4A6340"
+        }
 
         self.bg = "#F6E8B1"
         self.track_bg = "#E6F0D9"
@@ -125,8 +133,16 @@ class RaceGame:
         self.answer_entry.pack(side="left", padx=(0, 10))
         self.answer_entry.bind("<Return>", lambda e: self.submit_answer())
 
-        submit_btn = tk.Button(entry_frame, text="Submit", command=self.submit_answer, font=("Helvetica", 14, 'bold'), bg=self.accent, cursor="hand2")
-        submit_btn.pack(side="left")
+        self.submit_btn = self.create_styled_button(
+            entry_frame,
+            "Submit",
+            self.submit_answer,
+            width=12,  # adjust width so it doesn’t look oversized
+            is_primary=True,  # styled like "Play Again" and "Exit"
+            side="left",
+            padx=0,
+            pady=0
+        )
 
         self.info_label = tk.Label(bottom_frame, text="Answer as fast as you can! (≤8s = faster)", font=("Helvetica", 12), bg=self.bg)
         self.info_label.pack(pady=(12, 0))
@@ -134,11 +150,74 @@ class RaceGame:
         control_frame = tk.Frame(bottom_frame, bg=self.bg)
         control_frame.pack(pady=18)
 
-        self.play_again_btn = tk.Button(control_frame, text="Play Again", command=self.reset_game, state="disabled", font=('Helvetica', 14, 'bold'), bg=self.accent, fg='white', relief='flat', cursor='hand2', padx=10, pady=6)
-        self.play_again_btn.pack(side="left", padx=8)
+        self.play_again_btn = self.create_styled_button(control_frame, "Play Again", self.reset_game, width=15, is_primary=True, side="left", padx=8, pady=0)
+        self.back_btn = self.create_styled_button(control_frame, "Back to Menu", self.back_to_menu, width=15, is_primary=False, side="left", padx=8, pady=0)
+        close_btn = self.create_styled_button(control_frame, "Exit", self.close, width=15, is_primary=False, side="left", padx=8, pady=0)
 
-        close_btn = tk.Button(control_frame, text="Exit", command=self.close, font=('Helvetica', 14, 'bold'), bg=self.accent, fg='white', relief='flat', cursor='hand2', padx=12, pady=6)
-        close_btn.pack(side="left", padx=10)
+    def create_styled_button(self, parent, text, command, width=25, is_primary=True,
+                             side="top", padx=0, pady=8):
+        """Create a styled button (can go side by side with side='left' or 'right')"""
+        import tkinter.font as font
+
+        # Button container (sits in the layout)
+        button_container = tk.Frame(parent, bg=self.colors["cream"])
+        button_container.pack(side=side, padx=padx, pady=pady)
+
+        # Shadow layer
+        outer_frame = tk.Frame(button_container, bg=self.colors["brown"])
+        outer_frame.pack()
+
+        # Inner frame
+        bg_color = self.colors["sage"] if is_primary else self.colors["lime"]
+        inner_frame = tk.Frame(outer_frame, bg=bg_color)
+        inner_frame.pack(padx=3, pady=3)
+
+        # The actual button
+        button_font = font.Font(family="Helvetica", size=12, weight="bold")
+        btn = tk.Button(
+            inner_frame,
+            text=text,
+            font=button_font,
+            bg=bg_color,
+            fg=self.colors["dark_green"],
+            activebackground=self.colors["lime"] if is_primary else self.colors["sage"],
+            activeforeground=self.colors["dark_green"],
+            relief="flat",
+            bd=0,
+            width=width,
+            pady=12,
+            cursor="hand2",
+            command=command
+        )
+        btn.pack(padx=4, pady=4)
+
+        return btn
+
+    def back_to_menu(self):
+        # cancel timers (like in close)
+        if hasattr(self, "_opponent_after_id") and self._opponent_after_id:
+            try:
+                self.window.after_cancel(self._opponent_after_id)
+            except Exception:
+                pass
+            self._opponent_after_id = None
+
+        if hasattr(self, "_timeout_after_id") and self._timeout_after_id:
+            try:
+                self.window.after_cancel(self._timeout_after_id)
+            except Exception:
+                pass
+            self._timeout_after_id = None
+
+        # show the parent window (main menu) again
+        if self.parent is not None:
+            try:
+                self.parent.deiconify()
+            except Exception:
+                pass
+
+        # close this game window
+        self.window.destroy()
 
     def _place_characters(self):
         font_size = 9
