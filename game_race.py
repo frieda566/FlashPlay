@@ -461,7 +461,7 @@ class RaceGame:
             return
         elif self.opponent_x + margin >= self.finish_x:
             self.running = False
-            self._end_game("Opponent (Dragon) wins. Try again!")
+            self._end_game("Opponent wins. Try again!")
             return
 
     def _game_over(self):
