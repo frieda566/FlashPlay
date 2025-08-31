@@ -4,6 +4,7 @@ from flashcards import FlashcardManager
 from game_memory import MemoryGame
 from game_race import RaceGame
 from deep_translator import GoogleTranslator
+from streak_plants import PlantTracker
 
 
 class FlashcardApp:
@@ -168,6 +169,12 @@ class FlashcardApp:
         self.create_styled_button(button_frame, "🏃 Play Race Game", self.launch_game_race, is_primary=True)
         self.create_styled_button(button_frame, "⚙️ Manage Flashcards", self.manage_flashcards, is_primary=False)
         self.create_styled_button(button_frame, "❌ Exit", self.root.quit, width=15, is_primary=False)
+
+        plants_frame = tk.Frame(main_frame, bg=self.colors["cream"])
+        plants_frame.pack(pady=10)
+
+        PlantTracker(plants_frame, side="left")
+        PlantTracker(plants_frame, side="right")
 
     def manage_flashcards(self):
         for widget in self.root.winfo_children():
