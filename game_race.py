@@ -1,5 +1,7 @@
 import tkinter as tk
+from logging import root
 from tkinter import messagebox
+from tkinter import font
 import random
 import time
 import io
@@ -29,6 +31,7 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
 class RaceGame:
     def __init__(self, parent, flashcards):
         # initializes the race game window with UI components and game logic
+        self.root = root
         self.parent = parent
         self.flashcards = flashcards
 
@@ -475,7 +478,37 @@ class RaceGame:
             f"• Time: {elapsed}s\n"
             f"• Correct Terms: {len(self.correct_terms)}"
         )
-        messagebox.showinfo("Game Over", stats, parent=self.window)
+
+        # Create custom modal
+        popup = tk.Toplevel(self.window)
+        popup.transient(self.window)
+        popup.grab_set()
+        popup.configure(bg=self.colors["cream"])
+        popup.title("Game Complete!")
+        popup.resizable(False, False)
+
+        # Set fixed size and center the window
+        w, h = 400, 300
+        x = self.window.winfo_rootx() + (self.window.winfo_width() - w) // 2
+        y = self.window.winfo_rooty() + (self.window.winfo_height() - h) // 2
+        popup.geometry(f"{w}x{h}+{x}+{y}")
+
+        # Stats label (centered)
+        stats_label = tk.Label(
+            popup,
+            text=stats,
+            font=("Helvetica", 14, "bold"),
+            bg=self.colors["cream"],
+            fg=self.colors["dark_green"],
+            justify="center",
+            wraplength=360
+        )
+        stats_label.place(relx=0.5, rely=0.35, anchor="center")
+
+        button_container = tk.Frame(popup, bg=self.colors["cream"])
+        button_container.place(relx=0.5, rely=0.8, anchor="center")
+
+        btn_font = font.Font(family="Helvetica", size=11, weight="bold")
 
     def _end_game(self, message):
         # stops the game and shows a game over message
