@@ -1,5 +1,4 @@
 import tkinter as tk
-from logging import root
 from tkinter import messagebox
 from tkinter import font
 import random
@@ -29,7 +28,7 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
 
 
 class RaceGame:
-    def __init__(self, parent, flashcards):
+    def __init__(self, root, parent, flashcards):
         # initializes the race game window with UI components and game logic
         self.root = root
         self.parent = parent
@@ -45,7 +44,7 @@ class RaceGame:
             return
 
         # window setup
-        self.window = tk.Toplevel(self.parent)
+        self.window = tk.Toplevel(self.root)
         self.window.title("Flashcard Race Game")
         self.window.geometry("1200x800")
         self.window.configure(bg="#F6E8B1")
@@ -480,8 +479,8 @@ class RaceGame:
         )
 
         # Create custom modal
-        popup = tk.Toplevel(self.window)
-        popup.transient(self.window)
+        popup = tk.Toplevel(self.root)
+        popup.transient(self.root)
         popup.grab_set()
         popup.configure(bg=self.colors["cream"])
         popup.title("Game Complete!")
@@ -509,6 +508,85 @@ class RaceGame:
         button_container.place(relx=0.5, rely=0.8, anchor="center")
 
         btn_font = font.Font(family="Helvetica", size=11, weight="bold")
+
+        def create_popup_button(parent, text, command):
+
+            outer = tk.Frame(parent, bg=self.colors["brown"])
+
+            inner = tk.Frame(outer, bg=self.colors["sage"])
+
+            btn = tk.Button(
+                inner,
+                text=text,
+                font=btn_font,
+                bg=self.colors["sage"],
+                fg=self.colors["dark_green"],
+                activebackground=self.colors["lime"],
+                activeforeground=self.colors["dark_green"],
+                relief="flat",
+                bd=0,
+                padx=18,
+                pady=10,
+                cursor="hand2",
+                command=command,
+            )
+
+            btn.pack(expand=True, fill="both", padx=2, pady=2)
+
+            inner.pack(expand=True, fill="both", padx=3, pady=3)
+
+            outer.pack(side="left", padx=10)
+
+            def on_enter(_):
+                btn.configure(bg=self.colors["lime"])
+                inner.configure(bg=self.colors["lime"])
+
+            def on_leave(_):
+                btn.configure(bg=self.colors["sage"])
+                inner.configure(bg=self.colors["sage"])
+
+            btn.bind("<Enter>", on_enter)
+            btn.bind("<Leave>", on_leave)
+
+            return btn
+
+        def restart_and_close():
+            popup.destroy()
+            self.reset_game()
+
+        def menu_and_close():
+            popup.destroy()
+            self.return_to_main_menu()
+
+        create_popup_button(button_container, "🔄 New Game", restart_and_close)
+        create_popup_button(button_container, "← Back to Menu", menu_and_close)
+
+        # keyboard shortcuts
+        popup.bind('<Return>', lambda e: restart_and_close())
+        popup.bind('<Escape>', lambda e: menu_and_close())
+
+        popup.focus_set()
+
+        popup.wait_window()
+
+    def return_to_main_menu(self):
+        self._cleanup()
+        try:
+            self.container.destroy()
+        except Exception:
+            pass
+        # restore root state
+        self.root.configure(bg=self._original_bg)
+        self.root.title(self._original_title)
+
+        if callable(self.on_exit):
+            self.on_exit()
+        else:
+            # fallback view if no callback provided
+            for w in self.root.winfo_children():
+                w.destroy()
+            tk.Label(self.root, text="Thanks for playing!", font=("Helvetica", 16),
+                     bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(expand=True)
 
     def _end_game(self, message):
         # stops the game and shows a game over message

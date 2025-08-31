@@ -379,7 +379,7 @@ class FlashcardApp:
     def launch_game_race(self):
         flashcards = self.flashcard_manager.get_all_flashcards()
         if flashcards:
-            RaceGame(self.root, flashcards)
+            RaceGame(self.root, self, flashcards)
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
 
