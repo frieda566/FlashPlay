@@ -28,11 +28,16 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
 
 
 class RaceGame:
-    def __init__(self, root, parent, flashcards):
+    def __init__(self, root, parent, flashcards, on_exit=None):
         # initializes the race game window with UI components and game logic
         self.root = root
         self.parent = parent
         self.flashcards = flashcards
+        self.on_exit = on_exit
+
+        # remember original root state to restore after exit
+        self._original_bg = self.root.cget("bg")
+        self._original_title = self.root.title()
 
         # exit early if no flashcards are provided
         if not self.flashcards:
@@ -57,6 +62,10 @@ class RaceGame:
             "lime": "#A8D08D",
             "dark_green": "#4A6340"
         }
+
+        # container: only child of root while game is active (use pack here)
+        self.container = tk.Frame(self.root, bg=self.colors["cream"])  # isolate layout
+        self.container.pack(fill="both", expand=True)
 
         # game UI and track parameters
         self.bg = "#F6E8B1"
@@ -556,7 +565,7 @@ class RaceGame:
 
         def menu_and_close():
             popup.destroy()
-            self.return_to_main_menu()
+            self.back_to_menu()
 
         create_popup_button(button_container, "🔄 New Game", restart_and_close)
         create_popup_button(button_container, "← Back to Menu", menu_and_close)
@@ -569,7 +578,27 @@ class RaceGame:
 
         popup.wait_window()
 
+    def _cleanup(self):
+        # cancel all scheduled jobs (opponent + timeout timers)
+
+        # cancel timers (like in close)
+        if getattr(self, "_opponent_after_id", None):
+            try:
+                self.window.after_cancel(self._opponent_after_id)
+            except Exception:
+                pass
+            self.opponent_after_id = None
+
+        if getattr(self, "_timeout_after_id", None):
+            try:
+                self.window.after_cancel(self._timeout_after_id)
+            except Exception:
+                pass
+            self.timeout_after_id = None
+
+    # root-level cleanup
     def return_to_main_menu(self):
+        # cleanup and restore the root app window
         self._cleanup()
         try:
             self.container.destroy()
@@ -585,8 +614,31 @@ class RaceGame:
             # fallback view if no callback provided
             for w in self.root.winfo_children():
                 w.destroy()
-            tk.Label(self.root, text="Thanks for playing!", font=("Helvetica", 16),
-                     bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(expand=True)
+            tk.Label(
+                self.root,
+                text="Thanks for playing!",
+                font=("Helvetica", 16),
+                bg=self.colors["cream"],
+                fg=self.colors["dark_green"]
+            ).pack(expand=True)
+
+    # window level cleanup
+    def back_to_menu(self):
+        # close game window, then restore main menu via return_to_main_menu
+        self._cleanup()
+
+        # show parent window again (main menu)
+        if self.parent is not None:
+            try:
+                self.parent.deiconify()
+            except Exception:
+                pass
+
+        # close the game window
+        try:
+            self.window.destroy()
+        except Exception:
+            pass
 
     def _end_game(self, message):
         # stops the game and shows a game over message
@@ -612,34 +664,9 @@ class RaceGame:
         self.player_x = self.start_x
         self.opponent_x = self.start_x
         self._place_characters()
+        # start fresh race
         self.window.after(300, self.start_race)
 
-    def back_to_menu(self):
-        # returns to main menu
 
-        # cancel timers (like in close)
-        if hasattr(self, "_opponent_after_id") and self._opponent_after_id:
-            try:
-                self.window.after_cancel(self._opponent_after_id)
-            except Exception:
-                pass
-            self._opponent_after_id = None
-
-        if hasattr(self, "_timeout_after_id") and self._timeout_after_id:
-            try:
-                self.window.after_cancel(self._timeout_after_id)
-            except Exception:
-                pass
-            self._timeout_after_id = None
-
-        # show the parent window (main menu) again
-        if self.parent is not None:
-            try:
-                self.parent.deiconify()
-            except Exception:
-                pass
-
-        # close this game window
-        self.window.destroy()
 
 
