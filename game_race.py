@@ -92,6 +92,7 @@ class RaceGame:
         self.running = True
         self.start_time = time.time()
         self.moves = 0
+        self.time_elapsed = 0
         self.correct_terms = []
 
         # load ASCII characters
@@ -100,6 +101,8 @@ class RaceGame:
 
         # build UI
         self._build_ui()
+
+        self._after_jobs = set()  # track after() ids for clean cancel
 
         # initial positions
         self.player_x = self.start_x
@@ -126,6 +129,18 @@ class RaceGame:
             fg=self.colors["dark_green"],
         )
         title_label.pack(pady=(20, 10))
+
+        info = tk.Frame(self.container, bg=self.colors["cream"])
+        info.grid(row=1, column=0, sticky="ew", pady=(0, 6))
+        info_font = font.Font(family="Helvetica", size=12)
+        self.moves_label = tk.Label(
+            info, text="Moves: 0", font=info_font, bg=self.colors["cream"], fg=self.colors["dark_green"]
+        )
+        self.time_label = tk.Label(
+            info, text="Time: 0s", font=info_font, bg=self.colors["cream"], fg=self.colors["dark_green"]
+        )
+        self.moves_label.pack(side="left", padx=16)
+        self.time_label.pack(side="right", padx=16)
 
         # top frame for racetrack
         top_frame = tk.Frame(self.window, bg=self.track_bg)
@@ -229,7 +244,7 @@ class RaceGame:
 
         self.back_btn = self.create_styled_button(
             control_frame, "← Back to Menu",
-            self.back_to_menu,
+            self.return_to_main_menu,
             width=15,
             is_primary=True,
             side="left",
@@ -334,6 +349,7 @@ class RaceGame:
         self._place_characters()
         self.next_flashcard()
         self._schedule_opponent_move()
+        self.update_timer()
 
     def next_flashcard(self):
         # picks the next flashcard, avoiding repetition of the last one
@@ -468,14 +484,17 @@ class RaceGame:
         margin = 30
         if self.player_x + margin >= self.finish_x:
             self.running = False
-            self._end_game("You win! 🎉")
-            return
+            self._cleanup()
+            self._game_over("You win! 🎉")
         elif self.opponent_x + margin >= self.finish_x:
             self.running = False
-            self._end_game("Opponent wins. Try again!")
-            return
+            self._cleanup()
+            self._game_over("Opponent wins. Try again!")
 
-    def _game_over(self):
+    def _game_over(self, message=''):
+        if message:
+            messagebox.showinfo('Game Over', message, parent=self.window)
+
         # displays final stats in a message box
         elapsed = int(time.time() - self.start_time)
         stats = (
@@ -487,7 +506,7 @@ class RaceGame:
             f"• Correct Terms: {len(self.correct_terms)}"
         )
 
-        # Create custom modal
+        # Create popup window
         popup = tk.Toplevel(self.root)
         popup.transient(self.root)
         popup.grab_set()
@@ -519,11 +538,8 @@ class RaceGame:
         btn_font = font.Font(family="Helvetica", size=11, weight="bold")
 
         def create_popup_button(parent, text, command):
-
             outer = tk.Frame(parent, bg=self.colors["brown"])
-
             inner = tk.Frame(outer, bg=self.colors["sage"])
-
             btn = tk.Button(
                 inner,
                 text=text,
@@ -539,11 +555,8 @@ class RaceGame:
                 cursor="hand2",
                 command=command,
             )
-
             btn.pack(expand=True, fill="both", padx=2, pady=2)
-
             inner.pack(expand=True, fill="both", padx=3, pady=3)
-
             outer.pack(side="left", padx=10)
 
             def on_enter(_):
@@ -556,7 +569,6 @@ class RaceGame:
 
             btn.bind("<Enter>", on_enter)
             btn.bind("<Leave>", on_leave)
-
             return btn
 
         def restart_and_close():
@@ -565,7 +577,7 @@ class RaceGame:
 
         def menu_and_close():
             popup.destroy()
-            self.back_to_menu()
+            self.return_to_main_menu()
 
         create_popup_button(button_container, "🔄 New Game", restart_and_close)
         create_popup_button(button_container, "← Back to Menu", menu_and_close)
@@ -575,13 +587,20 @@ class RaceGame:
         popup.bind('<Escape>', lambda e: menu_and_close())
 
         popup.focus_set()
-
         popup.wait_window()
 
-    def _cleanup(self):
-        # cancel all scheduled jobs (opponent + timeout timers)
+    def _after(self, ms, fn):
+        jid = None
+        def wrapper():
+            self._after_jobs.discard(jid)
+            fn()
+        jid = self.root.after(ms, wrapper)
+        self._after_jobs.add(jid)
+        return jid
 
-        # cancel timers (like in close)
+    def _cleanup(self):
+        self.running = False
+        # cancel all scheduled jobs (opponent + timeout timers)
         if getattr(self, "_opponent_after_id", None):
             try:
                 self.window.after_cancel(self._opponent_after_id)
@@ -622,40 +641,6 @@ class RaceGame:
                 fg=self.colors["dark_green"]
             ).pack(expand=True)
 
-    # window level cleanup
-    def back_to_menu(self):
-        # close game window, then restore main menu via return_to_main_menu
-        self._cleanup()
-
-        # show parent window again (main menu)
-        if self.parent is not None:
-            try:
-                self.parent.deiconify()
-            except Exception:
-                pass
-
-        # close the game window
-        try:
-            self.window.destroy()
-        except Exception:
-            pass
-
-    def _end_game(self, message):
-        # stops the game and shows a game over message
-        if self._opponent_after_id:
-            try:
-                self.window.after_cancel(self._opponent_after_id)
-            except Exception:
-                pass
-            self._opponent_after_id = None
-
-        messagebox.showinfo("Race Over", message, parent=self.window)
-        self.play_again_btn.config(state="normal")
-        self.answer_entry.config(state="disabled")
-
-        # call game over stats
-        self._game_over()
-
     def reset_game(self):
         # resets the game to initial state for a new race
         self.play_again_btn.config(state="disabled")
@@ -667,6 +652,13 @@ class RaceGame:
         # start fresh race
         self.window.after(300, self.start_race)
 
+    def update_timer(self):
+        if not self.running:
+            return
+        self.time_elapsed += 1
+        if self.time_label.winfo_exists():
+            self.time_label.config(text=f"Time: {self.time_elapsed}s")
+            self._after(1000, self.update_timer) # update every 1s
 
 
 

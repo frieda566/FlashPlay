@@ -26,3 +26,9 @@ Through e.g. tk.Button() you were able to create a Button and modify it within t
         online meeting together, planing next steps. Paula is reponsible for designing the main.py interface and Frieda is reosposible for the flashcards.py interface
         major problem: Frieda cannot push the old repository and therfore no updates accour. Trying several approchaces to fix the bug however nothing works. No Reddit Account and no AI ChatBot was able to help us -> created a new repositories only way we were able to fix the problem
   - Problem: Flashcard editing not possible
+  - 21. August 
+        online meeting together 
+  - 31. August 
+        online meeting together 
+  - 07. September 
+        online meeting together 
