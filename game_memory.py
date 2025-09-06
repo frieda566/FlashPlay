@@ -111,10 +111,11 @@ class RoundedCard(tk.Canvas):
 
 
 class MemoryGame:
-    def __init__(self, root, flashcards, on_exit=None):
+    def __init__(self, root, flashcards, on_exit=None, on_streak=None):
         self.root = root
         self.flashcards = flashcards  # list of (id, term, translation)
         self.on_exit = on_exit
+        self.on_streak = on_streak
 
         # remember original root state to restore after exit
         self._original_bg = self.root.cget("bg")
@@ -489,6 +490,11 @@ class MemoryGame:
         return len(self.matched_pairs) == total
 
     def _game_over(self):
+
+        if self.on_streak:
+            self.on_streak(success=True)
+        self._game_over()
+
         elapsed = int(time.time() - self.start_time)
         stats = (
             "🎉 Congratulations! 🎉\n\n"

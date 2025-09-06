@@ -28,12 +28,13 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
 
 
 class RaceGame:
-    def __init__(self, root, parent, flashcards, on_exit=None):
+    def __init__(self, root, parent, flashcards, on_exit=None, on_streak=None):
         # initializes the race game window with UI components and game logic
         self.root = root
         self.parent = parent
         self.flashcards = flashcards
         self.on_exit = on_exit
+        self.on_streak = on_streak
 
         # remember original root state to restore after exit
         self._original_bg = self.root.cget("bg")
@@ -491,10 +492,70 @@ class RaceGame:
             self._cleanup()
             self._game_over("Opponent wins. Try again!")
 
+    def _end_game(self, message=""):
+        try:
+            if self.answer_entry.winfo_exists():
+                self.answer_entry.config(state='disabled')
+        except Exception:
+            pass
+
+        try:
+            if self.play_again_btn.winfo_exists():
+                self.play_again_btn.config(state='normal')
+        except Exception:
+            pass
+
+        # stop race updates
+        if hasattr(self, '_after_job'):
+            try:
+                self.window.after_cancel(self._after_job)
+            except Exception:
+                pass
+            self._after_job = None
+
+        # Cancel opponent timer
+        if getattr(self, "_opponent_after_id", None):
+            try:
+                self.window.after_cancel(self._opponent_after_id)
+            except Exception:
+                pass
+            self._opponent_after_id = None
+
+        # Cancel timeout timer
+        if getattr(self, "_timeout_after_id", None):
+            try:
+                self.window.after_cancel(self._timeout_after_id)
+            except Exception:
+                pass
+            self._timeout_after_id = None
+
+        # Disable input fields and enable play again button
+        if hasattr(self, "answer_entry") and self.answer_entry.winfo_exists():
+            self.answer_entry.config(state="disabled")
+        if hasattr(self, "play_again_btn") and self.play_again_btn.winfo_exists():
+            self.play_again_btn.config(state="normal")
+
+        # Notify player with message (if provided)
+        if message:
+            messagebox.showinfo("Game Over", message, parent=self.window)
+
+        # Update streak
+        if self.on_streak:
+            self.on_streak(success=True)
+
+        # Finally show stats popup
+        self._game_over_popup()
+
     def _game_over(self, message=''):
         if message:
             messagebox.showinfo('Game Over', message, parent=self.window)
 
+        if self.on_streak:
+            self.on_streak(success=True)
+
+        self._end_game()
+
+    def _game_over_popup(self):
         # displays final stats in a message box
         elapsed = int(time.time() - self.start_time)
         stats = (
@@ -516,8 +577,8 @@ class RaceGame:
 
         # Set fixed size and center the window
         w, h = 400, 300
-        x = self.window.winfo_rootx() + (self.window.winfo_width() - w) // 2
-        y = self.window.winfo_rooty() + (self.window.winfo_height() - h) // 2
+        x = self.root.winfo_rootx() + (self.root.winfo_width() - w) // 2
+        y = self.root.winfo_rooty() + (self.root.winfo_height() - h) // 2
         popup.geometry(f"{w}x{h}+{x}+{y}")
 
         # Stats label (centered)

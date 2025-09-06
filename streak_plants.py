@@ -7,18 +7,17 @@ SAVE_FILE = "streak_data.json"
 
 
 class PlantTracker:
-    def __init__(self, parent, side="left"):
+    def __init__(self, parent, side="left", streak_days=None):
         self.parent = parent
         self.canvas = tk.Canvas(parent, width=80, height=200, bg="#F6E8B1", highlightthickness=0)
-        self.canvas.pack(side=side, padx=20)
-
-        self.streak = 0
+        self.canvas.pack(fill="both", expand=True)
+        self.streak_days = streak_days or 0
+        self.side = side
         self.last_date = None
         self.load_progress()
         self.update_growth()
 
     def load_progress(self):
-        """Load streak progress from JSON file"""
         if os.path.exists(SAVE_FILE):
             try:
                 with open(SAVE_FILE, "r") as f:

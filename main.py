@@ -35,6 +35,7 @@ class FlashcardApp:
         self.filtered_flashcards = []
         self.scrollable_frame = None
         self._canvas_window = None
+        self.streak_days = 0
 
         self.setup_main_menu()
 
@@ -135,6 +136,14 @@ class FlashcardApp:
         )
         return ttk.Scrollbar(parent, orient="vertical", style="Custom.Vertical.TScrollbar")
 
+    def increase_streak(self, success=True):
+        if success:
+            self.streak_days = min(self.streak_days + 1, 20)
+        else:
+            self.streak_days = 0
+        # redraw main menu to refresh the plants
+        self.setup_main_menu()
+
     # Screens
     def setup_main_menu(self):
         for widget in self.root.winfo_children():
@@ -173,8 +182,11 @@ class FlashcardApp:
         plants_frame = tk.Frame(main_frame, bg=self.colors["cream"])
         plants_frame.pack(pady=10)
 
-        PlantTracker(plants_frame, side="left")
-        PlantTracker(plants_frame, side="right")
+        left_plant = PlantTracker(plants_frame, side="left")
+        left_plant.update_growth()  # ensure the plant is drawn
+
+        right_plant = PlantTracker(plants_frame, side="right")
+        right_plant.update_growth()
 
     def manage_flashcards(self):
         for widget in self.root.winfo_children():
@@ -291,7 +303,7 @@ class FlashcardApp:
         row = tk.Frame(parent, bg=self.colors["cream"])
         row.pack(fill="x", pady=4)
 
-        # eactual cards centered
+        # actual cards centered
         card_outer = tk.Frame(row, bg=self.colors["brown"],
                               width=self.FLASHCARD_CARD_WIDTH, height=self.FLASHCARD_CARD_HEIGHT)
         card_outer.pack()
@@ -371,7 +383,7 @@ class FlashcardApp:
             w.destroy()
         flashcards = self.flashcard_manager.get_all_flashcards()
         if flashcards:
-            MemoryGame(self.root, flashcards, on_exit=self.setup_main_menu)
+            MemoryGame(self.root, flashcards, on_exit=self.setup_main_menu, on_streak=self.increase_streak)
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
             self.setup_main_menu()
@@ -379,7 +391,7 @@ class FlashcardApp:
     def launch_game_race(self):
         flashcards = self.flashcard_manager.get_all_flashcards()
         if flashcards:
-            RaceGame(self.root, self, flashcards)
+            RaceGame(self.root, self, flashcards, on_streak=self.increase_streak)
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
 
