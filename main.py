@@ -177,9 +177,8 @@ class FlashcardApp:
         self.create_styled_button(button_frame, "🧠 Play Memory Game", self.launch_memory_game, is_primary=True)
         self.create_styled_button(button_frame, "🏃 Play Race Game", self.launch_game_race, is_primary=True)
         self.create_styled_button(button_frame, "⚙️ Manage Flashcards", self.manage_flashcards, is_primary=False)
-        self.create_styled_button(button_frame, "❌ Exit", self.root.quit, width=15, is_primary=False)
         self.create_styled_button(button_frame, "!️ Info", self.info, is_primary=False)
-
+        self.create_styled_button(button_frame, "❌ Exit", self.root.quit, width=15, is_primary=False)
 
         plants_frame = tk.Frame(main_frame, bg=self.colors["cream"])
         plants_frame.pack(pady=10)
@@ -191,13 +190,37 @@ class FlashcardApp:
         right_plant.update_growth()
 
     def info(self):
-
-        # Import and get the info text from separate file
+        # Create and display an info window with explanatory text from separate file
         try:
             import info
-            info_text = info.get_app_info()
-        except (ImportError, AttributeError) as e:
-            messagebox.showerror("Error", f"Could not load information: {str(e)}")
+            print("✓ Successfully imported info module")
+
+            # Check if the function exists
+            if hasattr(info, 'get_app_info'):
+                info_text = info.get_app_info()
+                print("✓ Successfully got app info from function")
+            else:
+                print("✗ get_app_info function not found in info module")
+                # Try alternative attribute names
+                if hasattr(info, 'INFO_TEXT'):
+                    info_text = info.INFO_TEXT
+                    print("✓ Found INFO_TEXT variable instead")
+                else:
+                    print("✗ No INFO_TEXT variable found either")
+                    raise AttributeError("No info content found")
+
+        except ImportError as e:
+            print(f"✗ Could not import info module: {e}")
+            messagebox.showerror("Import Error",
+                                 f"Could not import info module: {str(e)}\n\nMake sure info.py is in the same folder as main.py")
+            return
+        except AttributeError as e:
+            print(f"✗ Attribute error: {e}")
+            messagebox.showerror("Content Error", f"Info module found but content missing: {str(e)}")
+            return
+        except Exception as e:
+            print(f"✗ Unexpected error: {e}")
+            messagebox.showerror("Unexpected Error", f"Unexpected error loading info: {str(e)}")
             return
 
         # Create a new window
@@ -281,8 +304,12 @@ class FlashcardApp:
         def on_mousewheel(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
+        # Bind to multiple widgets for better scrolling
         canvas.bind("<MouseWheel>", on_mousewheel)
         info_window.bind("<MouseWheel>", on_mousewheel)
+        text_container.bind("<MouseWheel>", on_mousewheel)
+        inner_frame.bind("<MouseWheel>", on_mousewheel)
+        main_container.bind("<MouseWheel>", on_mousewheel)
 
         # Close button with existing styling
         button_container = tk.Frame(inner_frame, bg=self.colors["cream"])
@@ -429,12 +456,12 @@ class FlashcardApp:
 
         def _on_mousewheel(event):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-        canvas.bind("<MouseWheel>", _on_mousewheel)
 
-        # loading data
-        self.all_flashcards = self.flashcard_manager.get_all_flashcards()
-        self.search_var.set("")
-        self.root.after(50, self.update_flashcard_display)
+        # Bind to multiple widgets for better scrolling
+        canvas.bind("<MouseWheel>", _on_mousewheel)
+        scrollable_container.bind("<MouseWheel>", _on_mousewheel)
+        main_frame.bind("<MouseWheel>", _on_mousewheel)
+        self.root.bind("<MouseWheel>", _on_mousewheel)
 
     # Card item
 
