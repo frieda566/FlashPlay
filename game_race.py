@@ -63,7 +63,7 @@ class RaceGame:
         self.track_bg = "#E6F0D9"
         self.accent = "#C8E3B0"
         self.finish_color = "#6A8F56"
-        self.char_color = ["dark_green"]
+        self.char_color = self.colors["dark_green"]
 
         self.canvas_width = 1100
         self.canvas_height = 420
@@ -103,9 +103,12 @@ class RaceGame:
 
         # build UI and start
         self._build_ui()
-        self._place_characters()
-        # small delay so layout is ready
-        self._after(200, self.start_race)
+        # ensure the container is on top and realized before drawing
+        self.container.update_idletasks()
+        self.container.tkraise()
+        # delay placing characters and start_race so canvas is mapped
+        self._after(100, self._place_characters)
+        self._after(250, self.start_race)
 
     # -------------------------- layout -----------------------------------
     def _build_ui(self):
@@ -221,6 +224,8 @@ class RaceGame:
         self.control_frame = tk.Frame(self.container, bg=self.colors["cream"])  # row 3
         self.control_frame.grid(row=6, column=0, sticky="ew", pady=(0, 12))
         self._build_controls()
+
+        print("Race UI built — children:", [c.winfo_class() for c in self.container.winfo_children()])
 
     def _build_controls(self):
         for w in self.control_frame.winfo_children():
@@ -361,6 +366,7 @@ class RaceGame:
     def start_race(self):
         # resets positions and starts the race with first flashcard
         self.running = True
+        self.start_time = time.time()
         self.moves = 0
         self.time_elapsed = 0
         self.correct_terms = []
@@ -446,7 +452,7 @@ class RaceGame:
 
         # track move
         self.moves += 1
-        self._update_moves_label
+        self._update_moves_label()
 
         self.answer_entry.config(state="disabled")
         elapsed = time.time() - self.question_start_time
@@ -525,13 +531,15 @@ class RaceGame:
                 self.root.after_cancel(self._opponent_after_id)
             except Exception:
                 pass
-            self.opponent_after_id = None
+            self._opponent_after_id = None
+
         if self._timeout_after_id:
            try:
-               self.root.after_cancel(self._timeout_after_id)
-            except Exception:
+                self.root.after_cancel(self._timeout_after_id)
+           except Exception:
                 pass
-            self._timeout_after_id = None
+           self._timeout_after_id = None
+
         for jid in list(self._after_jobs):
             try:
                 self.root.after_cancel(jid)
@@ -564,7 +572,7 @@ class RaceGame:
 
     def _game_over(self, message=''):
         if message:
-            messagebox.showinfo('Game Over', message, parent=self.window)
+            messagebox.showinfo('Game Over', message, parent=self.root)
 
         if self.on_streak:
             self.on_streak(success=True)
@@ -656,8 +664,10 @@ class RaceGame:
             popup.destroy()
             self.return_to_main_menu()
 
-        create_popup_button(button_container, "🔄 New Game", restart_and_close)
-        create_popup_button(button_container, "← Back to Menu", menu_and_close)
+        btn_row = tk.Frame(popup, bg=self.colors["cream"])
+        btn_row.place(relx=0.5, rely=0.8, anchor="center")
+        create_popup_button(btn_row, "🔄 New Game", restart_and_close)
+        create_popup_button(btn_row, "← Back to Menu", menu_and_close)
 
         # keyboard shortcuts
         popup.bind('<Return>', lambda e: restart_and_close())
@@ -666,6 +676,7 @@ class RaceGame:
         popup.focus_set()
         popup.wait_window()
 
+    # -------------------- utilities -------------------- #
     def _after(self, ms, fn):
         jid = None
         def wrapper():
@@ -675,22 +686,31 @@ class RaceGame:
         self._after_jobs.add(jid)
         return jid
 
+    def _update_moves_label(self):
+        if self.moves_label and self.moves_label.winfo_exists():
+            self.moves_label.config(text=f"Moves: {self.moves}")
+
     def _cleanup(self):
         self.running = False
-        # cancel all scheduled jobs (opponent + timeout timers)
-        if getattr(self, "_opponent_after_id", None):
+        if self._opponent_after_id:
             try:
-                self.window.after_cancel(self._opponent_after_id)
+                self.root.after_cancel(self._opponent_after_id)
             except Exception:
                 pass
-            self.opponent_after_id = None
+            self._opponent_after_id = None
+        if self._timeout_after_id:
+            try:
+                self.root.after_cancel(self._timeout_after_id)
+            except Exception:
+                pass
+            self._timeout_after_id = None
+        for jid in list(self._after_jobs):
+            try:
+                self.root.after_cancel(jid)
+            except Exception:
+                pass
+            self._after_jobs.discard(jid)
 
-        if getattr(self, "_timeout_after_id", None):
-            try:
-                self.window.after_cancel(self._timeout_after_id)
-            except Exception:
-                pass
-            self.timeout_after_id = None
 
     # root-level cleanup
     def return_to_main_menu(self):
@@ -703,7 +723,6 @@ class RaceGame:
         # restore root state
         self.root.configure(bg=self._original_bg)
         self.root.title(self._original_title)
-
         if callable(self.on_exit):
             self.on_exit()
         else:
@@ -720,14 +739,18 @@ class RaceGame:
 
     def reset_game(self):
         # resets the game to initial state for a new race
-        self.play_again_btn.config(state="disabled")
-        self.answer_entry.config(state="normal")
-        self.info_label.config(text="Answer as fast as you can! (≤8s = faster)")
-        self.player_x = self.start_x
-        self.opponent_x = self.start_x
+        self._cleanup()
+        self.start_time = time.time()
+        self.moves = 0
+        self._update_moves_label()
+        if self.answer_entry and self.answer_entry.winfo_exists():
+            self.answer_entry.config(state="normal")
+            self.answer_entry.delete(0, tk.END)
+        if self.info_label and self.info_label.winfo_exists():
+            self.info_label.config(text="Answer as fast as you can! (≤8s = faster)")
         self._place_characters()
         # start fresh race
-        self.window.after(300, self.start_race)
+        self._after(300, self.start_race)
 
     def update_timer(self):
         if not self.running:

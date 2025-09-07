@@ -389,6 +389,8 @@ class FlashcardApp:
             self.setup_main_menu()
 
     def launch_game_race(self):
+        for w in self.root.winfo_children():
+            w.destroy()
         flashcards = self.flashcard_manager.get_all_flashcards()
         if flashcards:
             RaceGame(self.root, self, flashcards, on_streak=self.increase_streak)
