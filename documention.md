@@ -20,15 +20,25 @@ Through e.g. tk.Button() you were able to create a Button and modify it within t
 - crated design within the colorsceme
 - wanted rounded cards
 - wanting cards to flip
+- rim changing color depending on the state
+- different curser when entering the card https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
+- stats at the end
+
+# main.py
+- designign adapting the the rest -> pretty much copying what i did in the memory card game
+- managing flashcards
+  - buttons at the top
+  - search bar
+  - scrolling bar
+  - no doubles
+  - integrated translator
+- 
 
 - Initial research
 - crating an overview on the structure on of the code 
   - Class Memory Game
   - mostly needed to google ones how to do it, then code blocks were also repetative in matter of design
 
-  - sources: cursors https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/cursors.html
-  - 
- 
   - 18. August
         online meeting together, planing next steps. Paula is responsible for designing the main.py interface and Frieda is reosposible for the flashcards.py interface
         major problem: Frieda cannot push the old repository and therefore no updates accur. Trying several approchaces to fix the bug however nothing works. No Reddit Account and no AI ChatBot was able to help us -> created a new repositories only way we were able to fix the problem
