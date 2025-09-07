@@ -51,7 +51,7 @@ class RaceGame:
 
         # Theme
         self.colors = {
-            "cream": "#F7F6F0",
+            "cream": "#F6E8B1",
             "brown": "#8B5E3C",
             "sage": "#C8E3B0",
             "lime": "#A8D08D",
