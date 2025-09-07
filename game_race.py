@@ -32,7 +32,7 @@ class RaceGame:
         # initializes the race game window with UI components and game logic
         self.root = root
         self.parent = parent
-        self.flashcards = flashcards
+        self.flashcards = flashcards or []
         self.on_exit = on_exit
         self.on_streak = on_streak
 
@@ -49,13 +49,7 @@ class RaceGame:
             )
             return
 
-        # window setup
-        self.window = tk.Toplevel(self.root)
-        self.window.title("Flashcard Race Game")
-        self.window.geometry("1200x800")
-        self.window.configure(bg="#F6E8B1")
-
-        # color palette for UI
+        # Theme
         self.colors = {
             "cream": "#F7F6F0",
             "brown": "#8B5E3C",
@@ -64,16 +58,12 @@ class RaceGame:
             "dark_green": "#4A6340"
         }
 
-        # container: only child of root while game is active (use pack here)
-        self.container = tk.Frame(self.root, bg=self.colors["cream"])  # isolate layout
-        self.container.pack(fill="both", expand=True)
-
-        # game UI and track parameters
+        # Track/ UI colors derived from palette
         self.bg = "#F6E8B1"
         self.track_bg = "#E6F0D9"
         self.accent = "#C8E3B0"
         self.finish_color = "#6A8F56"
-        self.char_color = "green"
+        self.char_color = ["dark_green"]
 
         self.canvas_width = 1100
         self.canvas_height = 420
@@ -90,47 +80,58 @@ class RaceGame:
         self.player_slow = 60
 
         # game state
-        self.running = True
+        self.running = False
         self.start_time = time.time()
         self.moves = 0
         self.time_elapsed = 0
         self.correct_terms = []
+        self.current_flashcard = None
+        self.question_start_time = None
+
+        # after() bookkeeping
+        self._after_jobs = set()
+        self._opponent_after_id = None
+        self._timeout_after_id = None
 
         # load ASCII characters
         self.player_art = get_ascii_art("cat")
         self.opponent_art = get_ascii_art("dog")
 
-        # build UI
+        # container: only child of root while game is active (use pack here)
+        self.container = tk.Frame(self.root, bg=self.colors["cream"])  # isolate layout
+        self.container.pack(fill="both", expand=True)
+
+        # build UI and start
         self._build_ui()
-
-        self._after_jobs = set()  # track after() ids for clean cancel
-
-        # initial positions
-        self.player_x = self.start_x
-        self.opponent_x = self.start_x
-        self.current_flashcard = None
-        self.question_start_time = None
-        self._opponent_after_id = None
-        self._timeout_after_id = None
-
-        # place characters on canvas
         self._place_characters()
-        self.window.after(200, self.start_race)
+        # small delay so layout is ready
+        self._after(200, self.start_race)
 
-    # -------------------- UI Methods -------------------- #
+    # -------------------------- layout -----------------------------------
     def _build_ui(self):
         # sets up all UI components including canvas, labels and buttons
+        for w in self.container.winfo_children():
+            w.destroy()
+        self.root.title("FlashPlay - Race Game")
+        self.root.configure(bg=self.colors["cream"])
 
+        # grid inside container; root uses pack -> no pack/ grid mixing
+        self.container.grid_rowconfigure(2, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
+
+        header = tk.Frame(self.container, bg=self.colors["cream"], pady=12)
+        header.grid(row=0, column=0, sticky="ew")
+        title_font = font.Font(family="Helvetica", size=24, weight="bold")
         # Title
-        title_label = tk.Label(
-            self.window,
+        tk.Label(
+            header,
             text="🏁Race Game",
-            font=('Helvetica', 24, "bold"),
-            bg=self.bg,
+            font=title_font,
+            bg=self.colors["cream"],
             fg=self.colors["dark_green"],
-        )
-        title_label.pack(pady=(20, 10))
+        ).pack()
 
+        # info bar (moves & timer)
         info = tk.Frame(self.container, bg=self.colors["cream"])
         info.grid(row=1, column=0, sticky="ew", pady=(0, 6))
         info_font = font.Font(family="Helvetica", size=12)
@@ -143,19 +144,18 @@ class RaceGame:
         self.moves_label.pack(side="left", padx=16)
         self.time_label.pack(side="right", padx=16)
 
-        # top frame for racetrack
-        top_frame = tk.Frame(self.window, bg=self.track_bg)
-        top_frame.pack(fill="both", expand=False, padx=20, pady=(12, 6))
+        # game frame (racetrack)
+        self.game_frame = tk.Frame(self.container, bg=self.track_bg)
+        self.game_frame.grid(row=2, column=0, sticky="nsew", padx=12, pady=12)
 
-        # canvas for drawing racetrack and characters
         self.canvas = tk.Canvas(
-            top_frame,
+            self.game_frame,
             width=self.canvas_width,
             height=self.canvas_height,
             bg=self.track_bg,
             highlightthickness=0,
         )
-        self.canvas.pack(padx=20, pady=8)
+        self.canvas.pack(fill="both", expand=True, padx=10, pady=10)
 
         # draw start and finish lines
         self.canvas.create_text(
@@ -185,79 +185,91 @@ class RaceGame:
                 fill='#c7c7c7', width=2, dash=(10, 8)
             )
 
-        # bottom frame for flashcard and controls
-        bottom_frame = tk.Frame(self.window, bg=self.bg)
-        bottom_frame.pack(fill="both", expand=True, padx=40, pady=(6, 12))
-
-        # flashcard term label
+        # term label (row 3)
         self.term_label = tk.Label(
-            bottom_frame,
+            self.container,
             text="",
             font=("Helvetica", 32, "bold"),
-            bg=self.bg,
+            bg=self.colors["cream"],
             fg="#4a6340",
             wraplength=1000,
-            justify="center"
+            justify="center",
         )
-        self.term_label.pack(pady=(20, 10))
+        self.term_label.grid(row=3, column=0, pady=(6, 6))
 
-        # entry and submit button
-        entry_frame = tk.Frame(bottom_frame, bg=self.bg)
-        entry_frame.pack(pady=8)
-
+        # entry + submit (row 4)
+        entry_frame = tk.Frame(self.container, bg=self.colors["cream"])
+        entry_frame.grid(row=4, column=0, pady=(0, 12))
         self.answer_entry = tk.Entry(entry_frame, font=("Helvetica", 20), width=30)
         self.answer_entry.pack(side="left", padx=(0, 10))
         self.answer_entry.bind("<Return>", lambda e: self.submit_answer())
-
         self.submit_btn = self.create_styled_button(
-            entry_frame,
-            "Submit",
-            self.submit_answer,
-            width=15,  # adjust width so it doesn’t look oversized
-            is_primary=True,  # styled like "Play Again" and "Exit"
-            side="left",
-            padx=8,
-            pady=0
+            entry_frame, "Submit", self.submit_answer, width=15, is_primary=True, side="left", padx=8, pady=0
         )
 
         # info label
         self.info_label = tk.Label(
-            bottom_frame,
+            self.container,
             text="Answer as fast as you can! (≤8s = faster)",
             font=("Helvetica", 12),
-            bg=self.bg
+            bg=self.colors["cream"],
+            fg=self.colors["dark_green"],
         )
-        self.info_label.pack(pady=(12, 0))
+        self.info_label.grid(row=5, column=0, pady=(0, 6))
 
-        # control buttons (New Game, Back to Menu)
-        control_frame = tk.Frame(bottom_frame, bg=self.bg)
-        control_frame.pack(pady=18)
+        # controls (row 6)
+        self.control_frame = tk.Frame(self.container, bg=self.colors["cream"])  # row 3
+        self.control_frame.grid(row=6, column=0, sticky="ew", pady=(0, 12))
+        self._build_controls()
 
-        self.play_again_btn = self.create_styled_button(
-            control_frame,
-            "🔄New Game",
-            self.reset_game, width=15,
-            is_primary=True,
-            side="left",
-            padx=8,
-            pady=0
-        )
+    def _build_controls(self):
+        for w in self.control_frame.winfo_children():
+            w.destroy()
+        button_font = font.Font(family="Helvetica", size=11, weight="bold")
 
-        self.back_btn = self.create_styled_button(
-            control_frame, "← Back to Menu",
-            self.return_to_main_menu,
-            width=15,
-            is_primary=True,
-            side="left",
-            padx=8,
-            pady=0
-        )
+        # Create a container frame to hold both buttons
+        button_container = tk.Frame(self.control_frame, bg=self.colors["cream"])
+        button_container.pack(expand=True)
+
+        def card_button(parent, text, command):
+            outer = tk.Frame(parent, bg=self.colors["brown"])
+            inner = tk.Frame(outer, bg=self.colors["sage"])
+            btn = tk.Button(
+                inner,
+                text=text,
+                font=button_font,
+                bg=self.colors["sage"],
+                fg=self.colors["dark_green"],
+                activebackground=self.colors["lime"],
+                activeforeground=self.colors["dark_green"],
+                relief="flat",
+                bd=0,
+                padx=18,
+                pady=10,
+                cursor="hand2",
+                command=command,
+            )
+            btn.pack(expand=True, fill="both", padx=2, pady=2)
+            inner.pack(expand=True, fill="both", padx=3, pady=3)
+            outer.pack(side="left", padx=10)
+
+            def on_enter(_):
+                btn.configure(bg=self.colors["lime"])
+                inner.configure(bg=self.colors["lime"])
+
+            def on_leave(_):
+                btn.configure(bg=self.colors["sage"])
+                inner.configure(bg=self.colors["sage"])
+
+            btn.bind("<Enter>", on_enter)
+            btn.bind("<Leave>", on_leave)
+            return btn
+
+        self.play_again_btn = card_button(button_container, "🔄 New Game", self.reset_game)
+        card_button(button_container, "← Back to Menu", self.return_to_main_menu)
 
     def create_styled_button(self, parent, text, command, width=25, is_primary=True,
                              side="top", padx=0, pady=8):
-        # creates a multi-layered styled button with shadow effect
-        import tkinter.font as font
-
         # outer container frame
         button_container = tk.Frame(parent, bg=self.colors["cream"])
         button_container.pack(side=side, padx=padx, pady=pady)
@@ -295,14 +307,18 @@ class RaceGame:
     def _place_characters(self):
         # draws player and opponent ASCII art and labels on the canvas
 
-        font_size = 9
-        label_font_size = 14
-        label_offset = 60  # distance below ASCII art
+        # initial positions
+        self.player_x = self.start_x
+        self.opponent_x = self.start_x
 
-        # remove previous items if they exist
+        # clear previous items if any
         for attr in ("player_item", "opponent_item", "player_label", "opponent_label"):
             if getattr(self, attr, None):
                 self.canvas.delete(getattr(self, attr))
+
+        font_size = 9
+        label_font_size = 14
+        label_offset = 60  # distance below ASCII art
 
         # draw ASCII art for player and opponent
         self.player_item = self.canvas.create_text(
@@ -345,9 +361,13 @@ class RaceGame:
     def start_race(self):
         # resets positions and starts the race with first flashcard
         self.running = True
-        self.player_x = self.start_x
-        self.opponent_x = self.start_x
-        self._place_characters()
+        self.moves = 0
+        self.time_elapsed = 0
+        self.correct_terms = []
+        self._update_moves_label()
+        self.time_label.config(text="Time: 0s")
+
+        # schedule flows
         self.next_flashcard()
         self._schedule_opponent_move()
         self.update_timer()
@@ -355,12 +375,15 @@ class RaceGame:
     def next_flashcard(self):
         # picks the next flashcard, avoiding repetition of the last one
 
-        if not self.running:
+        if not self.running or not self.flashcards:
             return
 
         # cancel previous timeout
         if self._timeout_after_id is not None:
-            self.window.after_cancel(self._timeout_after_id)
+            try:
+                self.root.after_cancel(self._timeout_after_id)
+            except Exception:
+                pass
             self._timeout_after_id = None
 
         # pick a new flashcard different from previous
@@ -380,7 +403,7 @@ class RaceGame:
         self.question_start_time = time.time()
 
         # schedule timeout penalty after 8 seconds
-        self._timeout_after_id = self.window.after(8000, self._timeout_answer_penalty)
+        self._timeout_after_id = self._after(8000, self._timeout_answer_penalty)
 
     def _timeout_answer_penalty(self):
         # applies a small advance penalty if player does not answer in time
@@ -393,6 +416,9 @@ class RaceGame:
             )
             self._animate_move(self.player_item, self.player_x, self.player_x + self.player_slow)
             self.player_x += self.player_slow
+            self._check_winner_or_continue()
+            # next question
+            self.next_flashcard()
 
     def submit_answer(self):
         # handles answer submission and moves the player if correct
@@ -401,7 +427,10 @@ class RaceGame:
 
         # cancel timeout
         if self._timeout_after_id is not None:
-            self.window.after_cancel(self._timeout_after_id)
+            try:
+                self.root.after_cancel(self._timeout_after_id)
+            except Exception:
+                pass
             self._timeout_after_id = None
 
         user = self.answer_entry.get().strip()
@@ -411,12 +440,13 @@ class RaceGame:
             messagebox.showinfo(
                 "No answer",
                 "Please enter a translation (or Close to stop).",
-                parent=self.window
+                parent=self.root
             )
             return
 
         # track move
         self.moves += 1
+        self._update_moves_label
 
         self.answer_entry.config(state="disabled")
         elapsed = time.time() - self.question_start_time
@@ -425,7 +455,6 @@ class RaceGame:
         if user.lower() == correct.lower():
             # track correct flashcard before next_flashcard()
             self.correct_terms.append(self.current_flashcard[0])
-
             if elapsed <= 8:
                 move_px = self.player_fast
                 self.info_label.config(text=f"Correct! Quick answer (+{move_px}px).")
@@ -438,7 +467,6 @@ class RaceGame:
             self.info_label.config(text=f"Incorrect. Correct answer: {correct}")
 
         self._check_winner_or_continue()
-
         # show next flashcard immediately after answer
         self.next_flashcard()
 
@@ -462,7 +490,7 @@ class RaceGame:
             cur_x += dx
             self.canvas.coords(item, cur_x, self.canvas.coords(item)[1])
             self.canvas.update()
-            self.window.after(20, lambda: step(i + 1))
+            self._after(20, lambda: step(i + 1))
 
         step(0)
 
@@ -471,7 +499,7 @@ class RaceGame:
         if not self.running:
             return
         self._opponent_move_once()
-        self._opponent_after_id = self.window.after(self.opponent_tick_ms, self._schedule_opponent_move)
+        self._opponent_after_id = self._after(self.opponent_tick_ms, self._schedule_opponent_move)
 
     def _opponent_move_once(self):
         # moves the opponent a single step forward
@@ -484,60 +512,48 @@ class RaceGame:
         # checks if player or opponent has crossed the finish line
         margin = 30
         if self.player_x + margin >= self.finish_x:
-            self.running = False
-            self._cleanup()
-            self._game_over("You win! 🎉")
+            self._end_game("You win! 🎉")
         elif self.opponent_x + margin >= self.finish_x:
-            self.running = False
-            self._cleanup()
-            self._game_over("Opponent wins. Try again!")
+            self._end_game("Opponent wins. Try again!")
 
     def _end_game(self, message=""):
+        self.running = False
+
+        # cancel timers
+        if self._opponent_after_id:
+            try:
+                self.root.after_cancel(self._opponent_after_id)
+            except Exception:
+                pass
+            self.opponent_after_id = None
+        if self._timeout_after_id:
+           try:
+               self.root.after_cancel(self._timeout_after_id)
+            except Exception:
+                pass
+            self._timeout_after_id = None
+        for jid in list(self._after_jobs):
+            try:
+                self.root.after_cancel(jid)
+            except Exception:
+                pass
+            self._after_jobs.discard(jid)
+
+        # disable entry, enable play again
         try:
             if self.answer_entry.winfo_exists():
                 self.answer_entry.config(state='disabled')
         except Exception:
             pass
-
         try:
             if self.play_again_btn.winfo_exists():
                 self.play_again_btn.config(state='normal')
         except Exception:
             pass
 
-        # stop race updates
-        if hasattr(self, '_after_job'):
-            try:
-                self.window.after_cancel(self._after_job)
-            except Exception:
-                pass
-            self._after_job = None
-
-        # Cancel opponent timer
-        if getattr(self, "_opponent_after_id", None):
-            try:
-                self.window.after_cancel(self._opponent_after_id)
-            except Exception:
-                pass
-            self._opponent_after_id = None
-
-        # Cancel timeout timer
-        if getattr(self, "_timeout_after_id", None):
-            try:
-                self.window.after_cancel(self._timeout_after_id)
-            except Exception:
-                pass
-            self._timeout_after_id = None
-
-        # Disable input fields and enable play again button
-        if hasattr(self, "answer_entry") and self.answer_entry.winfo_exists():
-            self.answer_entry.config(state="disabled")
-        if hasattr(self, "play_again_btn") and self.play_again_btn.winfo_exists():
-            self.play_again_btn.config(state="normal")
-
         # Notify player with message (if provided)
         if message:
-            messagebox.showinfo("Game Over", message, parent=self.window)
+            messagebox.showinfo("Game Over", message, parent=self.root)
 
         # Update streak
         if self.on_streak:
@@ -720,6 +736,8 @@ class RaceGame:
         if self.time_label.winfo_exists():
             self.time_label.config(text=f"Time: {self.time_elapsed}s")
             self._after(1000, self.update_timer) # update every 1s
+
+
 
 
 
