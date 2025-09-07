@@ -561,25 +561,18 @@ class RaceGame:
 
         # Notify player with message (if provided)
         if message:
-            messagebox.showinfo("Game Over", message, parent=self.root)
+            self._game_over_popup(message)
 
         # Update streak
         if self.on_streak:
             self.on_streak(success=True)
 
-        # Finally show stats popup
-        self._game_over_popup()
-
     def _game_over(self, message=''):
-        if message:
-            messagebox.showinfo('Game Over', message, parent=self.root)
-
-        if self.on_streak:
-            self.on_streak(success=True)
-
+        if message: messagebox.showinfo('Game Over', message, parent=self.root)
+        if self.on_streak: self.on_streak(success=True)
         self._end_game()
 
-    def _game_over_popup(self):
+    def _game_over_popup(self, message=''):
         # displays final stats in a message box
         elapsed = int(time.time() - self.start_time)
         stats = (
