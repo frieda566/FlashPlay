@@ -532,7 +532,7 @@ class FlashcardApp:
             w.destroy()
         flashcards = self.flashcard_manager.get_all_flashcards()
         if flashcards:
-            RaceGame(self.root, self, flashcards, on_streak=self.increase_streak)
+            RaceGame(self.root, self, flashcards, on_exit=self.setup_main_menu, on_streak=self.increase_streak)
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
 

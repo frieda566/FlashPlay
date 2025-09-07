@@ -59,7 +59,7 @@ class RaceGame:
         }
 
         # Track/ UI colors derived from palette
-        self.bg = "#F6E8B1"
+        self.bg = self.colors["cream"]
         self.track_bg = "#E6F0D9"
         self.accent = "#C8E3B0"
         self.finish_color = "#6A8F56"
@@ -224,8 +224,8 @@ class RaceGame:
         self.control_frame = tk.Frame(self.container, bg=self.colors["cream"])  # row 3
         self.control_frame.grid(row=6, column=0, sticky="ew", pady=(0, 12))
         self._build_controls()
-
-        print("Race UI built — children:", [c.winfo_class() for c in self.container.winfo_children()])
+        self.root.update_idletasks()
+        self.root.minsize(self.canvas_width + 100, self.canvas_height + 300)
 
     def _build_controls(self):
         for w in self.control_frame.winfo_children():
@@ -720,22 +720,11 @@ class RaceGame:
             self.container.destroy()
         except Exception:
             pass
-        # restore root state
         self.root.configure(bg=self._original_bg)
         self.root.title(self._original_title)
+
         if callable(self.on_exit):
             self.on_exit()
-        else:
-            # fallback view if no callback provided
-            for w in self.root.winfo_children():
-                w.destroy()
-            tk.Label(
-                self.root,
-                text="Thanks for playing!",
-                font=("Helvetica", 16),
-                bg=self.colors["cream"],
-                fg=self.colors["dark_green"]
-            ).pack(expand=True)
 
     def reset_game(self):
         # resets the game to initial state for a new race
