@@ -178,6 +178,8 @@ class FlashcardApp:
         self.create_styled_button(button_frame, "🏃 Play Race Game", self.launch_game_race, is_primary=True)
         self.create_styled_button(button_frame, "⚙️ Manage Flashcards", self.manage_flashcards, is_primary=False)
         self.create_styled_button(button_frame, "❌ Exit", self.root.quit, width=15, is_primary=False)
+        self.create_styled_button(button_frame, "!️ Info", self.info, is_primary=False)
+
 
         plants_frame = tk.Frame(main_frame, bg=self.colors["cream"])
         plants_frame.pack(pady=10)
@@ -187,6 +189,143 @@ class FlashcardApp:
 
         right_plant = PlantTracker(plants_frame, side="right")
         right_plant.update_growth()
+
+    def info(self):
+
+        # Import and get the info text from separate file
+        try:
+            import info
+            info_text = info.get_app_info()
+        except (ImportError, AttributeError) as e:
+            messagebox.showerror("Error", f"Could not load information: {str(e)}")
+            return
+
+        # Create a new window
+        info_window = tk.Toplevel(self.root)
+        info_window.title("FlashPlay - Information & Help")
+        info_window.geometry("700x600")
+        info_window.configure(bg=self.colors["cream"])
+        info_window.resizable(True, True)
+        info_window.minsize(500, 400)
+
+        # Center the window
+        x = self.root.winfo_rootx() + (self.root.winfo_width() - 700) // 2
+        y = self.root.winfo_rooty() + (self.root.winfo_height() - 600) // 2
+        info_window.geometry(f"700x600+{x}+{y}")
+        info_window.transient(self.root)
+        info_window.grab_set()
+
+        # Create main container with existing styling
+        main_container = tk.Frame(info_window, bg=self.colors["brown"])
+        main_container.pack(fill="both", expand=True, padx=6, pady=6)
+
+        outer_frame = tk.Frame(main_container, bg=self.colors["sage"])
+        outer_frame.pack(fill="both", expand=True, padx=2, pady=2)
+
+        inner_frame = tk.Frame(outer_frame, bg=self.colors["cream"])
+        inner_frame.pack(fill="both", expand=True, padx=4, pady=4)
+
+        # Title
+        title_font = font.Font(family="Helvetica", size=18, weight="bold")
+        title_label = tk.Label(
+            inner_frame,
+            text="📖 FlashPlay - Information & Help",
+            font=title_font,
+            bg=self.colors["cream"],
+            fg=self.colors["dark_green"]
+        )
+        title_label.pack(pady=(15, 20))
+
+        # Create scrollable text area
+        text_container = tk.Frame(inner_frame, bg=self.colors["cream"])
+        text_container.pack(fill="both", expand=True, pady=(0, 15))
+
+        canvas = tk.Canvas(text_container, bg=self.colors["cream"], highlightthickness=0)
+        scrollbar = self.create_styled_scrollbar(text_container)
+        scrollbar.config(command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        text_frame = tk.Frame(canvas, bg=self.colors["cream"])
+        canvas_window = canvas.create_window((0, 0), window=text_frame, anchor="nw")
+
+        # Create text label with the imported content
+        text_content = tk.Label(
+            text_frame,
+            text=info_text.strip(),
+            font=("Helvetica", 11),
+            bg=self.colors["cream"],
+            fg=self.colors["dark_green"],
+            justify="left",
+            anchor="nw",
+            wraplength=650
+        )
+        text_content.pack(fill="both", expand=True, padx=15, pady=15)
+
+        # Scroll region and resize handling
+        def update_scroll_region(event=None):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        def resize_text_frame(event):
+            canvas.itemconfig(canvas_window, width=event.width)
+            new_wraplength = max(300, event.width - 50)
+            text_content.configure(wraplength=new_wraplength)
+            canvas.after_idle(update_scroll_region)
+
+        text_frame.bind("<Configure>", update_scroll_region)
+        canvas.bind("<Configure>", resize_text_frame)
+
+        # Mouse wheel scrolling
+        def on_mousewheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        canvas.bind("<MouseWheel>", on_mousewheel)
+        info_window.bind("<MouseWheel>", on_mousewheel)
+
+        # Close button with existing styling
+        button_container = tk.Frame(inner_frame, bg=self.colors["cream"])
+        button_container.pack(pady=(15, 10))
+
+        close_outer = tk.Frame(button_container, bg=self.colors["brown"])
+        close_outer.pack()
+
+        close_inner = tk.Frame(close_outer, bg=self.colors["lime"])
+        close_inner.pack(padx=3, pady=3)
+
+        close_font = font.Font(family="Helvetica", size=12, weight="bold")
+        close_btn = tk.Button(
+            close_inner,
+            text="✓ Close",
+            font=close_font,
+            bg=self.colors["lime"],
+            fg=self.colors["dark_green"],
+            activebackground=self.colors["sage"],
+            activeforeground=self.colors["dark_green"],
+            relief="flat",
+            bd=0,
+            width=15,
+            pady=8,
+            cursor="hand2",
+            command=info_window.destroy
+        )
+        close_btn.pack(padx=4, pady=4)
+
+        # Hover effects
+        def on_enter(event):
+            close_btn.configure(bg=self.colors["sage"])
+            close_inner.configure(bg=self.colors["sage"])
+
+        def on_leave(event):
+            close_btn.configure(bg=self.colors["lime"])
+            close_inner.configure(bg=self.colors["lime"])
+
+        close_btn.bind("<Enter>", on_enter)
+        close_btn.bind("<Leave>", on_leave)
+
+        info_window.focus_set()
+        info_window.after_idle(update_scroll_region)
 
     def manage_flashcards(self):
         for widget in self.root.winfo_children():
