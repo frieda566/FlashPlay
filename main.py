@@ -454,14 +454,29 @@ class FlashcardApp:
             canvas.itemconfig(self._canvas_window, width=evt.width)
         canvas.bind("<Configure>", _resize_inner)
 
-        def _on_mousewheel(event):
-            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        import platform
 
-        # Bind to multiple widgets for better scrolling
+        def _on_mousewheel(event):
+            system = platform.system()
+            if system == 'Darwin':  # Mac
+                canvas.yview_scroll(-1 * event.delta, "units")
+            else:  # Windows, Linux
+                canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        def _on_button_4(event):
+            canvas.yview_scroll(-1, "units")
+
+        def _on_button_5(event):
+            canvas.yview_scroll(1, "units")
+
+        canvas.bind('<Enter>', lambda e: canvas.focus_set())
         canvas.bind("<MouseWheel>", _on_mousewheel)
-        scrollable_container.bind("<MouseWheel>", _on_mousewheel)
-        main_frame.bind("<MouseWheel>", _on_mousewheel)
-        self.root.bind("<MouseWheel>", _on_mousewheel)
+        canvas.bind("<Button-4>", _on_button_4)
+        canvas.bind("<Button-5>", _on_button_5)
+
+        # Fetch all flashcards and display them
+        self.all_flashcards = self.flashcard_manager.get_all_flashcards()
+        self.update_flashcard_display()
 
     # Card item
 
