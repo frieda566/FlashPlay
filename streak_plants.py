@@ -1,78 +1,92 @@
 import tkinter as tk
-import datetime
-import os
-import json
+import datetime, os, json
 
 SAVE_FILE = "streak_data.json"
 
-
 class PlantTracker:
-    def __init__(self, parent, side="left", streak_days=None):
+    def __init__(self, parent, width=100, height=220, streak_days=None):
+        # colors
+        self.colors = {
+            "cream": "#F6E8B1",
+            "sage": "#B0CC99",
+            "brown": "#89725B",
+            "lime": "#B7CA79",
+            "dark_green": "#677E52",
+        }
+
         self.parent = parent
-        self.canvas = tk.Canvas(parent, width=80, height=200, bg="#F6E8B1", highlightthickness=0)
-        self.canvas.pack(fill="both", expand=True)
-        self.streak_days = streak_days or 0
-        self.side = side
+        self.width = width
+        self.height = height
         self.last_date = None
-        self.load_progress()
+        self._load_streak()
+
+        # internal frame (this is what you grid into your main layout)
+        self.frame = tk.Frame(parent, bg="#F6E8B1")  # no pack here — parent will grid(self.frame,...)
+
+        # canvas lives inside our frame and we pack it here (pack only inside our own frame)
+        self.canvas = tk.Canvas(self.frame, width=self.width, height=self.height,
+                                bg="#F6E8B1", highlightthickness=0)
+        self.canvas.pack(padx=6, pady=6)
+
+
+        self.streak = self._load_streak()
+
+        # draw initial plant
         self.update_growth()
 
-    def load_progress(self):
-        if os.path.exists(SAVE_FILE):
-            try:
+    @staticmethod
+    def _load_streak():
+        try:
+            if os.path.exists(SAVE_FILE):
                 with open(SAVE_FILE, "r") as f:
                     data = json.load(f)
-                    self.streak = data.get("streak", 0)
-                    self.last_date = datetime.date.fromisoformat(data.get("last_date"))
-            except Exception:
-                self.streak = 0
-                self.last_date = None
+                    return int(data.get("streak", 0))
+        except Exception:
+            pass
+        return 0
 
-        today = datetime.date.today()
-        if self.last_date is None:
-            self.last_date = today
-            self.save_progress()
-        else:
-            if today > self.last_date:
-                days_diff = (today - self.last_date).days
-                if days_diff == 1:
-                    self.streak += 1
-                elif days_diff > 1:
-                    # skipped a day -> streak does not grow further
-                    pass
-                self.last_date = today
-                if self.streak >= 21:
-                    self.streak = 0
-                self.save_progress()
+    def _save_streak(self):
+        try:
+            with open(SAVE_FILE, "w") as f:
+                json.dump({"streak": int(self.streak),
+                           "last_date": datetime.date.today().isoformat()}, f)
+        except Exception:
+            pass
 
-    def save_progress(self):
-        """Save streak progress"""
-        with open(SAVE_FILE, "w") as f:
-            json.dump({
-                "streak": self.streak,
-                "last_date": self.last_date.isoformat()
-            }, f)
+    def set_streak(self, new_value):
+        try:
+            self.streak = int(new_value)
+        except Exception:
+            self.streak = 0
+        self._save_streak()
+        self.update_growth()
 
     def update_growth(self):
-        """Redraw the plant based on current streak"""
-        self.canvas.delete("all")
+        c = self.canvas
+        c.delete("all")
 
-        # draw soil
-        self.canvas.create_rectangle(10, 180, 70, 190, fill="#654321", outline="")
+        h = self.height
+        # soil
+        c.create_rectangle(10, h - 20, self.width - 10, h - 2, fill=self.colors["brown"], outline="")
 
-        # base stem
-        stem_height = min(160, self.streak * 8)  # grows 8px per day up to 20 days
-        self.canvas.create_line(40, 180, 40, 180 - stem_height, width=4, fill="#228B22")
+        # stem
+        stem_height = min(160, self.streak * 8)  # 8px/day, max 160 (20 days)
+        cx = self.width // 2
+        base_y = h - 20
+        c.create_line(cx, base_y, cx, base_y - stem_height, width=4, fill=self.colors["dark_green"])
 
-        # draw leaves every few streak steps
+        # leaves every ~16px
         for i in range(0, stem_height, 16):
-            x = 40
-            y = 180 - i
+            y = base_y - i
             if (i // 16) % 2 == 0:
-                self.canvas.create_oval(x - 20, y - 5, x, y + 5, fill="#2E8B57", outline="")
+                c.create_oval(cx - 20, y - 5, cx, y + 5, fill=self.colors["dark_green"], outline="")
             else:
-                self.canvas.create_oval(x, y - 5, x + 20, y + 5, fill="#2E8B57", outline="")
+                c.create_oval(cx, y - 5, cx + 20, y + 5, fill=self.colors["dark_green"], outline="")
 
-        # show streak number
-        self.canvas.create_text(40, 195, text=f"{self.streak}/20", fill="#333", font=("Helvetica", 10, "bold"))
+        # streak label
+        # show streak number slightly below the soil
+        self.canvas.create_text(40, 195 + 10, text=f"{self.streak}/20", fill=self.colors["dark_green"], font=("Helvetica", 10, "bold"))
+
+
+
 

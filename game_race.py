@@ -566,11 +566,10 @@ class RaceGame:
         # Update streak
         if self.on_streak:
             self.on_streak(success=True)
-
-    def _game_over(self, message=''):
-        if message: messagebox.showinfo('Game Over', message, parent=self.root)
-        if self.on_streak: self.on_streak(success=True)
-        self._end_game()
+        if hasattr(self, "_left_plant"):
+            self._left_plant.set_streak(self.on_streak)
+        if hasattr(self, "_right_plant"):
+            self._right_plant.set_streak(self.on_streak)
 
     def _game_over_popup(self, message=''):
         # displays final stats in a message box

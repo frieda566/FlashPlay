@@ -144,7 +144,7 @@ class FlashcardApp:
         # redraw main menu to refresh the plants
         self.setup_main_menu()
 
-    # Screens
+    # screens
     def setup_main_menu(self):
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -154,40 +154,35 @@ class FlashcardApp:
         main_frame.pack(fill="both", expand=True, padx=30, pady=30)
 
         title_frame = tk.Frame(main_frame, bg=self.colors["cream"])
-        title_frame.pack(pady=(20, 30))
-
+        title_frame.grid(row=0, column=0, columnspan=3, pady=(20, 30))  # grid inside main_frame
         icon_font = font.Font(family="Helvetica", size=36)
         tk.Label(title_frame, text="📚", font=icon_font, bg=self.colors["cream"]).pack()
-
         title_font = font.Font(family="Helvetica", size=24, weight="bold")
-        tk.Label(
-            title_frame, text="FlashPlay", font=title_font,
-            bg=self.colors["cream"], fg=self.colors["dark_green"]
-        ).pack(pady=(5, 0))
-
+        tk.Label(title_frame, text="FlashPlay", font=title_font,
+                 bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(pady=(5, 0))
         subtitle_font = font.Font(family="Helvetica", size=14)
-        tk.Label(
-            title_frame, text="Interactive Vocabulary Learning", font=subtitle_font,
-            bg=self.colors["cream"], fg=self.colors["brown"]
-        ).pack(pady=(2, 20))
+        tk.Label(title_frame, text="Interactive Vocabulary Learning", font=subtitle_font,
+                 bg=self.colors["cream"], fg=self.colors["brown"]).pack(pady=(2, 20))
+
+        # configure columns: left plant, center buttons, right plant
+        main_frame.grid_columnconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(1, weight=2)
+        main_frame.grid_columnconfigure(2, weight=1)
+
+        left_plant = PlantTracker(main_frame, width=120, height=240, streak_days=getattr(self, "streak_days", None))
+        left_plant.frame.grid(row=1, column=0, sticky="n", padx=10, pady=6)
 
         button_frame = tk.Frame(main_frame, bg=self.colors["cream"])
-        button_frame.pack(pady=20)
+        button_frame.grid(row=1, column=1, padx=10, pady=6, sticky="n")
 
         self.create_styled_button(button_frame, "🧠 Play Memory Game", self.launch_memory_game, is_primary=True)
         self.create_styled_button(button_frame, "🏃 Play Race Game", self.launch_game_race, is_primary=True)
         self.create_styled_button(button_frame, "⚙️ Manage Flashcards", self.manage_flashcards, is_primary=False)
-        self.create_styled_button(button_frame, "!️ Info", self.info, is_primary=False)
+        self.create_styled_button(button_frame, "ℹ️ Info", self.info, is_primary=False)
         self.create_styled_button(button_frame, "❌ Exit", self.root.quit, width=15, is_primary=False)
 
-        plants_frame = tk.Frame(main_frame, bg=self.colors["cream"])
-        plants_frame.pack(pady=10)
-
-        left_plant = PlantTracker(plants_frame, side="left")
-        left_plant.update_growth()  # ensure the plant is drawn
-
-        right_plant = PlantTracker(plants_frame, side="right")
-        right_plant.update_growth()
+        right_plant = PlantTracker(main_frame, width=120, height=240, streak_days=getattr(self, "streak_days", None))
+        right_plant.frame.grid(row=1, column=2, sticky="n", padx=10, pady=6)
 
     def info(self):
         # Create and display an info window with explanatory text from separate file
