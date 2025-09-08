@@ -493,6 +493,10 @@ class MemoryGame:
 
         if self.on_streak:
             self.on_streak(success=True)
+        if hasattr(self, "_left_plant"):
+            self._left_plant.set_streak(self.on_streak)
+        if hasattr(self, "_right_plant"):
+            self._right_plant.set_streak(self.on_streak)
         self._game_over()
 
         elapsed = int(time.time() - self.start_time)
