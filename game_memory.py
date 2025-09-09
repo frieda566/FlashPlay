@@ -497,7 +497,6 @@ class MemoryGame:
             self._left_plant.set_streak(self.on_streak)
         if hasattr(self, "_right_plant"):
             self._right_plant.set_streak(self.on_streak)
-        self._game_over()
 
         elapsed = int(time.time() - self.start_time)
         stats = (
@@ -602,7 +601,13 @@ class MemoryGame:
 
     # ------------------------ utilities / timers --------------------------
     def _after(self, ms, fn):
-        jid = self.root.after(ms, lambda: (self._after_jobs.discard(jid), fn()))
+        jid = None
+
+        def inner():
+            self._after_jobs.discard(jid)
+            fn()
+
+        jid = self.root.after(ms, inner)
         self._after_jobs.add(jid)
         return jid
 
@@ -644,10 +649,12 @@ class MemoryGame:
         self.reset_board()
 
     def update_timer(self):
-        if hasattr(self, "time_label"):
-            elapsed_time = int(time.time() - self.start_time)
-            self.time_label.config(text=f"Time: {elapsed_time}s")
-            if not self._is_won():
-                self._after(1000, self.update_timer)
+        # Check if time_label still exists and is valid
+        if not hasattr(self, "time_label") or not self.time_label.winfo_exists():
+            return  # Widget does not exist anymore, don't update
+        elapsed_time = int(time.time() - self.start_time)
+        self.time_label.config(text=f"Time: {elapsed_time}s")
+        if not self._is_won():
+            self._after(1000, self.update_timer)
 
 
