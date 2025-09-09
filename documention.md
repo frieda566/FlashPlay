@@ -16,7 +16,7 @@ on August the 18 where we talked about our next steps so the game would look who
 - To see if the Program was working in itself we asked ChatGPT to write a Memory Game just to test if all the different files were connected
 
 ## Memory Game - Paula
-### 1. Tkinter Fundamentals
+### Tkinter Fundamentals
 
 **What I learned:** Tkinter is Python's standard GUI (Graphical User Interface) toolkit that comes built-in with Python. 
 It provides widgets (buttons, labels, frames, etc.) to create desktop applications. 
@@ -33,7 +33,7 @@ To understand how these worked together, I looked at the original Tkinter Docume
 - Python.org Tkinter Tutorial - Official documentation where I learned the basic widget types (https://docs.python.org/3/library/tkinter.html)
 - Real Python Tkinter Guide - Comprehensive tutorial that helped me understand layout managers (https://realpython.com/python-gui-tkinter/)
 - in general used as a source https://tkdocs.com/shipman/tkinter.pdf
-### 2. Creating Rounded Corners with Canvas
+### Creating Rounded Corners with Canvas
 
 **What I learned:**
 Tkinter widgets are rectangular by default, so creating rounded corners required learning about the Canvas widget and polygon drawing. 
@@ -52,7 +52,7 @@ I also learned about layering - drawing the shadow first, then outer rim, then i
 - Stack Overflow: Rounded Rectangle in Tkinter (https://stackoverflow.com/questions/44099594/how-to-make-a-tkinter-canvas-rectangle-with-rounded-corners=, https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/create_polygon.html?utm_source=chatgpt.com)
 - A geometry tutorial I found online that explained how to calculate rounded rectangle points (https://stackoverflow.com/questions/76318063/rounded-rectangle-in-tkinter-that-i-can-fill-inside-and-change-the-color-from-un)
 
-### 3. Hover Effects and Dynamic Styling
+### Hover Effects and Dynamic Styling
 
 **What I learned:**
 
@@ -73,7 +73,7 @@ The conditional styling was important - different colors for different card stat
 - Tkinter Event Handling tutorial  (https://python-course.eu/tkinter/events-and-binds-in-tkinter.php)
 Tkinter Hover Effects - (https://www.geeksforgeeks.org/python/tkinter-button-that-changes-its-properties-on-hover/, https://coderslegacy.com/python/tkinter-config/)
 
-### 4. Multi-Layer Card Design with Rims
+### Multi-Layer Card Design with Rims
 
 **What I learned:**
 Creating visually appealing cards required understanding how to layer multiple shapes on a Canvas to create depth effects. 
@@ -90,7 +90,7 @@ The hardest part was getting the mathematical offsets right so all the layers al
 
 - Canvas Layering Tutorial - (https://tkdocs.com/tutorial/canvas.html, https://stackoverflow.com/questions/43400856/change-the-color-of-an-object-after-tkinter-has-been-initiated/43400938#43400938)
 
-### 5. Card Flip Animation
+### Card Flip Animation
 
 **What I learned:**
 Creating smooth animations without external libraries was challenging. 
@@ -108,7 +108,7 @@ I also learned about mathematical interpolation - calculating intermediate value
 - Tkinter after() Method documentation - https://www.pythontutorial.net/tkinter/tkinter-after/, https://inf-schule.de/software/gui/entwicklung_tkinter/timer
 - Game development tutorials that explained frame-based animation concepts https://tkinter.com/widget-animation-tkinter-customtkinter-23/
 
-### 6. Dynamic Color Changes Based on Card State
+### Dynamic Color Changes Based on Card State
 
 **What I learned:**
 Cards needed different visual states (normal, hover, flipped, matched), which required a systematic approach to color management. 
@@ -124,7 +124,7 @@ For the logic to work I needed to check the current state before applying color 
 
 - here I used similar sources as i  number 3, because this bit relies on the same hover recognition
 
-### 7. Layout Management and Responsive Design
+### Layout Management and Responsive Design
 
 **What I learned:**
 Making the game work at different window sizes required understanding tkinter's layout system. 
@@ -142,7 +142,7 @@ The responsive card sizing was tricky - I had to calculate available space and s
 - winfo to measure available space https://www.tcl-lang.org/man/tcl8.4/TkCmd/winfo.htm
 - Mathematical optimization tutorials for the grid calculation algorithm https://tkdocs.com/tutorial/concepts.html, https://docs.python.org/3/library/math.html
 
-### 8. Memory Management and Cleanup
+### Memory Management and Cleanup
 
 **What I learned:**
 Preventing memory leaks and crashes required proper cleanup of timers and event bindings. 
@@ -194,14 +194,24 @@ After understanding, it got easier and easier the more I worked with it and the 
 
 
 
-  - 21. August 
-        online meeting together 
-  - Frieda: spelling and formatting after # - adding # to better the structure and to make the code more understandable 
-            submit button cursor hand2
-  - Paula:
-    - more # comments
-    - designing adapting the the rest -> pretty much copying what i did in the memory card game
-    -  designing adapting the the rest -> pretty much copying what i did in the memory card game
+# 21. August - online meeting together 
+        
+## Frieda: spelling and formatting after # - adding # to better the structure and to make the code more understandable 
+submit button cursor hand2
+## Paula:
+### Designing and Adapting the UI Framework
+I started by copying the visual styling system from my Memory Game - 
+the layered card design with brown shadows, sage/lime color schemes, and the rounded button effects.
+I learned that the same visual principles (shadow frames, inner frames, hover effects) could be applied to buttons, cards, and containers throughout the application.
+The main menu layout required understanding grid management in tkinter. As in my memory game too.
+### managing flashcards interface
+I implemented a card-based display system where each flashcard gets its own visual card container. 
+The challenge was creating a consistent layout that could handle different text lengths. 
+I learned about text wrapping and calculating available space for content.
+The most important concept was the separation between the visual card (with its styling) and the content area. 
+Each flashcard item has a fixed-width container but flexible content area.
+I also implemented the button positioning on the right side of each card, which required understanding how to use frames to control layout precisely.
+
 - managing flashcards
   - buttons at the top
   - search bar
