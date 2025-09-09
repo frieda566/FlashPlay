@@ -322,8 +322,8 @@ class MemoryGame:
                 width=160,
                 height=110,
                 bg=self.colors["lime"],  # background when face down
-                inner_rim_color=self.colors["lime"],  # inner rim
-                outer_rim_color=self.colors["sage"],  # outer rim
+                inner_rim_color=self.colors["lime"],
+                outer_rim_color=self.colors["sage"],
                 radius=18,
             )
             card.grid(row=r, column=c, padx=8, pady=8, sticky="nsew")
