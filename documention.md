@@ -25,8 +25,8 @@ To understand how these worked together, I looked at the original Tkinter Docume
 
 **Sources that helped:** 
 
-- Python.org Tkinter Tutorial - Official documentation where I learned the basic widget types (https://docs.python.org/3/library/tkinter.html)
-- Real Python Tkinter Guide - Comprehensive tutorial that helped me understand layout managers (https://realpython.com/python-gui-tkinter/)
+- Python.org Tkinter Tutorial https://docs.python.org/3/library/tkinter.html
+- Real Python Tkinter Guide https://realpython.com/python-gui-tkinter/
 - in general used as a source https://tkdocs.com/shipman/tkinter.pdf
 ### Creating Rounded Corners with Canvas
 
