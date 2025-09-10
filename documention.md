@@ -1,4 +1,4 @@
-- add flashcards for testing
+f- add flashcards for testing
 - add the direct translator to flashcard app
 - We crated the main idea in class on how we would like to create a gamified learning application. The first step stareted with one of the 
 weekly assignment where we should search on Github to find similar code.
@@ -183,7 +183,7 @@ After understanding, it got easier and easier the more I worked with it and the 
   - Class Memory Game
   - mostly needed to google ones how to do it, then code blocks were also repetative in matter of design
 
-  - 18. August
+  # 18. August - online meeting
         online meeting together, planing next steps. Paula is responsible for designing the main.py interface and Frieda is reosposible for the flashcards.py interface
         major problem: Frieda cannot push the old repository and therefore no updates accur. Trying several approchaces to fix the bug however nothing works. No Reddit Account and no AI ChatBot was able to help us -> created a new repositories only way we were able to fix the problem
   - Problem: Flashcard editing not possible
@@ -191,16 +191,37 @@ After understanding, it got easier and easier the more I worked with it and the 
   - Frieda: the color scheme of the buttons has to be changed so that it matches Paula's memory game 
             idea: actually writing (you/ your opponent) to understand who is who under ASCII characters 
             adding emoji & header "Race Game"
-  - 21. August 
+    ## Paula
+#### Designing and Adapting the UI Framework.
+Key concepts implemented: I started by copying the visual styling system from my Memory Game - the layered card design with brown shadows, sage/lime color schemes, and the rounded button effects. 
+The main menu layout required understanding grid management in tkinter and weight distribution in grid layouts to make the interface responsive. The code was similar to the memory game and i struggled most with the adaption to the new design.
+Sources that helped:
+* My own Memory Game code - I referenced my previous work extensively
+* Tkinter Grid Documentation - https://tkdocs.com/tutorial/grid.html
+* Color theory resources for maintaining visual consistency across components
+
+#### Managing Flashcards Interface
+To Do: Creating the flashcard management screen required building a more complex data-driven interface. This was different from the Memory Game because I needed to display dynamic content that could change based on user input.
+Key concepts implemented: I implemented a card-based display system where each flashcard gets its own visual card container. The challenge was creating a consistent layout that could handle different text lengths. I learned about text wrapping and calculating available space for content.
+The most important concept was the separation between the visual card (with its styling) and the content area. Each flashcard item has a fixed-width container but flexible content area. I also implemented the button positioning on the right side of each card, which required understanding how to use frames to control layout precisely.
+Sources that helped:
+* tkinter Frame and packing documentation - https://docs.python.org/3/library/tkinter.html#tkinter.Frame
+* Text wrapping and layout tutorials - similar resources as used in Memory Game
+    
+  # 21. August - online meeting
         online meeting together 
   - Frieda: spelling and formatting after # - adding # to better the structure and to make the code more understandable 
             submit button cursor hand2
-  - 31. August 
+   ## Paula
+  
+  # 31. August - online meeting
         online meeting together 
   - Frieda: start to implement streak system to track progress 
             stats design and popup layout 
             adding into documentation
-  - 07. September 
+  # 07. September - online meeting
           online meeting together, planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
           wanting parents or friends to try out our program to see if there are any further ideas to make sure the program is understandable, talking about things that we should change to make our codes more readable and that they align with one another 
-  - Frieda: finding out why streak_plant isn't working -> creating a better grid in setup_main_menu to ensure all aspects of main menu are visible 
+  - Frieda: finding out why streak_plant isn't working -> creating a better grid in setup_main_menu to ensure all aspects of main menu are visible
+ 
+# 10. September - online meeting
