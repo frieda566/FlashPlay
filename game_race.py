@@ -15,7 +15,7 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
     sys.stdout = buf
     try:
         ascii_art(name)
-    except Exception:
+    except (KeyError, ValueError):
         art = placeholder
     else:
         art = buf.getvalue()
@@ -462,7 +462,7 @@ class RaceGame:
         if self._timeout_after_id is not None:
             try:
                 self.root.after_cancel(self._timeout_after_id)
-            except Exception:
+            except (ValueError, tk.TclError):
                 pass
             self._timeout_after_id = None
 
@@ -509,7 +509,7 @@ class RaceGame:
         if self._timeout_after_id is not None:
             try:
                 self.root.after_cancel(self._timeout_after_id)
-            except Exception:
+            except (ValueError, tk.TclError):
                 pass
             self._timeout_after_id = None
 
@@ -591,50 +591,26 @@ class RaceGame:
         # checks if player or opponent has crossed the finish line
         margin = 30
         if self.player_x + margin >= self.finish_x:
-            self._end_game("You win! 🎉")
+            self.outcome = "winner"
+            self._end_game()
         elif self.opponent_x + margin >= self.finish_x:
-            self._end_game("Opponent wins. Try again!")
+            self.outcome = "loser"
+            self._end_game()
 
-    def _end_game(self, message=""):
-        self.running = False
-
-        # cancel timers
-        if self._opponent_after_id:
-            try:
-                self.root.after_cancel(self._opponent_after_id)
-            except Exception:
-                pass
-            self._opponent_after_id = None
-
-        if self._timeout_after_id:
-            try:
-                self.root.after_cancel(self._timeout_after_id)
-            except Exception:
-                pass
-            self._timeout_after_id = None
-
-        for jid in list(self._after_jobs):
-            try:
-                self.root.after_cancel(jid)
-            except Exception:
-                pass
-            self._after_jobs.discard(jid)
-
+    def _end_game(self):
+        # reuse cleanup
+        self._cleanup()
         # disable entry, enable play again
         try:
             if self.answer_entry.winfo_exists():
                 self.answer_entry.config(state="disabled")
-        except Exception:
+        except tk.TclError:
             pass
         try:
             if self.play_again_btn.winfo_exists():
                 self.play_again_btn.config(state="normal")
-        except Exception:
+        except tk.TclError:
             pass
-
-        # Notify player with message (if provided)
-        if message:
-            self._game_over_popup(message)
 
         # Update streak
         if hasattr(self, "_left_plant"):
@@ -642,12 +618,15 @@ class RaceGame:
         if hasattr(self, "_right_plant"):
             self._right_plant.record_activity()
 
-    def _game_over_popup(self, popup):
+        self._game_over_popup()
+
+    def _game_over_popup(self):
         # displays final stats in a message box
         elapsed = int(time.time() - self.start_time)
         stats = (
             "🎉 Congratulations! 🎉\n\n"
             "You completed the race game!\n\n"
+            f"You are the {self.outcome} of this game!\n\n"
             "📊 Your Stats:\n"
             f"• Moves: {self.moves}\n"
             f"• Time: {elapsed}s\n"
@@ -684,19 +663,19 @@ class RaceGame:
         if self._opponent_after_id:
             try:
                 self.root.after_cancel(self._opponent_after_id)
-            except Exception:
+            except (ValueError, tk.TclError):
                 pass
             self._opponent_after_id = None
         if self._timeout_after_id:
             try:
                 self.root.after_cancel(self._timeout_after_id)
-            except Exception:
+            except (ValueError, tk.TclError):
                 pass
             self._timeout_after_id = None
         for jid in list(self._after_jobs):
             try:
                 self.root.after_cancel(jid)
-            except Exception:
+            except (ValueError, tk.TclError):
                 pass
             self._after_jobs.discard(jid)
 
@@ -706,7 +685,7 @@ class RaceGame:
         self._cleanup()
         try:
             self.container.destroy()
-        except Exception:
+        except tk.TclError:
             pass
         self.root.configure(bg=self._original_bg)
         self.root.title(self._original_title)
