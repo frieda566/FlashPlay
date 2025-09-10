@@ -202,6 +202,7 @@ Sources that helped:
 
 #### Managing Flashcards Interface
 To Do: Creating the flashcard management screen required building a more complex data-driven interface. This was different from the Memory Game because I needed to display dynamic content that could change based on user input.
+
 Key concepts implemented: I implemented a card-based display system where each flashcard gets its own visual card container. The challenge was creating a consistent layout that could handle different text lengths. I learned about text wrapping and calculating available space for content.
 The most important concept was the separation between the visual card (with its styling) and the content area. Each flashcard item has a fixed-width container but flexible content area. I also implemented the button positioning on the right side of each card, which required understanding how to use frames to control layout precisely.
 Sources that helped:
@@ -213,12 +214,67 @@ Sources that helped:
   - Frieda: spelling and formatting after # - adding # to better the structure and to make the code more understandable 
             submit button cursor hand2
    ## Paula
+  #### Game Buttons at the Top 
+To Do: I wanted the control buttons (Add New Flashcard, Back to Main Menu) to stay at the top while users scrolled through flashcards.
+
+Key concepts implemented: I used separate frames for different UI sections - a header frame for fixed elements and a scrollable container for the list. The key insight was that the pack() order determines stacking, so I had to pack the header frame first, then the scrollable area. I also learned about fill="x" to make the header span the full width.
+Problem Encountered - Buttons Disappearing: Initially, my buttons would disappear when I scrolled. I discovered this was because I had packed them inside the scrollable frame instead of the parent frame.
+
+Sources that helped:
+* tkinter layout management tutorials - understanding parent-child relationships
+* Stack Overflow discussions about fixed headers with scrollable content: https://stackoverflow.com/questions/78769920/how-to-define-fixed-header-in-tk-grid-grid10x5
+ 
+#### Search Bar Implementation
+To Do: Adding a search function which required understanding tkinter's StringVar system and event handling.
+
+Key concepts implemented: I implemented the StringVar.trace() method to detect when the search field changes. The challenge was connecting the search input to the display update function. I used lambda functions and callback systems in GUI programming.
+The search functionality required filtering the flashcard list and then updating the display. I worked with lists of data and implement case-insensitive searching. The key insight was that I needed to store both the original list (all_flashcards) and the filtered list (filtered_flashcards) separately.
+Sources that helped:
+* tkinter StringVar documentation - https://docs.python.org/3/library/tkinter.html#tkinter.StringVar
+* search Bar Stack Overflow. https://stackoverflow.com/questions/74700510/how-to-create-a-search-bar-to-search-keywords-in-my-tkinter-table
+
+#### Scrolling Bar Implementation
+To Do: Creating smooth scrolling for the flashcard list using a scroll bar.
+
+Key concepts implemented: The scrolling system uses a Canvas widget as a viewport, with a Frame widget as the actual scrollable content, connected to a Scrollbar widget. This three-part system was confusing at first. I learned that the Canvas creates a "window" that contains the Frame, and the Scrollbar controls which part of the Frame is visible through the Canvas viewport.
+One challenging part was getting the scroll region to update automatically when content changes. I implemented the configure event binding to recalculate the scrollable area whenever the content frame changes size. I also added mouse wheel support, which was at first quite confusing because different systems (macos/ linux/ windows) required different handling operating systems.
+Sources that helped:
+* Scrollbar documentation - https://www.tutorialspoint.com/python/tk_scrollbar.htm
+* Scrollable Frame tutorials - https://tkdocs.com/tutorial/canvas.html
+* Platform-specific mouse wheel handling - https://stackoverflow.com/questions/17355902/tkinter-binding-mousewheel-to-scrollbar
   
   # 31. August - online meeting
         online meeting together 
   - Frieda: start to implement streak system to track progress 
             stats design and popup layout 
             adding into documentation
+    ## Paula
+   #### Designing Custom Scrollbar
+To Do: The default tkinter scrollbar looked inconsistent with my custom styling. 
+
+Key concepts implemented: I implemented a custom ttk.Style configuration that changes the scrollbar colors to match the sage/brown/lime color palette. The challenge was understanding which style properties control which parts of the scrollbar (background, trough, arrows, etc.).
+I created a reusable create_styled_scrollbar() method that I could use throughout the application. This taught me about creating utility functions for UI components.
+
+Sources that helped:
+* ttk.Style documentation - https://docs.python.org/3/library/tkinter.ttk.html#tkinter.ttk.Style
+* ttk theming tutorials for custom widget appearance
+  
+#### No Duplicate Flashcards System
+To Do: I needed to prevent users from creating flashcards with identical terms or translations. This required implementing data validation and comparison logic.
+
+Key concepts implemented: I created a check_duplicate_flashcard() function that compares new entries against existing flashcards. The challenge was handling different comparison scenarios - not just exact matches, but also checking if a new term matches an existing translation or vice versa.
+I used case-insensitive string comparison and learned the importance of stripping whitespace before comparing. I also implemented an exclude_id parameter for the edit function, so users can save edits to existing flashcards without triggering false duplicate warnings. Here I used familiar coding patterns such as looping through the vocabs to check for duplicates
+  
+#### Info Side Implementation
+To Do: implementing a info side, for explanations on how the program works.
+
+Key concepts implemented: I created a separate info window using tk.Toplevel() that displays help text imported from an external module. This was relevantly easy because we looked at module imports in class.
+I implemented error handling for the info module import, with fallbacks and clear error messages if the info.py file is missing. I also added scrollable text display using the same Canvas/Frame system I learned for the flashcard list.
+Lastly, I implemented the window centering calculation and making the text area responsive to window resizing.
+Sources that helped:
+* tkinter Toplevel documentation - https://docs.python.org/3/library/tkinter.html#tkinter.Toplevel
+* Module importing and error handling - https://docs.python.org/3/tutorial/errors.html
+
   # 07. September - online meeting
           online meeting together, planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
           wanting parents or friends to try out our program to see if there are any further ideas to make sure the program is understandable, talking about things that we should change to make our codes more readable and that they align with one another 
