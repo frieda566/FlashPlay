@@ -264,8 +264,14 @@ To Do: I needed to prevent users from creating flashcards with identical terms 
 
 Key concepts implemented: I created a check_duplicate_flashcard() function that compares new entries against existing flashcards. The challenge was handling different comparison scenarios - not just exact matches, but also checking if a new term matches an existing translation or vice versa.
 I used case-insensitive string comparison and learned the importance of stripping whitespace before comparing. I also implemented an exclude_id parameter for the edit function, so users can save edits to existing flashcards without triggering false duplicate warnings. Here I used familiar coding patterns such as looping through the vocabs to check for duplicates
-  
-#### Info Side Implementation
+
+  # 07. September - online meeting
+          online meeting together, planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
+          wanting parents or friends to try out our program to see if there are any further ideas to make sure the program is understandable, talking about things that we should change to make our codes more readable and that they align with one another
+  - Frieda: finding out why streak_plant isn't working -> creating a better grid in setup_main_menu to ensure all aspects of main menu are visible
+ 
+  ## Paula
+  #### Info Side Implementation
 To Do: implementing a info side, for explanations on how the program works.
 
 Key concepts implemented: I created a separate info window using tk.Toplevel() that displays help text imported from an external module. This was relevantly easy because we looked at module imports in class.
@@ -274,10 +280,29 @@ Lastly, I implemented the window centering calculation and making the text area 
 Sources that helped:
 * tkinter Toplevel documentation - https://docs.python.org/3/library/tkinter.html#tkinter.Toplevel
 * Module importing and error handling - https://docs.python.org/3/tutorial/errors.html
-
-  # 07. September - online meeting
-          online meeting together, planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
-          wanting parents or friends to try out our program to see if there are any further ideas to make sure the program is understandable, talking about things that we should change to make our codes more readable and that they align with one another 
-  - Frieda: finding out why streak_plant isn't working -> creating a better grid in setup_main_menu to ensure all aspects of main menu are visible
+  
  
 # 10. September - online meeting
+
+## Paula
+#### final small corrections
+To Do: The final steps involved making finishing touches. I added a method in main.py to ensure all flashcard popup windows use a consistent style. I also replaced every ‘pass’ in AttributeError handling with a fallback that directs users back to the main menu. Finally, I updated and refined all descriptions and comments.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
