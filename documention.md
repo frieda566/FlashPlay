@@ -9,8 +9,7 @@ weekly assignment where we should search on Github to find similar code.
 - choose a color scheme so both games would match 
 - the first problem occurred when Paula could not see the changes Frieda commited -> asked ChatGPT on what we could try to fix the problem
 - To see if the Program was working in itself we asked ChatGPT to write a Memory Game just to test if all the different files were connected
-
-## Memory Game 
+ 
 ## Memory Game - Paula
 ### Tkinter Fundamentals
 
