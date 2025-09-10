@@ -134,7 +134,7 @@ class MemoryGame:
         }
 
         # container: only child of root while game is active (use pack here)
-        self.container = tk.Frame(self.root, bg=self.colors["cream"])  # isolate layout
+        self.container = tk.Frame(self.root, bg=self.colors["cream"])
         self.container.pack(fill="both", expand=True)
 
         # State
@@ -174,7 +174,7 @@ class MemoryGame:
             size -= 1
         button.configure(font=(fam, size, "bold"))
 
-    # -------------------------- layout -----------------------------------
+    # layout
     def _build_layout(self):
         # clear container only (never touch other root content)
         for w in self.container.winfo_children():
@@ -404,7 +404,7 @@ class MemoryGame:
         if self.flip_animation_running:
             return
         cw = self.card_widgets[idx]
-        if cw['flipped'] or cw["matched"]:
+        if cw["flipped"] or cw["matched"]:
             return
         self._flip(idx, reveal=True)
         self.flipped_cards.append(idx)

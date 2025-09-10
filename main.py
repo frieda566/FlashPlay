@@ -473,7 +473,6 @@ class FlashcardApp:
         self.update_flashcard_display()
 
     # Card item
-
     def create_flashcard_item(self, parent, flashcard):
         row = tk.Frame(parent, bg=self.colors["cream"])
         row.pack(fill="x", pady=4)
