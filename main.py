@@ -6,12 +6,13 @@ from game_race import RaceGame
 from deep_translator import GoogleTranslator
 from streak_plants import PlantTracker
 
+# main application class
 class FlashcardApp:
     def __init__(self, root):
         self.root = root
         self.root.title("FlashPlay - Interactive Vocabulary Learning")
 
-        # Farben
+        # color palette for UI consistency
         self.colors = {
             "cream": "#F6E8B1",
             "sage": "#B0CC99",
@@ -21,13 +22,14 @@ class FlashcardApp:
         }
         self.root.configure(bg=self.colors["cream"])
 
-        # Constants
+        # UI Constants for cards/ button sizing
         self.SEARCH_CARD_WIDTH = 520
         self.SEARCH_CARD_HEIGHT = 92
         self.FLASHCARD_CARD_WIDTH = 680
         self.FLASHCARD_CARD_HEIGHT = 88
         self.BUTTON_COLUMN_WIDTH = 210  # Platz rechts für Edit/Delete
 
+        # flashcard manager and app state
         self.flashcard_manager = FlashcardManager()
         self.search_var = None
         self.all_flashcards = []
@@ -36,9 +38,11 @@ class FlashcardApp:
         self._canvas_window = None
         self.streak_days = 0
 
+        # setup the main menu screen
         self.setup_main_menu()
 
-    # UI from buttons
+    # UI COMPONENTS
+    # create a styled large button for main menu/actions
     def create_styled_button(self, parent, text, command, width=25, is_primary=True):
         button_container = tk.Frame(parent, bg=self.colors["cream"])
         button_container.pack(pady=8)
@@ -68,6 +72,7 @@ class FlashcardApp:
         )
         btn.pack(padx=4, pady=4)
 
+        # hover effects for buttons
         def on_enter(_):
             hover_color = self.colors["lime"] if is_primary else self.colors["sage"]
             btn.configure(bg=hover_color)
@@ -81,6 +86,7 @@ class FlashcardApp:
         btn.bind("<Leave>", on_leave)
         return btn
 
+    # create a small button (used in flashcard rows)
     def create_small_button(self, parent, text, command, side="left", padx=5):
         btn_container = tk.Frame(parent, bg=self.colors["cream"])
         btn_container.pack(side=side, padx=padx)
@@ -109,6 +115,7 @@ class FlashcardApp:
         )
         btn.pack(padx=2, pady=2)
 
+        # hover color
         def on_enter(_):
             btn.configure(bg=self.colors["sage"])
             bg_frame.configure(bg=self.colors["sage"])
@@ -121,6 +128,7 @@ class FlashcardApp:
         btn.bind("<Leave>", on_leave)
         return btn
 
+    # create a custom styled vertical scrollbar 
     def create_styled_scrollbar(self, parent):
         style = ttk.Style()
         style.theme_use("clam")
@@ -135,15 +143,17 @@ class FlashcardApp:
         )
         return ttk.Scrollbar(parent, orient="vertical", style="Custom.Vertical.TScrollbar")
 
+    # Streak logic (plant growth gamification)
     def increase_streak(self, success=True):
         if success:
             self.streak_days = min(self.streak_days + 1, 20)
         else:
             self.streak_days = 0
-        # redraw main menu to refresh the plants
+        # redraw plants in main menu
         self.setup_main_menu()
 
     # screens
+    # main menu layout
     def setup_main_menu(self):
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -152,6 +162,7 @@ class FlashcardApp:
         main_frame = tk.Frame(self.root, bg=self.colors["cream"])
         main_frame.pack(fill="both", expand=True, padx=30, pady=30)
 
+        # title block with icon and subtitle
         title_frame = tk.Frame(main_frame, bg=self.colors["cream"])
         title_frame.grid(row=0, column=0, columnspan=3, pady=(20, 30))  # grid inside main_frame
         icon_font = font.Font(family="Helvetica", size=36)
@@ -168,12 +179,14 @@ class FlashcardApp:
         main_frame.grid_columnconfigure(1, weight=2)
         main_frame.grid_columnconfigure(2, weight=1)
 
+        # plant streak widgets
         self._left_plant = PlantTracker(main_frame, width=120, height=240)
         self._left_plant.frame.grid(row=1, column=0, sticky="n", padx=10, pady=6)
 
         button_frame = tk.Frame(main_frame, bg=self.colors["cream"])
         button_frame.grid(row=1, column=1, padx=10, pady=6, sticky="n")
 
+        # main menu buttons
         self.create_styled_button(button_frame, "🧠 Play Memory Game", self.launch_memory_game, is_primary=True)
         self.create_styled_button(button_frame, "🏃 Play Race Game", self.launch_game_race, is_primary=True)
         self.create_styled_button(button_frame, "⚙️ Manage Flashcards", self.manage_flashcards, is_primary=False)
@@ -183,8 +196,8 @@ class FlashcardApp:
         self._right_plant = PlantTracker(main_frame, width=120, height=240)
         self._right_plant.frame.grid(row=1, column=2, sticky="n", padx=10, pady=6)
 
+    # Info window logic
     def info(self):
-        # Create and display an info window with explanatory text from separate file
         try:
             import info
             print("✓ Successfully imported info module")
@@ -217,7 +230,7 @@ class FlashcardApp:
             messagebox.showerror("Unexpected Error", f"Unexpected error loading info: {str(e)}")
             return
 
-        # Create a new window
+        # info window construction (styled like rest of app)
         info_window = tk.Toplevel(self.root)
         info_window.title("FlashPlay - Information & Help")
         info_window.geometry("700x600")
@@ -253,7 +266,7 @@ class FlashcardApp:
         )
         title_label.pack(pady=(15, 20))
 
-        # Create scrollable text area
+        # create scrollable text area
         text_container = tk.Frame(inner_frame, bg=self.colors["cream"])
         text_container.pack(fill="both", expand=True, pady=(0, 15))
 
@@ -268,7 +281,7 @@ class FlashcardApp:
         text_frame = tk.Frame(canvas, bg=self.colors["cream"])
         canvas_window = canvas.create_window((0, 0), window=text_frame, anchor="nw")
 
-        # Create text label with the imported content
+        # display info text inside frame
         text_content = tk.Label(
             text_frame,
             text=info_text.strip(),
@@ -348,6 +361,7 @@ class FlashcardApp:
         info_window.focus_set()
         info_window.after_idle(update_scroll_region)
 
+    # flashcard management screen
     def manage_flashcards(self):
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -365,14 +379,14 @@ class FlashcardApp:
             font=title_font, bg=self.colors["cream"], fg=self.colors["dark_green"]
         ).pack()
 
-        # Top controls
+        # Top controls: add/ back buttons
         control_frame = tk.Frame(main_frame, bg=self.colors["cream"])
         control_frame.pack(fill="x", pady=(10, 0))
 
         buttons_row = tk.Frame(control_frame, bg=self.colors["cream"])
         buttons_row.pack()
 
-        # Add / Back
+        # helper for making styled buttons
         def mk_btn(text, bg, command):
             outer = tk.Frame(buttons_row, bg=self.colors["brown"])
             outer.pack(side="left", padx=5)
@@ -389,12 +403,13 @@ class FlashcardApp:
         add_btn, add_inner = mk_btn("➕ Add New Flashcard", self.colors["sage"], self.add_flashcard_with_translation)
         back_btn, back_inner = mk_btn("← Back to Main Menu", self.colors["lime"], self.setup_main_menu)
 
+        # button hover colors
         add_btn.bind("<Enter>", lambda e: (add_btn.config(bg=self.colors["lime"]), add_inner.config(bg=self.colors["lime"])))
         add_btn.bind("<Leave>", lambda e: (add_btn.config(bg=self.colors["sage"]), add_inner.config(bg=self.colors["sage"])))
         back_btn.bind("<Enter>", lambda e: (back_btn.config(bg=self.colors["sage"]), back_inner.config(bg=self.colors["sage"])))
         back_btn.bind("<Leave>", lambda e: (back_btn.config(bg=self.colors["lime"]), back_inner.config(bg=self.colors["lime"])))
 
-        # Searchbar
+        # Searchbar for filtering flashcards
         self.search_var = tk.StringVar()
         self.search_var.trace('w', self.filter_flashcards)
 
@@ -424,10 +439,11 @@ class FlashcardApp:
             insertbackground=self.colors["dark_green"], relief="flat", bd=5
         ).pack(pady=(0, 8))
 
-        # Scrollable list
+        # Scrollable flashcards list
         scrollable_container = tk.Frame(main_frame, bg=self.colors["cream"])
         scrollable_container.pack(fill="both", expand=True, pady=(10, 20))
 
+        # canvas + scrollbar for flashcard rows
         canvas = tk.Canvas(scrollable_container, bg=self.colors["cream"], highlightthickness=0)
         scrollbar = self.create_styled_scrollbar(scrollable_container)
         scrollbar.config(command=canvas.yview)
@@ -443,13 +459,14 @@ class FlashcardApp:
             canvas.configure(scrollregion=canvas.bbox("all"))
         self.scrollable_frame.bind("<Configure>", _update_scrollregion)
 
-        # Inner-Frame-width
+        # make inner frame width match canvas
         def _resize_inner(evt):
             canvas.itemconfig(self._canvas_window, width=evt.width)
         canvas.bind("<Configure>", _resize_inner)
 
         import platform
 
+        # mouse wheel handling for different systems
         def _on_mousewheel(event):
             system = platform.system()
             if system == 'Darwin':  # Mac
@@ -472,7 +489,7 @@ class FlashcardApp:
         self.all_flashcards = self.flashcard_manager.get_all_flashcards()
         self.update_flashcard_display()
 
-    # Card item
+    # flashcard item row
     def create_flashcard_item(self, parent, flashcard):
         row = tk.Frame(parent, bg=self.colors["cream"])
         row.pack(fill="x", pady=4)
@@ -506,7 +523,7 @@ class FlashcardApp:
             wraplength=wrap_len
         ).pack(side="left", fill="x", expand=True)
 
-        # buttons flashcards
+        # edit and delete buttons
         buttons = tk.Frame(
             content,
             bg=self.colors["cream"],
@@ -519,7 +536,7 @@ class FlashcardApp:
         self.create_small_button(buttons, "✏️ Edit", lambda: self.edit_flashcard(flashcard))
         self.create_small_button(buttons, "🗑️ Delete", lambda: self.delete_flashcard(flashcard[0]))
 
-    # Data & actions
+    # data management
     def update_flashcard_display(self):
         if not self.scrollable_frame:
             return
@@ -552,6 +569,7 @@ class FlashcardApp:
         if self.scrollable_frame is not None:
             self.update_flashcard_display()
 
+    # game launchers
     def launch_memory_game(self):
         for w in self.root.winfo_children():
             w.destroy()
@@ -585,6 +603,7 @@ class FlashcardApp:
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
 
+    # flashcard crud
     def check_duplicate_flashcard(self, term, translation, exclude_id=None):
         flashcards = self.flashcard_manager.get_all_flashcards()
         t = term.lower().strip()
@@ -652,6 +671,7 @@ class FlashcardApp:
         ddl.set("french")
         ddl.pack(pady=(0, 20))
 
+        # translation and saving logic
         def translate_and_save():
             term = term_entry.get().strip()
             language = lang_var.get().strip().lower()
@@ -716,6 +736,7 @@ class FlashcardApp:
             self.manage_flashcards()
 
 
+# main loop
 if __name__ == "__main__":
     root = tk.Tk()
     root.geometry("920x720")
