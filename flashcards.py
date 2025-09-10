@@ -43,33 +43,6 @@ class FlashcardManager:
         self.cursor.execute('DELETE FROM flashcards WHERE id = ?', (flashcard_id,))
         self.conn.commit()
 
-    def load_flashcards(self):
-        # retrieve all flashcards (id, term, translation)
-        self.cursor.execute('SELECT id, term, translation FROM flashcards')
-        return self.cursor.fetchall()
-
-    def get_flashcard_count(self) -> int:
-        # return the total number of flashcards in the database
-        self.cursor.execute('SELECT COUNT(*) FROM flashcards')
-        return self.cursor.fetchone()[0]
-
-    def ensure_flashcards_exist(self, parent=None) -> bool:
-        # check if any flashcards exist - if none exist, show messagebox and return False
-        if self.get_flashcard_count() == 0:
-            if parent:
-                messagebox.showinfo(
-                    "No flashcards",
-                    f"No flashcards found. Please add some before playing.",
-                    parent=parent
-                )
-            return False
-        return True
-
-    def clear_flashcards(self):
-        # delete all flashcards
-        self.cursor.execute('DELETE FROM flashcards')
-        self.conn.commit()
-
     def get_all_flashcards(self):
         # fetch all flashcards
         self.cursor.execute('SELECT id, term, translation FROM flashcards')
