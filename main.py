@@ -6,7 +6,6 @@ from game_race import RaceGame
 from deep_translator import GoogleTranslator
 from streak_plants import PlantTracker
 
-
 class FlashcardApp:
     def __init__(self, root):
         self.root = root
@@ -169,8 +168,8 @@ class FlashcardApp:
         main_frame.grid_columnconfigure(1, weight=2)
         main_frame.grid_columnconfigure(2, weight=1)
 
-        left_plant = PlantTracker(main_frame, width=120, height=240, streak_days=getattr(self, "streak_days", None))
-        left_plant.frame.grid(row=1, column=0, sticky="n", padx=10, pady=6)
+        self._left_plant = PlantTracker(main_frame, width=120, height=240)
+        self._left_plant.frame.grid(row=1, column=0, sticky="n", padx=10, pady=6)
 
         button_frame = tk.Frame(main_frame, bg=self.colors["cream"])
         button_frame.grid(row=1, column=1, padx=10, pady=6, sticky="n")
@@ -181,8 +180,8 @@ class FlashcardApp:
         self.create_styled_button(button_frame, "ℹ️ Info", self.info, is_primary=False)
         self.create_styled_button(button_frame, "❌ Exit", self.root.quit, width=15, is_primary=False)
 
-        right_plant = PlantTracker(main_frame, width=120, height=240, streak_days=getattr(self, "streak_days", None))
-        right_plant.frame.grid(row=1, column=2, sticky="n", padx=10, pady=6)
+        self._right_plant = PlantTracker(main_frame, width=120, height=240)
+        self._right_plant.frame.grid(row=1, column=2, sticky="n", padx=10, pady=6)
 
     def info(self):
         # Create and display an info window with explanatory text from separate file
@@ -559,7 +558,14 @@ class FlashcardApp:
             w.destroy()
         flashcards = self.flashcard_manager.get_all_flashcards()
         if flashcards:
-            MemoryGame(self.root, flashcards, on_exit=self.setup_main_menu, on_streak=self.increase_streak)
+            MemoryGame(
+                self.root,
+                flashcards,
+                on_exit=self.setup_main_menu,
+                on_streak=self.increase_streak,
+                left_plant=self._left_plant,
+                right_plant=self._right_plant
+            )
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
             self.setup_main_menu()
@@ -569,7 +575,14 @@ class FlashcardApp:
             w.destroy()
         flashcards = self.flashcard_manager.get_all_flashcards()
         if flashcards:
-            RaceGame(self.root, self, flashcards, on_exit=self.setup_main_menu, on_streak=self.increase_streak)
+            RaceGame(
+                self.root,
+                self, flashcards,
+                on_exit=self.setup_main_menu,
+                on_streak=self.increase_streak,
+                left_plant=self._left_plant,
+                right_plant=self._right_plant
+            )
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
 

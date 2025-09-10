@@ -7,7 +7,6 @@ import io
 import sys
 from ascii_art_TNH import ascii_art
 
-
 def get_ascii_art(name: str, placeholder: str = "") -> str:
     # generates ASCII art for a character - if generation fails, returns the placeholder
     buf = io.StringIO()
@@ -28,13 +27,15 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
 
 
 class RaceGame:
-    def __init__(self, root, parent, flashcards, on_exit=None, on_streak=None):
+    def __init__(self, root, parent, flashcards, on_exit=None, on_streak=None, left_plant=None, right_plant=None):
         # initializes the race game window with UI components and game logic
         self.root = root
         self.parent = parent
         self.flashcards = flashcards or []
         self.on_exit = on_exit
         self.on_streak = on_streak
+        self._left_plant = left_plant
+        self._right_plant = right_plant
 
         # remember original root state to restore after exit
         self._original_bg = self.root.cget("bg")
@@ -60,9 +61,9 @@ class RaceGame:
 
         # Track/ UI colors derived from palette
         self.bg = self.colors["cream"]
-        self.track_bg = "#E6F0D9"
-        self.accent = "#C8E3B0"
-        self.finish_color = "#6A8F56"
+        self.track_bg = self.colors["sage"]
+        self.accent = self.colors["sage"]
+        self.finish_color = self.colors["dark_green"]
         self.char_color = self.colors["dark_green"]
 
         self.canvas_width = 1100
@@ -71,7 +72,7 @@ class RaceGame:
         self.finish_x = 920
         self.lane_y_player = 110
         self.lane_y_opponent = 280
-        self.lane_half_height = 40
+        self.lane_half_height = 45
 
         # speed and timing parameters
         self.opponent_speed_tick = 70
@@ -180,12 +181,12 @@ class RaceGame:
             top = cy - self.lane_half_height
             bot = cy + self.lane_half_height
             self.canvas.create_line(
-                10, top, self.canvas_width - 10, top,
-                fill='#c7c7c7', width=2, dash=(10, 8)
+                0, top, self.finish_x + 40, top,
+                fill=self.colors["brown"], width=2, dash=(10, 8)
             )
             self.canvas.create_line(
-                10, bot, self.canvas_width - 10, bot,
-                fill='#c7c7c7', width=2, dash=(10, 8)
+                0, bot, self.finish_x + 40, bot,
+                fill=self.colors["brown"], width=2, dash=(10, 8)
             )
 
         # term label (row 3)
@@ -194,7 +195,7 @@ class RaceGame:
             text="",
             font=("Helvetica", 32, "bold"),
             bg=self.colors["cream"],
-            fg="#4a6340",
+            fg=self.colors["dark_green"],
             wraplength=1000,
             justify="center",
         )
@@ -308,6 +309,78 @@ class RaceGame:
         btn.pack(padx=4, pady=4)
         return btn
 
+    def show_custom_popup(self, message, title, buttons=None):
+        popup = tk.Toplevel(self.root)
+        popup.transient(self.root)
+        popup.grab_set()
+        popup.configure(bg=self.colors["cream"])
+        popup.title(title)
+        popup.resizable(False, False)
+
+        # size and center
+        w, h = 400, 300
+        x = self.root.winfo_rootx() + (self.root.winfo_width() - w) // 2
+        y = self.root.winfo_rooty() + (self.root.winfo_height() - h) // 2
+        popup.geometry(f"{w}x{h}+{x}+{y}")
+
+        label = tk.Label(
+            popup,
+            text=message,
+            font=("Helvetica", 14, "bold"),
+            bg=self.colors["cream"],
+            fg=self.colors["dark_green"],
+            wraplength=360,
+            justify="center"
+        )
+        label.place(relx=0.5, rely=0.35, anchor="center")
+
+        # button row
+        if buttons:
+            button_container = tk.Frame(popup, bg=self.colors["cream"])
+            button_container.place(relx=0.5, rely=0.75, anchor="center")
+
+            btn_font = font.Font(family="Helvetica", size=11, weight="bold")
+
+            def create_button(parent, text, command):
+                outer = tk.Frame(parent, bg=self.colors["brown"])
+                inner = tk.Frame(outer, bg=self.colors["sage"])
+
+                def on_click():
+                    popup.destroy()
+                    if callable(command):
+                        command()
+
+                btn = tk.Button(
+                    inner,
+                    text=text,
+                    font=btn_font,
+                    bg=self.colors["sage"],
+                    fg=self.colors["dark_green"],
+                    activebackground=self.colors["lime"],
+                    activeforeground=self.colors["dark_green"],
+                    relief="flat",
+                    bd=0,
+                    padx=18,
+                    pady=10,
+                    cursor="hand2",
+                    command=on_click,
+                )
+                btn.pack(expand=True, fill="both", padx=2, pady=2)
+                inner.pack(expand=True, fill="both", padx=3, pady=3)
+                outer.pack(side="left", padx=10)
+
+            for text, cmd in buttons:
+                create_button(button_container, text, cmd)
+        else:
+            tk.Button(
+                popup,
+                text="Close",
+                command=popup.destroy
+            ).place(relx=0.5, rely=0.7, anchor="center")
+
+        popup.bind('<Escape>', lambda e: popup.destroy())
+        popup.focus_set()
+        popup.wait_window()
     # -------------------- Game Logic -------------------- #
     def _place_characters(self):
         # draws player and opponent ASCII art and labels on the canvas
@@ -324,22 +397,23 @@ class RaceGame:
         font_size = 9
         label_font_size = 14
         label_offset = 60  # distance below ASCII art
+        ascii_offset = 15 # for better centering of ASCII characters
 
         # draw ASCII art for player and opponent
         self.player_item = self.canvas.create_text(
             self.player_x,
-            self.lane_y_player,
+            self.lane_y_player + ascii_offset,
             text=self.player_art,
             anchor="w",
-            font=("Courier", font_size),
+            font=("Courier", font_size, "bold"),
             fill=self.char_color,
         )
         self.opponent_item = self.canvas.create_text(
             self.opponent_x,
-            self.lane_y_opponent,
+            self.lane_y_opponent + ascii_offset,
             text=self.opponent_art,
             anchor="w",
-            font=("Courier", font_size),
+            font=("Courier", font_size, "bold"),
             fill=self.char_color,
         )
 
@@ -350,7 +424,7 @@ class RaceGame:
             text="You",
             anchor="w",
             font=("Helvetica", label_font_size, "bold"),
-            fill=self.char_color  # same green as ASCII art
+            fill=self.char_color
         )
         self.opponent_label = self.canvas.create_text(
             self.opponent_x,
@@ -358,7 +432,7 @@ class RaceGame:
             text="Your Opponent",
             anchor="w",
             font=("Helvetica", label_font_size, "bold"),
-            fill=self.finish_color  # soft earthy green to match scheme
+            fill=self.finish_color
         )
 
         self.canvas.update()
@@ -443,10 +517,9 @@ class RaceGame:
         correct = self.current_flashcard[2].strip()
 
         if not user:
-            messagebox.showinfo(
-                "No answer",
-                "Please enter a translation (or Close to stop).",
-                parent=self.root
+            self.show_custom_popup(
+                title="translation required",
+                message="No answer, please enter a translation (or close to stop)."
             )
             return
 
@@ -534,11 +607,11 @@ class RaceGame:
             self._opponent_after_id = None
 
         if self._timeout_after_id:
-           try:
+            try:
                 self.root.after_cancel(self._timeout_after_id)
-           except Exception:
+            except Exception:
                 pass
-           self._timeout_after_id = None
+            self._timeout_after_id = None
 
         for jid in list(self._after_jobs):
             try:
@@ -550,12 +623,12 @@ class RaceGame:
         # disable entry, enable play again
         try:
             if self.answer_entry.winfo_exists():
-                self.answer_entry.config(state='disabled')
+                self.answer_entry.config(state="disabled")
         except Exception:
             pass
         try:
             if self.play_again_btn.winfo_exists():
-                self.play_again_btn.config(state='normal')
+                self.play_again_btn.config(state="normal")
         except Exception:
             pass
 
@@ -564,116 +637,40 @@ class RaceGame:
             self._game_over_popup(message)
 
         # Update streak
-        if self.on_streak:
-            self.on_streak(success=True)
         if hasattr(self, "_left_plant"):
-            self._left_plant.set_streak(self.on_streak)
+            self._left_plant.record_activity()
         if hasattr(self, "_right_plant"):
-            self._right_plant.set_streak(self.on_streak)
+            self._right_plant.record_activity()
 
-    def _game_over_popup(self, message=''):
+    def _game_over_popup(self, popup):
         # displays final stats in a message box
         elapsed = int(time.time() - self.start_time)
         stats = (
             "🎉 Congratulations! 🎉\n\n"
-            "You completed the memory game!\n\n"
+            "You completed the race game!\n\n"
             "📊 Your Stats:\n"
             f"• Moves: {self.moves}\n"
             f"• Time: {elapsed}s\n"
             f"• Correct Terms: {len(self.correct_terms)}"
         )
 
-        # Create popup window
-        popup = tk.Toplevel(self.root)
-        popup.transient(self.root)
-        popup.grab_set()
-        popup.configure(bg=self.colors["cream"])
-        popup.title("Game Complete!")
-        popup.resizable(False, False)
-
-        # Set fixed size and center the window
-        w, h = 400, 300
-        x = self.root.winfo_rootx() + (self.root.winfo_width() - w) // 2
-        y = self.root.winfo_rooty() + (self.root.winfo_height() - h) // 2
-        popup.geometry(f"{w}x{h}+{x}+{y}")
-
-        # Stats label (centered)
-        stats_label = tk.Label(
-            popup,
-            text=stats,
-            font=("Helvetica", 14, "bold"),
-            bg=self.colors["cream"],
-            fg=self.colors["dark_green"],
-            justify="center",
-            wraplength=360
+        self.show_custom_popup(
+            title="Game Complete!",
+            message=stats,
+            buttons=[
+                ("🔄 New Game", self.reset_game),
+                ("← Back to Menu", self.return_to_main_menu)
+            ]
         )
-        stats_label.place(relx=0.5, rely=0.35, anchor="center")
-
-        button_container = tk.Frame(popup, bg=self.colors["cream"])
-        button_container.place(relx=0.5, rely=0.8, anchor="center")
-
-        btn_font = font.Font(family="Helvetica", size=11, weight="bold")
-
-        def create_popup_button(parent, text, command):
-            outer = tk.Frame(parent, bg=self.colors["brown"])
-            inner = tk.Frame(outer, bg=self.colors["sage"])
-            btn = tk.Button(
-                inner,
-                text=text,
-                font=btn_font,
-                bg=self.colors["sage"],
-                fg=self.colors["dark_green"],
-                activebackground=self.colors["lime"],
-                activeforeground=self.colors["dark_green"],
-                relief="flat",
-                bd=0,
-                padx=18,
-                pady=10,
-                cursor="hand2",
-                command=command,
-            )
-            btn.pack(expand=True, fill="both", padx=2, pady=2)
-            inner.pack(expand=True, fill="both", padx=3, pady=3)
-            outer.pack(side="left", padx=10)
-
-            def on_enter(_):
-                btn.configure(bg=self.colors["lime"])
-                inner.configure(bg=self.colors["lime"])
-
-            def on_leave(_):
-                btn.configure(bg=self.colors["sage"])
-                inner.configure(bg=self.colors["sage"])
-
-            btn.bind("<Enter>", on_enter)
-            btn.bind("<Leave>", on_leave)
-            return btn
-
-        def restart_and_close():
-            popup.destroy()
-            self.reset_game()
-
-        def menu_and_close():
-            popup.destroy()
-            self.return_to_main_menu()
-
-        btn_row = tk.Frame(popup, bg=self.colors["cream"])
-        btn_row.place(relx=0.5, rely=0.8, anchor="center")
-        create_popup_button(btn_row, "🔄 New Game", restart_and_close)
-        create_popup_button(btn_row, "← Back to Menu", menu_and_close)
-
-        # keyboard shortcuts
-        popup.bind('<Return>', lambda e: restart_and_close())
-        popup.bind('<Escape>', lambda e: menu_and_close())
-
-        popup.focus_set()
-        popup.wait_window()
 
     # -------------------- utilities -------------------- #
     def _after(self, ms, fn):
         jid = None
+
         def wrapper():
             self._after_jobs.discard(jid)
             fn()
+
         jid = self.root.after(ms, wrapper)
         self._after_jobs.add(jid)
         return jid
@@ -702,7 +699,6 @@ class RaceGame:
             except Exception:
                 pass
             self._after_jobs.discard(jid)
-
 
     # root-level cleanup
     def return_to_main_menu(self):
@@ -739,9 +735,4 @@ class RaceGame:
         self.time_elapsed += 1
         if self.time_label.winfo_exists():
             self.time_label.config(text=f"Time: {self.time_elapsed}s")
-            self._after(1000, self.update_timer) # update every 1s
-
-
-
-
-
+            self._after(1000, self.update_timer)  # update every 1s

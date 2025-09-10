@@ -1,10 +1,13 @@
 import tkinter as tk
-import datetime, os, json
+import datetime
+import os
+import json
 
 SAVE_FILE = "streak_data.json"
 
 class PlantTracker:
-    def __init__(self, parent, width=100, height=220, streak_days=None):
+    # widget that visually represents a daily streak as a growing plant
+    def __init__(self, parent, width=100, height=220):
         # colors
         self.colors = {
             "cream": "#F6E8B1",
@@ -13,59 +16,80 @@ class PlantTracker:
             "lime": "#B7CA79",
             "dark_green": "#677E52",
         }
-
         self.parent = parent
         self.width = width
         self.height = height
+        self.streak = 0
         self.last_date = None
         self._load_streak()
 
         # internal frame (this is what you grid into your main layout)
-        self.frame = tk.Frame(parent, bg="#F6E8B1")  # no pack here — parent will grid(self.frame,...)
+        self.frame = tk.Frame(parent, bg=self.colors["cream"])
 
-        # canvas lives inside our frame and we pack it here (pack only inside our own frame)
+        # canvas lives inside our frame
         self.canvas = tk.Canvas(self.frame, width=self.width, height=self.height,
-                                bg="#F6E8B1", highlightthickness=0)
+                                bg=self.colors["cream"], highlightthickness=0)
         self.canvas.pack(padx=6, pady=6)
 
-
-        self.streak = self._load_streak()
-
-        # draw initial plant
         self.update_growth()
 
-    @staticmethod
-    def _load_streak():
+    def _load_streak(self):
+        # load streak and last activity date from JSON file
         try:
             if os.path.exists(SAVE_FILE):
                 with open(SAVE_FILE, "r") as f:
                     data = json.load(f)
+                    self.streak = int(data.get("streak", 0))
+                    self.last_date = data.get("last_date")
                     return int(data.get("streak", 0))
-        except Exception:
-            pass
-        return 0
+        # if loading fails, reset to defaults
+        except Exception as e:
+            # print error and reset streak if loading fails
+            print("Error loading streak file:", e)
+            self.streak = 0
+            self.last_date = None
 
     def _save_streak(self):
+        # save current streak and last activity date to JSON file
         try:
             with open(SAVE_FILE, "w") as f:
-                json.dump({"streak": int(self.streak),
-                           "last_date": datetime.date.today().isoformat()}, f)
-        except Exception:
-            pass
+                json.dump({
+                    "streak": int(self.streak),
+                    "last_date": self.last_date
+                }, f)
+        except Exception as e:
+            print("Error saving streak file:", e)
 
-    def set_streak(self, new_value):
-        try:
-            self.streak = int(new_value)
-        except Exception:
-            self.streak = 0
+    def record_activity(self):
+        # call this when the user completes a game
+        # updates the streak: increments if it's a new day; resets if a day was missed; caps streak at 20 days
+        today = datetime.date.today()
+        if self.last_date:
+            last_date_obj = datetime.date.fromisoformat(self.last_date)
+            delta_days = (today - last_date_obj).days
+            if delta_days == 1:
+                self.streak += 1
+            elif delta_days > 1:
+                self.streak = 1
+            # If delta_days == 0: already played today, do not increment
+        else:
+            self.streak = 1
+
+        self.last_date = today.isoformat()
+        # cap streak at 20
+        if self.streak > 20:
+            self.streak = 20
         self._save_streak()
         self.update_growth()
 
     def update_growth(self):
+        # redraws the plant on the canvas based on current streak value
         c = self.canvas
+        if not c.winfo_exists():
+            return
         c.delete("all")
-
         h = self.height
+
         # soil
         c.create_rectangle(10, h - 20, self.width - 10, h - 2, fill=self.colors["brown"], outline="")
 
@@ -84,8 +108,8 @@ class PlantTracker:
                 c.create_oval(cx, y - 5, cx + 20, y + 5, fill=self.colors["dark_green"], outline="")
 
         # streak label
-        # show streak number slightly below the soil
-        self.canvas.create_text(40, 195 + 10, text=f"{self.streak}/20", fill=self.colors["dark_green"], font=("Helvetica", 10, "bold"))
+        c.create_text(40, 195 + 10, text=f"{self.streak}/20", fill=self.colors["dark_green"],
+                      font=("Helvetica", 10, "bold"))
 
 
 

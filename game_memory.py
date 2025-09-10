@@ -3,6 +3,7 @@ from tkinter import messagebox, font
 import random
 import time
 import math
+import os
 
 
 class RoundedCard(tk.Canvas):
@@ -111,11 +112,13 @@ class RoundedCard(tk.Canvas):
 
 
 class MemoryGame:
-    def __init__(self, root, flashcards, on_exit=None, on_streak=None):
+    def __init__(self, root, flashcards, on_exit=None, on_streak=None, left_plant=None, right_plant=None):
         self.root = root
         self.flashcards = flashcards  # list of (id, term, translation)
         self.on_exit = on_exit
         self.on_streak = on_streak
+        self._left_plant = left_plant
+        self._right_plant = right_plant
 
         # remember original root state to restore after exit
         self._original_bg = self.root.cget("bg")
@@ -491,12 +494,10 @@ class MemoryGame:
 
     def _game_over(self):
 
-        if self.on_streak:
-            self.on_streak(success=True)
         if hasattr(self, "_left_plant"):
-            self._left_plant.set_streak(self.on_streak)
+            self._left_plant.record_activity()
         if hasattr(self, "_right_plant"):
-            self._right_plant.set_streak(self.on_streak)
+            self._right_plant.record_activity()
 
         elapsed = int(time.time() - self.start_time)
         stats = (
