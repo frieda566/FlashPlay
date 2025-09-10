@@ -59,13 +59,6 @@ class RaceGame:
             "dark_green": "#4A6340"
         }
 
-        # Track/ UI colors derived from palette
-        self.bg = self.colors["cream"]
-        self.track_bg = self.colors["sage"]
-        self.accent = self.colors["sage"]
-        self.finish_color = self.colors["dark_green"]
-        self.char_color = self.colors["dark_green"]
-
         self.canvas_width = 1100
         self.canvas_height = 420
         self.start_x = 30
@@ -149,14 +142,14 @@ class RaceGame:
         self.time_label.pack(side="right", padx=16)
 
         # game frame (racetrack)
-        self.game_frame = tk.Frame(self.container, bg=self.track_bg)
+        self.game_frame = tk.Frame(self.container, bg=self.colors["sage"])
         self.game_frame.grid(row=2, column=0, sticky="nsew", padx=12, pady=12)
 
         self.canvas = tk.Canvas(
             self.game_frame,
             width=self.canvas_width,
             height=self.canvas_height,
-            bg=self.track_bg,
+            bg=self.colors["sage"],
             highlightthickness=0,
         )
         self.canvas.pack(fill="both", expand=True, padx=10, pady=10)
@@ -172,7 +165,7 @@ class RaceGame:
             self.finish_x + 40, 0,
             self.finish_x + 40,
             self.canvas_height,
-            fill=self.finish_color,
+            fill=self.colors["dark_green"],
             width=4
         )
 
@@ -215,7 +208,7 @@ class RaceGame:
         self.info_label = tk.Label(
             self.container,
             text="Answer as fast as you can! (≤8s = faster)",
-            font=("Helvetica", 12),
+            font=("Helvetica", 14),
             bg=self.colors["cream"],
             fg=self.colors["dark_green"],
         )
@@ -318,7 +311,7 @@ class RaceGame:
         popup.resizable(False, False)
 
         # size and center
-        w, h = 400, 300
+        w, h = 400, 400
         x = self.root.winfo_rootx() + (self.root.winfo_width() - w) // 2
         y = self.root.winfo_rooty() + (self.root.winfo_height() - h) // 2
         popup.geometry(f"{w}x{h}+{x}+{y}")
@@ -406,7 +399,7 @@ class RaceGame:
             text=self.player_art,
             anchor="w",
             font=("Courier", font_size, "bold"),
-            fill=self.char_color,
+            fill=self.colors["dark_green"],
         )
         self.opponent_item = self.canvas.create_text(
             self.opponent_x,
@@ -414,7 +407,7 @@ class RaceGame:
             text=self.opponent_art,
             anchor="w",
             font=("Courier", font_size, "bold"),
-            fill=self.char_color,
+            fill=self.colors["dark_green"],
         )
 
         # draw labels below each character with color scheme
@@ -424,7 +417,7 @@ class RaceGame:
             text="You",
             anchor="w",
             font=("Helvetica", label_font_size, "bold"),
-            fill=self.char_color
+            fill=self.colors["dark_green"],
         )
         self.opponent_label = self.canvas.create_text(
             self.opponent_x,
@@ -432,7 +425,7 @@ class RaceGame:
             text="Your Opponent",
             anchor="w",
             font=("Helvetica", label_font_size, "bold"),
-            fill=self.finish_color
+            fill=self.colors["dark_green"],
         )
 
         self.canvas.update()
@@ -492,7 +485,7 @@ class RaceGame:
             return
         if self.answer_entry.get().strip() == "":
             self.info_label.config(
-                text=f"Time's up! Small advance penalty applied. Correct: {self.current_flashcard[2]}"
+                text=f"Time's up! Small advance penalty applied. Correct term would have been: {self.current_flashcard[2]}"
             )
             self._animate_move(self.player_item, self.player_x, self.player_x + self.player_slow)
             self.player_x += self.player_slow
