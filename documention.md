@@ -69,7 +69,8 @@ After understanding, it got easier and easier the more I worked with it and the 
         online meeting together 
   - Frieda: start to implement streak system to track progress 
             stats design and popup layout 
-            adding into documentation
+            adding into documentation 
+
   - 07. September 
           online meeting together, planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
           wanting parents or friends to try out our program to see if there are any further ideas to make sure the program is understandable, talking about things that we should change to make our codes more readable and that they align with one another 
