@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog, ttk, font
+from tkinter import messagebox, ttk, font
 from flashcards import FlashcardManager
 from game_memory import MemoryGame
 from game_race import RaceGame
@@ -10,6 +10,8 @@ from streak_plants import PlantTracker
 class FlashcardApp:
     def __init__(self, root):
         self.root = root
+        self._left_plant = None
+        self._right_plant = None
         self.root.title("FlashPlay - Interactive Vocabulary Learning")
 
         # color palette for UI consistency
@@ -85,6 +87,72 @@ class FlashcardApp:
         btn.bind("<Enter>", on_enter)
         btn.bind("<Leave>", on_leave)
         return btn
+
+    # create UI for all popups
+    def styled_input_dialog(self, title, prompt, initial_value=""):
+        popup = tk.Toplevel(self.root)
+        popup.title(title)
+        popup.configure(bg=self.colors["cream"])
+        popup.resizable(False, False)
+        popup.transient(self.root)
+        popup.grab_set()
+
+        popup.geometry("400x220")
+        x = self.root.winfo_rootx() + (self.root.winfo_width() - 400) // 2
+        y = self.root.winfo_rooty() + (self.root.winfo_height() - 220) // 2
+        popup.geometry(f"400x220+{x}+{y}")
+
+        main_container = tk.Frame(popup, bg=self.colors["brown"])
+        main_container.pack(fill="both", expand=True, padx=6, pady=6)
+
+        outer = tk.Frame(main_container, bg=self.colors["sage"])
+        outer.pack(fill="both", expand=True, padx=2, pady=2)
+
+        inner = tk.Frame(outer, bg=self.colors["cream"])
+        inner.pack(fill="both", expand=True, padx=4, pady=4)
+
+        tk.Label(inner, text=title, font=("Helvetica", 14, "bold"),
+                 bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(pady=(15, 12))
+
+        tk.Label(inner, text=prompt, font=("Helvetica", 11, "bold"),
+                 bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(pady=(5, 2))
+
+        entry_var = tk.StringVar(value=initial_value)
+        entry = tk.Entry(inner, width=35, font=("Helvetica", 11),
+                         textvariable=entry_var,
+                         bg=self.colors["lime"], fg=self.colors["dark_green"],
+                         insertbackground=self.colors["dark_green"], relief="flat", bd=5)
+        entry.pack(pady=(0, 15))
+        entry.focus_set()
+
+        value = {'result': None}
+
+        def on_ok():
+            value['result'] = entry_var.get().strip()
+            popup.destroy()
+
+        def on_cancel():
+            popup.destroy()
+
+        btn_row = tk.Frame(inner, bg=self.colors["cream"])
+        btn_row.pack(pady=(10, 15))
+
+        def mk_small(text, bg, cmd):
+            outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
+            outer_frame.pack(side="left", padx=10)
+            inner_frame = tk.Frame(outer_frame, bg=bg)
+            inner_frame.pack(padx=2, pady=2)
+            btn = tk.Button(inner, text=text, font=("Helvetica", 10, "bold"),
+                            bg=bg, fg=self.colors["dark_green"], relief="flat", bd=0,
+                            padx=15, pady=8, cursor="hand2", command=cmd)
+            btn.pack(padx=3, pady=3)
+            return btn
+
+        mk_small("✓ OK", self.colors["sage"], on_ok)
+        mk_small("❌ Cancel", self.colors["lime"], on_cancel)
+
+        popup.wait_window()
+        return value['result']
 
     # create a small button (used in flashcard rows)
     def create_small_button(self, parent, text, command, side="left", padx=5):
@@ -684,9 +752,10 @@ class FlashcardApp:
                 messagebox.showerror("Translation Error", f"Error translating word:\n{e}")
                 return
 
-            confirmed = simpledialog.askstring(
+            confirmed = self.styled_input_dialog(
                 "Confirm Translation",
-                f"Translation of '{term}' in {language}:", initialvalue=translated
+                f"Translation of '{term}' in {language}:",
+                initial_value=translated
             )
             if confirmed:
                 confirmed = confirmed.strip()
@@ -702,10 +771,10 @@ class FlashcardApp:
         btn_row.pack(pady=(10, 15))
 
         def mk_small(text, bg, cmd):
-            outer = tk.Frame(btn_row, bg=self.colors["brown"])
-            outer.pack(side="left", padx=10)
-            inner = tk.Frame(outer, bg=bg)
-            inner.pack(padx=2, pady=2)
+            outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
+            outer_frame.pack(side="left", padx=10)
+            inner_frame = tk.Frame(outer_frame, bg=bg)
+            inner_frame.pack(padx=2, pady=2)
             btn = tk.Button(inner, text=text, font=("Helvetica", 10, "bold"),
                             bg=bg, fg=self.colors["dark_green"], relief="flat", bd=0,
                             padx=15, pady=8, cursor="hand2", command=cmd)
@@ -718,10 +787,10 @@ class FlashcardApp:
         term_entry.focus_set()
 
     def edit_flashcard(self, flashcard):
-        new_term = simpledialog.askstring("Edit Flashcard", "Edit term:", initialvalue=flashcard[1])
+        new_term = self.styled_input_dialog("Edit Flashcard", "Edit term:", initial_value=flashcard[1])
         if not new_term:
             return
-        new_translation = simpledialog.askstring("Edit Flashcard", "Edit translation:", initialvalue=flashcard[2])
+        new_translation = self.styled_input_dialog("Edit Flashcard", "Edit translation:", initial_value=flashcard[2])
         if not new_translation:
             return
         if self.check_duplicate_flashcard(new_term.strip(), new_translation.strip(), exclude_id=flashcard[0]):

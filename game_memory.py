@@ -3,7 +3,7 @@ from tkinter import messagebox, font
 import random
 import time
 import math
-import os
+
 
 # rounded cards
 # custom widget for displaying a card with rounded corners and layering styling
@@ -412,13 +412,15 @@ class MemoryGame:
             if abs(cur_w - card_w) > 2 or abs(cur_h - card_h) > 2:
                 wdg["canvas"].resize(card_w, card_h)
 
-    # scedule card layout update after a short delay on resize
+    # schedule card layout update after a short delay on resize
     def _on_resize(self, _evt):
         if self._layout_job:
             try:
                 self.root.after_cancel(self._layout_job)
-            except Exception:
-                pass
+            except AttributeError:
+                messagebox.showerror("Error", "Something went wrong. Returning to main menu.")
+                self.return_to_main_menu()
+                return
         self._layout_job = self.root.after(120, self._layout_cards)
 
     # gameplay logic
@@ -446,7 +448,7 @@ class MemoryGame:
         start_w = canvas.itemcget(win_id, "width")
         try:
             start_w = int(start_w)
-        except Exception:
+        except AttributeError:
             start_w = max(1, canvas.winfo_width() - 24)
 
         def set_inner_width(v):
@@ -647,22 +649,28 @@ class MemoryGame:
         for jid in list(self._after_jobs):
             try:
                 self.root.after_cancel(jid)
-            except Exception:
-                pass
+            except AttributeError:
+                messagebox.showerror("Error", "Something went wrong. Returning to main menu.")
+                self.return_to_main_menu()
+                return
         self._after_jobs.clear()
         try:
             if self._resize_bind_id:
                 self.container.unbind("<Configure>", self._resize_bind_id)
-        except Exception:
-            pass
+        except AttributeError:
+            messagebox.showerror("Error", "Something went wrong. Returning to main menu.")
+            self.return_to_main_menu()
+            return
 
     # restore main menu UI and clean up
     def return_to_main_menu(self):
         self._cleanup()
         try:
             self.container.destroy()
-        except Exception:
-            pass
+        except AttributeError:
+            messagebox.showerror("Error", "Something went wrong. Returning to main menu.")
+            self.return_to_main_menu()
+            return
         self.root.configure(bg=self._original_bg)
         self.root.title(self._original_title)
 
