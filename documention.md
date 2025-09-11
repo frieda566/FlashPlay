@@ -3,7 +3,11 @@ f- add flashcards for testing
 - We crated the main idea in class on how we would like to create a gamified learning application. The first step stareted with one of the 
 weekly assignment where we should search on Github to find similar code.
 -  first file structure in class and for the presentation, we started to write def to create the first outline
-- 
+
+
+## Sketches
+
+
 ## main.py and flaschcards.py
 - met to create an overall structure so we could program individually on our games first
 - choose a color scheme so both games would match 
@@ -173,8 +177,30 @@ Furthermore, I created an end-of-game popup that displays stats including the ou
 ### Animation, Opponent Logic & Game Flow 
 
 **What I learned**
+To make the race feel dynamic, I needed to break movements into small steps instead of moving characters instantly.
+This required thinking about animation frame-by-frame, as well as managing multiple timers that could overlap or be canceled. 
 
+**Key concepts implemented**
+I implemented animations by creating custom _animate_move() function that gradually shifts a character's position on the canvas over time. 
+I scheduled opponent moves with after() so the opponent advances every 8 seconds, regardless of the player's actions. I also created a timeout penalty system: if the player does not answer within 8 seconds, their character still moves forward but with a smaller step size. 
+This system makes the game balanced and prevents players from stalling indefinitely. 
+I added logic to track when either character reaches the finish line and used an outcome variable to determine if the player is the "winner" or the "loser". 
 
+**Sources that helped**
+
+### End Game, Cleanup & Stats 
+
+**What I learned**
+It was important to properly end the game when someone wins so that the timers, input widgets, and animations do not continue running in the background. 
+I also wanted to give players feedback by showing their stats at the end. 
+
+**Key concepts implemented**
+I created a _cleanup() function that cancels all running after() jobs, resets variables, and safely disables or restores widgets. 
+I reused this cleanup logic in _end_game() and reset_game() so that restarting a race does not cause errors or duplicate timers. 
+At the end of a race, I built a custom popup that displays a summary including whether the player was the winner or loser, how many moves they made, how long the game lasted, and how many flashcards they answered correctly. 
+I also integrated streak plants by updating them through their record_activity() method when a game ends. 
+
+**Sources that helped**
 
 
 like the memory game - the race game is very simple. I was inspired to use predefined ASCII characters like we did in class. Yet I used a different one 
