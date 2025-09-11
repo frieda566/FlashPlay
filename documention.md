@@ -154,7 +154,29 @@ I also learned about the importance of checking if widgets still exist before tr
 - destroying widgets during cleanup https://tkdocs.com/tutorial/windows.html
 - event bindings https://tkdocs.com/shipman/tkinter.pdf
 
-## Race Game 
+## Race Game - Frieda 
+### Tkinter Fundamentals & ASCII Integration 
+
+**What I learned**
+I had never worked with tkinter before, so I first needed to learn how to build an interactive game using frames, labels, canvases, and buttons.
+Instead of images, I used predefined ASCII characters (different from the ... library we used in class) - ascii_art_TNH - because they matched my theme better. 
+Additionally, here I deleted the line under the characters (for instance "woof" under the dog) to match the aesthetic better. 
+
+**Key concepts implemented**
+I implemented a game board using a Canvas widget, where both the player and the opponent are drawm as ASCII characters. I created functions to place, label, and move these characters horizontally across the racetrack.
+Moreover, I used tkinter's after() method to schedule animations and opponent movements in timed intervals, which allowed both the player and opponent to advance independently. I designed the movement logic so the opponent always advances in small increments while the player's increments depend on answer speed (faster answer = bigger steps, slower answer = smaller ones). 
+I also integrated user input with an Entry widget and bound the Enter key so answers could be submitted quickly - otherwise a special cursor appears when the enter button is pressed. 
+Furthermore, I created an end-of-game popup that displays stats including the outcome of the race, the moves of the ASCII character of the user and the correct answers. 
+
+**Sources that helped**
+
+### Animation, Opponent Logic & Game Flow 
+
+**What I learned**
+
+
+
+
 like the memory game - the race game is very simple. I was inspired to use predefined ASCII characters like we did in class. Yet I used a different one 
 since I didn't want the jokes and the ones I found felt more fitting. For the race track I...
 Regarding the design there were a few obstacles as I had never worked with tkinter before and needed support. Therefore I...
