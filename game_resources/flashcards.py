@@ -1,6 +1,5 @@
 import sqlite3
 import os
-from tkinter import messagebox
 
 class FlashcardManager:
     def __init__(self, db_path="db/flashcards.db"):

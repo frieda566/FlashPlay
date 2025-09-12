@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox, ttk, font
-from flashcards import FlashcardManager
-from game_memory import MemoryGame
-from game_race import RaceGame
+from game_resources.flashcards import FlashcardManager
+from games.game_memory import MemoryGame
+from games.game_race import RaceGame
 from deep_translator import GoogleTranslator
-from streak_plants import PlantTracker
+from streak.streak_plants import PlantTracker
 
 # main application class
 class FlashcardApp:
@@ -267,7 +267,7 @@ class FlashcardApp:
     # Info window logic
     def info(self):
         try:
-            import info
+            from game_resources import info
             print("✓ Successfully imported info module")
 
             # Check if the function exists

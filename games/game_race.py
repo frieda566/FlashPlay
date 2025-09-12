@@ -8,22 +8,32 @@ import sys
 from ascii_art_TNH import ascii_art
 
 def get_ascii_art(name: str, placeholder: str = "") -> str:
-    # generates ASCII art for a character - if generation fails, returns the placeholder
+    # generates ASCII art for a character - only allows specific characters (cat/dog)
+    # if generation fails, returns the placeholder
+    allowed_names = {"cat", "dog"}
+    if name not in allowed_names:
+        return placeholder # block any other ASCII character
+
     buf = io.StringIO()
     # Redirect stdout to buffer
-    old = sys.stdout
+    old_stdout = sys.stdout
     sys.stdout = buf
     try:
         ascii_art(name)
+        art = buf.getvalue()
     except (KeyError, ValueError):
         art = placeholder
     else:
         art = buf.getvalue()
     finally:
-        sys.stdout = old
+        sys.stdout = old_stdout
     # cleans out unwanted words from the ASCII art
     art = art.replace("meow", "").replace("woof", "")
-    return art or placeholder
+    # final check: if somehow the art is empty or still has unwanted content, use placeholder
+    if not art.strip():
+        return placeholder
+
+    return art
 
 
 class RaceGame:
@@ -87,9 +97,13 @@ class RaceGame:
         self._opponent_after_id = None
         self._timeout_after_id = None
 
+        # define visible placeholders
+        cat_placeholder = "🐱"
+        dog_placeholder = "🐶"
+
         # load ASCII characters
-        self.player_art = get_ascii_art("cat")
-        self.opponent_art = get_ascii_art("dog")
+        self.player_art = get_ascii_art("cat", placeholder=cat_placeholder)
+        self.opponent_art = get_ascii_art("dog", placeholder=dog_placeholder)
 
         # container: only child of root while game is active (use pack here)
         self.container = tk.Frame(self.root, bg=self.colors["cream"])  # isolate layout
@@ -327,49 +341,43 @@ class RaceGame:
         )
         label.place(relx=0.5, rely=0.35, anchor="center")
 
-        # button row
+        def create_button(parent, text, command):
+            outer = tk.Frame(parent, bg=self.colors["brown"])
+            inner = tk.Frame(outer, bg=self.colors["sage"])
+
+            def on_click():
+                popup.destroy()
+                if callable(command):
+                    command()
+
+            btn = tk.Button(
+                inner,
+                text=text,
+                font=btn_font,
+                bg=self.colors["sage"],
+                fg=self.colors["dark_green"],
+                activebackground=self.colors["lime"],
+                activeforeground=self.colors["dark_green"],
+                relief="flat",
+                bd=0,
+                padx=18,
+                pady=10,
+                cursor="hand2",
+                command=on_click,
+            )
+            btn.pack(expand=True, fill="both", padx=2, pady=2)
+            inner.pack(expand=True, fill="both", padx=3, pady=3)
+            outer.pack(side="left", padx=10)
+
+        button_container = tk.Frame(popup, bg=self.colors["cream"])
+        button_container.place(relx=0.5, rely=0.75, anchor="center")
+        btn_font = font.Font(family="Helvetica", size=11, weight="bold")
+
         if buttons:
-            button_container = tk.Frame(popup, bg=self.colors["cream"])
-            button_container.place(relx=0.5, rely=0.75, anchor="center")
-
-            btn_font = font.Font(family="Helvetica", size=11, weight="bold")
-
-            def create_button(parent, text, command):
-                outer = tk.Frame(parent, bg=self.colors["brown"])
-                inner = tk.Frame(outer, bg=self.colors["sage"])
-
-                def on_click():
-                    popup.destroy()
-                    if callable(command):
-                        command()
-
-                btn = tk.Button(
-                    inner,
-                    text=text,
-                    font=btn_font,
-                    bg=self.colors["sage"],
-                    fg=self.colors["dark_green"],
-                    activebackground=self.colors["lime"],
-                    activeforeground=self.colors["dark_green"],
-                    relief="flat",
-                    bd=0,
-                    padx=18,
-                    pady=10,
-                    cursor="hand2",
-                    command=on_click,
-                )
-                btn.pack(expand=True, fill="both", padx=2, pady=2)
-                inner.pack(expand=True, fill="both", padx=3, pady=3)
-                outer.pack(side="left", padx=10)
-
             for text, cmd in buttons:
                 create_button(button_container, text, cmd)
         else:
-            tk.Button(
-                popup,
-                text="Close",
-                command=popup.destroy
-            ).place(relx=0.5, rely=0.7, anchor="center")
+            create_button(button_container, "Close", lambda: popup.destroy())
 
         popup.bind('<Escape>', lambda e: popup.destroy())
         popup.focus_set()
@@ -536,7 +544,7 @@ class RaceGame:
             self._animate_move(self.player_item, self.player_x, self.player_x + move_px)
             self.player_x += move_px
         else:
-            self.info_label.config(text=f"Incorrect. Correct answer: {correct}")
+            self.info_label.config(text=f"Incorrect. Correct answer would have been: {correct}")
 
         self._check_winner_or_continue()
         # show next flashcard immediately after answer
