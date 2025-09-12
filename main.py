@@ -13,6 +13,7 @@ class FlashcardApp:
         self._left_plant = None
         self._right_plant = None
         self.root.title("FlashPlay - Interactive Vocabulary Learning")
+        self.root.bind_all("<Button-1>", self.play_click_sound, add="+")
 
         # color palette for UI consistency
         self.colors = {
@@ -29,7 +30,7 @@ class FlashcardApp:
         self.SEARCH_CARD_HEIGHT = 92
         self.FLASHCARD_CARD_WIDTH = 680
         self.FLASHCARD_CARD_HEIGHT = 88
-        self.BUTTON_COLUMN_WIDTH = 210  # Platz rechts für Edit/Delete
+        self.BUTTON_COLUMN_WIDTH = 210
 
         # flashcard manager and app state
         self.flashcard_manager = FlashcardManager()
@@ -42,6 +43,9 @@ class FlashcardApp:
 
         # setup the main menu screen
         self.setup_main_menu()
+
+    def play_click_sound(self, event=None):
+            self.root.bell()
 
     # UI COMPONENTS
     # create a styled large button for main menu/actions
@@ -88,7 +92,7 @@ class FlashcardApp:
         btn.bind("<Leave>", on_leave)
         return btn
 
-    # create UI for all popups
+    # create UI for edit and save translation popup
     def styled_input_dialog(self, title, prompt, initial_value=""):
         popup = tk.Toplevel(self.root)
         popup.title(title)
@@ -97,7 +101,7 @@ class FlashcardApp:
         popup.transient(self.root)
         popup.grab_set()
 
-        popup.geometry("400x220")
+        popup.geometry("500x270")
         x = self.root.winfo_rootx() + (self.root.winfo_width() - 400) // 2
         y = self.root.winfo_rooty() + (self.root.winfo_height() - 220) // 2
         popup.geometry(f"400x220+{x}+{y}")
@@ -154,6 +158,63 @@ class FlashcardApp:
         popup.wait_window()
         return value['result']
 
+    # UI for delete flashcards
+    def styled_confirm_dialog(self, title, prompt):
+        width, height = 400, 200
+        popup = tk.Toplevel(self.root)
+        popup.title(title)
+        popup.configure(bg=self.colors["cream"])
+        popup.resizable(False, False)
+        popup.transient(self.root)
+        popup.grab_set()
+
+        self.root.update_idletasks()
+        x = self.root.winfo_rootx() + (self.root.winfo_width() - width) // 2
+        y = self.root.winfo_rooty() + (self.root.winfo_height() - height) // 2
+        popup.geometry(f"{width}x{height}+{x}+{y}")
+
+        main_container = tk.Frame(popup, bg=self.colors["brown"])
+        main_container.pack(fill="both", expand=True, padx=6, pady=6)
+
+        outer = tk.Frame(main_container, bg=self.colors["sage"])
+        outer.pack(fill="both", expand=True, padx=2, pady=2)
+
+        inner = tk.Frame(outer, bg=self.colors["cream"])
+        inner.pack(fill="both", expand=True, padx=4, pady=4)
+
+        tk.Label(inner, text=title, font=("Helvetica", 14, "bold"),
+                 bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(pady=(15, 4))
+
+        tk.Label(inner, text=prompt, font=("Helvetica", 11, "bold"),
+                 bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(pady=(5, 12))
+
+        value = {'result': None}
+
+        def on_yes():
+            value['result'] = True
+            popup.destroy()
+
+        def on_no():
+            value['result'] = False
+            popup.destroy()
+
+        btn_row = tk.Frame(inner, bg=self.colors["cream"])
+        btn_row.pack(pady=(6, 8))
+
+        def mk_small(text, bg, cmd, fg=None):
+            btn = tk.Button(btn_row, text=text, font=("Helvetica", 12, "bold"),
+                            bg=bg, fg=fg or self.colors["dark_green"], relief="flat", bd=0,
+                            padx=24, pady=10, cursor="hand2", command=cmd,
+                            activebackground=self.colors["sage"])
+            btn.pack(side="left", padx=16)
+            return btn
+
+        mk_small("✓ Yes", self.colors["sage"], on_yes)
+        mk_small("❌ No", self.colors["lime"], on_no, fg="red")
+
+        popup.wait_window()
+        return value['result']
+
     # create a small button (used in flashcard rows)
     def create_small_button(self, parent, text, command, side="left", padx=5):
         btn_container = tk.Frame(parent, bg=self.colors["cream"])
@@ -196,7 +257,7 @@ class FlashcardApp:
         btn.bind("<Leave>", on_leave)
         return btn
 
-    # create a custom styled vertical scrollbar 
+    # create a custom styled vertical scrollbar
     def create_styled_scrollbar(self, parent):
         style = ttk.Style()
         style.theme_use("clam")
@@ -723,7 +784,7 @@ class FlashcardApp:
                  font=("Helvetica", 11, "bold"),
                  bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(pady=(5, 2))
 
-        languages = ["french", "german", "spanish", "italian",
+        languages = ["french", "english", "german", "spanish", "italian",
                      "portuguese", "russian", "japanese", "korean", "chinese (simplified)"]
 
         style = ttk.Style()
@@ -800,7 +861,7 @@ class FlashcardApp:
         self.manage_flashcards()
 
     def delete_flashcard(self, flashcard_id):
-        if messagebox.askyesno("Delete", "Are you sure you want to delete this flashcard?"):
+        if self.styled_confirm_dialog("Delete Flashcard", "Are you sure you want to delete this flashcard?"):
             self.flashcard_manager.delete_flashcard(flashcard_id)
             self.manage_flashcards()
 
