@@ -209,22 +209,7 @@ After understanding, it got easier and easier the more I worked with it and the 
 - wanting the ASCII character of the user to move in smaller increments if the user answered later than 8s 
 - having an Entry field where the user could write the translations 
 - different curser when entering 
-- stats at the end 
-
-# main.py
-- designign adapting the the rest -> pretty much copying what i did in the memory card game
-- managing flashcards
-  - buttons at the top
-  - search bar
-  - scrolling bar
-  - no doubles
-  - integrated translator
-- 
-
-- Initial research:
-- crating an overview on the structure on of the code 
-  - Class Memory Game
-  - mostly needed to google ones how to do it, then code blocks were also repetative in matter of design
+- stats at the end
 
   # 18. August - online meeting
         online meeting together, planing next steps. Paula is responsible for designing the main.py interface and Frieda is reosposible for the flashcards.py interface
