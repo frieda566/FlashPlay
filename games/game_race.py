@@ -8,22 +8,32 @@ import sys
 from ascii_art_TNH import ascii_art
 
 def get_ascii_art(name: str, placeholder: str = "") -> str:
-    # generates ASCII art for a character - if generation fails, returns the placeholder
+    # generates ASCII art for a character - only allows specific characters (cat/dog)
+    # if generation fails, returns the placeholder
+    allowed_names = {"cat", "dog"}
+    if name not in allowed_names:
+        return placeholder # block any other ASCII character
+
     buf = io.StringIO()
     # Redirect stdout to buffer
-    old = sys.stdout
+    old_stdout = sys.stdout
     sys.stdout = buf
     try:
         ascii_art(name)
+        art = buf.getvalue()
     except (KeyError, ValueError):
         art = placeholder
     else:
         art = buf.getvalue()
     finally:
-        sys.stdout = old
+        sys.stdout = old_stdout
     # cleans out unwanted words from the ASCII art
     art = art.replace("meow", "").replace("woof", "")
-    return art or placeholder
+    # final check: if somehow the art is empty or still has unwanted content, use placeholder
+    if not art.strip():
+        return placeholder
+
+    return art
 
 
 class RaceGame:
@@ -87,9 +97,13 @@ class RaceGame:
         self._opponent_after_id = None
         self._timeout_after_id = None
 
+        # define visible placeholders
+        cat_placeholder = "🐱"
+        dog_placeholder = "🐶"
+
         # load ASCII characters
-        self.player_art = get_ascii_art("cat")
-        self.opponent_art = get_ascii_art("dog")
+        self.player_art = get_ascii_art("cat", placeholder=cat_placeholder)
+        self.opponent_art = get_ascii_art("dog", placeholder=dog_placeholder)
 
         # container: only child of root while game is active (use pack here)
         self.container = tk.Frame(self.root, bg=self.colors["cream"])  # isolate layout
@@ -363,7 +377,7 @@ class RaceGame:
             for text, cmd in buttons:
                 create_button(button_container, text, cmd)
         else:
-            create_button(button_container, "Close", lambda e: popup.destroy())
+            create_button(button_container, "Close", lambda: popup.destroy())
 
         popup.bind('<Escape>', lambda e: popup.destroy())
         popup.focus_set()
