@@ -1,13 +1,45 @@
 ## Documentation 
 
+## Project Overview
+FlashPlay is an interactive vocabulary learning application.
+It combines flashcard management, mini-games (Memory and Race), and a streak-based plant growth system to make learning engaging and consistent.
+The program is built with Python, using:
+- Tkinter for the user interface,
+- SQLite for flashcard storage,
+- deep-translator (GoogleTranslator) for automated translations.
+Target users are students and language learners who want a fun and gamified way to build their vocabulary.
+
 ## Sketches
 
 
 ## main.py and flaschcards.py
-- met to create an overall structure so we could program individually on our games first
-- choose a color scheme so both games would match 
-- the first problem occurred when Paula could not see the changes Frieda commited -> asked ChatGPT on what we could try to fix the problem
-- To see if the Program was working in itself we asked ChatGPT to write a Memory Game just to test if all the different files were connected
+## developement process and challenges 
+- We first created an overall structure (main.py + flashcards.py) so each team member could work on games individually.
+- A shared color scheme was chosen to make both games and UI consistent.
+- We encountered a Git issue where Paula couldn’t see Frieda’s commits.
+  We asked ChatGPT for troubleshooting steps to fix this. - Yet sadly, that didn't help us, so we decided to create a new repository. Then it worked! 
+- To ensure that the file connections worked, we asked ChatGPT to generate a basic Memory Game & Race Game as a test before implementing our own versions.
+
+    ## main.py
+    - Acts as the main application entry point.
+    - Builds and manages the Tkinter user interface.
+    - Provides the main menu and navigation between different features:
+    - Play Memory Game
+    - Play Race Game
+    - Manage Flashcards (add, edit, delete, search)
+    - Info/Help window
+    - Implements streak tracking with the PlantTracker system.
+    - Ensures a consistent color scheme and styling across all screens.
+    - Handles translations when adding new flashcards.
+    ## flashcards.py
+    - Provides the FlashcardManager class, which handles all database operations.
+    - Uses SQLite to store flashcards (term and translation).
+    - Supports CRUD operations:
+    - Create new flashcards
+    - Retrieve all flashcards
+    - Update existing flashcards
+    - Delete flashcards
+    - Automatically creates the database (db/flashcards.db) and table if they do not exist.
  
 ## Memory Game - Paula
 ### Tkinter Fundamentals
