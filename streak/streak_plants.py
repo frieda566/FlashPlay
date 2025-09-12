@@ -2,8 +2,9 @@ import tkinter as tk
 import datetime
 import os
 import json
+import pathlib
 
-SAVE_FILE = "streak_data.json"
+SAVE_FILE = pathlib.Path(__file__).parent / "streak_data.json"
 
 class PlantTracker:
     # widget that visually represents a daily streak as a growing plant
@@ -34,17 +35,34 @@ class PlantTracker:
         self.update_growth()
 
     def _load_streak(self):
-        # load streak and last activity date from JSON file
         try:
             if os.path.exists(SAVE_FILE):
                 with open(SAVE_FILE, "r") as f:
                     data = json.load(f)
-                    self.streak = int(data.get("streak", 0))
+                    raw_streak = int(data.get("streak", 0))
                     self.last_date = data.get("last_date")
-                    return int(data.get("streak", 0))
-        # if loading fails, reset to defaults
+
+                    # clamp raw streak
+                    if raw_streak > 20 or raw_streak < 0:
+                        self.streak = 0
+                    else:
+                        self.streak = raw_streak
+
+                    # Validate against last_date
+                    if self.last_date:
+                        last_date_obj = datetime.date.fromisoformat(self.last_date)
+                        delta_days = (datetime.date.today() - last_date_obj).days
+
+                        if delta_days == 1 and self.streak == 20:
+                            # yesterday was 20 -> today streak resets to 0
+                            self.streak = 0
+                        elif delta_days > 1 or delta_days < 0:
+                            # missed days or future date -> reset
+                            self.streak = 0
+                    # save the updated streak if it changes
+                    self._save_streak()
+                    return self.streak
         except Exception as e:
-            # print error and reset streak if loading fails
             print("Error loading streak file:", e)
             self.streak = 0
             self.last_date = None
@@ -61,24 +79,24 @@ class PlantTracker:
             print("Error saving streak file:", e)
 
     def record_activity(self):
-        # call this when the user completes a game
-        # updates the streak: increments if it's a new day; resets if a day was missed; caps streak at 20 days
         today = datetime.date.today()
         if self.last_date:
             last_date_obj = datetime.date.fromisoformat(self.last_date)
             delta_days = (today - last_date_obj).days
-            if delta_days == 1:
-                self.streak += 1
-            elif delta_days > 1:
-                self.streak = 1
-            # If delta_days == 0: already played today, do not increment
+
+            if delta_days == 0:
+                # already played today
+                return
+            elif delta_days >= 1:
+                self.streak += 1  # after pre-processing, increment normally
         else:
-            self.streak = 1
+            self.streak = 1  # first activity ever
 
         self.last_date = today.isoformat()
-        # cap streak at 20
+        # cap at 20
         if self.streak > 20:
             self.streak = 20
+
         self._save_streak()
         self.update_growth()
 
@@ -110,7 +128,6 @@ class PlantTracker:
         # streak label
         c.create_text(40, 195 + 10, text=f"{self.streak}/20", fill=self.colors["dark_green"],
                       font=("Helvetica", 10, "bold"))
-
 
 
 
