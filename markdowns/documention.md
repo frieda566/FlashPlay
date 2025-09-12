@@ -1,9 +1,4 @@
-f- add flashcards for testing
-- add the direct translator to flashcard app
-- We crated the main idea in class on how we would like to create a gamified learning application. The first step stareted with one of the 
-weekly assignment where we should search on Github to find similar code.
--  first file structure in class and for the presentation, we started to write def to create the first outline
-
+## Documentation 
 
 ## Sketches
 
@@ -337,3 +332,9 @@ Sources that helped:
 The last steps focused on final touch-ups, such as implementing a method in main.py to ensure that all popup windows follow the same design scheme as the rest of the application.
 In addition, I created a fallback mechanism to return to the main menu whenever an AttributeError occurs.
 Finally, I added more comments throughout the code to improve readability.
+
+## AI usage 
+- if there were errors - we pasted the error in Chat GPT / GitHub Copilot to understand the error and get ideas for a possible solution 
+- in cases of Exception - to make sure we got the right one 
+- we used AI to improve the formatting of our code - for instance - if functions are in the right order or if some part wasn't necessary for the flow 
+- we used AI to get some pitches on meaningful comments - to make our code better understandable 
