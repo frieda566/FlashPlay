@@ -61,7 +61,6 @@ To understand how these worked together, I looked at the original Tkinter Docume
 - Python.org Tkinter Tutorial https://docs.python.org/3/library/tkinter.html
 - Real Python Tkinter Guide https://realpython.com/python-gui-tkinter/
 - in general used as a source https://tkdocs.com/shipman/tkinter.pdf
-
 ### Creating Rounded Corners with Canvas
 
 **What I learned:**
@@ -215,18 +214,6 @@ I implemented animations by creating custom _animate_move() function that gradua
 I scheduled opponent moves with after() so the opponent advances every 8 seconds, regardless of the player's actions. I also created a timeout penalty system: if the player does not answer within 8 seconds, their character still moves forward but with a smaller step size. 
 This system makes the game balanced and prevents players from stalling indefinitely. 
 I added logic to track when either character reaches the finish line and used an outcome variable to determine if the player is the "winner" or the "loser". 
-
-**Sources that helped**
-
-### Flashcards, Input & Gameplay
-**What I learned**
-I needed to structure the gameplay around flashcards. The random selection to ensure a better game wasn't new for me because we learned that in class. 
-Furthermore, I got to .... so that depending on the answer the user triggered different responses and actions. 
-
-**Key concepts implemented** 
-Flashcards are stored as (id, term, translation) tuples. Each round, a new card is selected and displayed as a question. 
-The user types their answer into the Entry widget. Correct, slow, incorrect, or timeout answers all trigger different feedback and movement effects. 
-Correct terms are tracked for reporting at the end of the game. 
 
 **Sources that helped**
 
@@ -405,12 +392,6 @@ After understanding, it got easier and easier the more I worked with it and the 
   Sources that helped:
   * tkinter Toplevel documentation - https://docs.python.org/3/library/tkinter.html#tkinter.Toplevel
   * Module importing and error handling - https://docs.python.org/3/tutorial/errors.html
-
-  ### Frieda 
-  #### Main Menu Layout Fix 
-  To Do: investigate why streak_plant is not showing up in the main menu 
-
-  Solution: I debugged the grid layout in setup_main_menu. Now it works in rows - I fixed the problem by reorganizing the grid to ensure all widgets (including streak_plant) are visible and aligned properly. 
  
   ## 10. September - online meeting
 
@@ -421,17 +402,15 @@ After understanding, it got easier and easier the more I worked with it and the 
   In addition, I created a fallback mechanism to return to the main menu whenever an AttributeError occurs.
   Finally, I added more comments throughout the code to improve readability.
 
-  ### Frieda 
-
-
   ## 12. September - online meeting 
   planing final steps, updating the file structure, updating documentation with our AI usage 
   ### Frieda 
-  #### Streak Plant Finalization 
-  To Do: Finalize the streak_plant system so that it grows daily with progress, but also resets correctly (after 20 days or when a day is missed)
-  Solution: I updated the logic in record_activity to handle resets: after day 20, the next day resets the streak to 0; 
-  If a day is missed, streak resets to 0 instead of starting from 1; manual edits in the JSON file above 20 reset to 0 automatically
-  Furthermore, I tested the behaviour both through regular play and by editing the JSON file manually
+  To Do: update documentation, finalize streak_plant so that it grows and resets accordingly
+  Solution: 
+  
+  ### Paula
+  To Do: Adding images to the documentation
+  and the default sound effect, each time the player clicks.
 
 # AI usage 
 For debugging purposes, we pasted error messages into ChatGPT or GitHub Copilot to better understand their causes and explore possible solutions.
