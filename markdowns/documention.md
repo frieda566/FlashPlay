@@ -421,6 +421,9 @@ After understanding, it got easier and easier the more I worked with it and the 
   In addition, I created a fallback mechanism to return to the main menu whenever an AttributeError occurs.
   Finally, I added more comments throughout the code to improve readability.
 
+  ### Frieda 
+
+
   ## 12. September - online meeting 
   planing final steps, updating the file structure, updating documentation with our AI usage 
   ### Frieda 
