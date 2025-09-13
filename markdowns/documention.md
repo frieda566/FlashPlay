@@ -407,6 +407,10 @@ After understanding, it got easier and easier the more I worked with it and the 
   ### Frieda 
   To Do: update documentation, finalize streak_plant so that it grows and resets accordingly
   Solution: 
+  
+  ### Paula
+  To Do: Adding images to the documentation
+  and the default sound effect, each time the player clicks.
 
 # AI usage 
 For debugging purposes, we pasted error messages into ChatGPT or GitHub Copilot to better understand their causes and explore possible solutions.
