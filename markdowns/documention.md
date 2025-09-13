@@ -217,6 +217,17 @@ I added logic to track when either character reaches the finish line and used an
 
 **Sources that helped**
 
+### Flashcards, Input & Gameplay 
+**What I learned**
+I needed to structure the gameplay around flashcards ....
+
+**Key concepts implemented**
+Flashcards are stored as (id, term, translation) tuples.
+Each round, a new card is selected and displayed as a question. The player types their answer into the Entry widget. Correct, slow, incorrect, or timeout answers all trigger different feedback and movement effects.
+Correct terms are tracked in a list for reporting at the end of the game.
+
+**Sources that helped**
+
 ### End Game, Cleanup & Stats 
 
 **What I learned**
