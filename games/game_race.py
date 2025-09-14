@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox
 from tkinter import font
 import random
 import time
@@ -9,6 +8,7 @@ import sys
 
 def get_ascii_art(character: str, placeholder: str = "") -> str:
 #
+
     old_stdout = sys.stdout # save original stdout
     try:
         if character == "player":
@@ -91,8 +91,8 @@ class RaceGame:
         self._timeout_after_id = None
 
         # define visible placeholders
-        player_placeholder = "🐱"
-        opponent_placeholder = "🐶"
+        self.player_placeholder = "🐢"
+        self.opponent_placeholder = "🐙"
 
         # container: only child of root while game is active (use pack here)
         self.container = tk.Frame(self.root, bg=self.colors["cream"])  # isolate layout
@@ -399,8 +399,8 @@ class RaceGame:
     def _place_characters(self):
         # draws player and opponent ASCII art and labels on the canvas
 
-        self.player_art = get_ascii_art("player")
-        self.opponent_art = get_ascii_art("opponent")
+        self.player_art = get_ascii_art("player", self.player_placeholder)
+        self.opponent_art = get_ascii_art("opponent", self.opponent_placeholder)
 
         # initial positions
         self.player_x = self.start_x
