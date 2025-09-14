@@ -188,24 +188,50 @@ I also learned about the importance of checking if widgets still exist before tr
 - event bindings https://tkdocs.com/shipman/tkinter.pdf
 
 ## Race Game - Frieda 
-### Tkinter Fundamentals & ASCII Integration 
-
+#### ASCII art 
 **What I learned**
-I had never worked with tkinter before, so I first needed to learn how to build an interactive game using frames, labels, canvases, and buttons.
-Instead of images, I used predefined ASCII characters (different from the ... library we used in class) - ascii_art_TNH - because they matched my theme better. 
-Additionally, here I deleted the line under the characters (for instance "woof" under the dog) to match the aesthetic better. 
+Some functions (like ascii_art) print output directly instead of returning it. To use that output in my program, I had to basically capture it.
+Furthermore, input validation is essential: only specific characters ("cat", "dog") are allowed - (before implementing that sometimes a random other ASCII character appeared on the race track). 
 
 **Key concepts implemented**
-I implemented a game board using a Canvas widget, where both the player and the opponent are drawm as ASCII characters. I created functions to place, label, and move these characters horizontally across the racetrack.
-Moreover, I used tkinter's after() method to schedule animations and opponent movements in timed intervals, which allowed both the player and opponent to advance independently. I designed the movement logic so the opponent always advances in small increments while the player's increments depend on answer speed (faster answer = bigger steps, slower answer = smaller ones). 
-I also integrated user input with an Entry widget and bound the Enter key so answers could be submitted quickly - otherwise a special cursor appears when the enter button is pressed. 
-Furthermore, I created an end-of-game popup that displays stats including the outcome of the race, the moves of the ASCII character of the user and the correct answers. 
+Instead of images, I used predefined ASCII characters (different from the ... library we used in class) - ascii_art_TNH - because they matched my theme better. 
+Because sys.stdout normally sends output to the console I has to redirect it to a buffer (io.StringIO()), so that I could catch the printed ASCII art as a string. 
+After capturing, I had to restore stdout so normal printing worked again. 
+This allowed me to clean the ASCII art (remove unwanted words) and safely use it in the game's UI. 
+Furthermore, the Exception handling and placeholders ensure that invalid inputs don't break the game. 
+
+**Sources that helped:**
+- sys.stdout https://docs.python.org/3.12/library/sys.html#sys.stdout
+
+#### Tkinter Basics 
+**What I learned**
+I had never worked with tkinter before, so I first needed to learn how to build an interactive game using frames, labels, canvases, and buttons.
+Tk.Frame can act as a container to isolate layout and theme changes. 
+Furthermore, styling is flexible and can help improve the UI aesthetics. In our case our predefined design helped us to create a similar looking interface.
+
+**Key concepts implemented**
+I used the predefined colors and fonts for consistent theme styling. Furthermore, the buttons also follow the design.  
+Tk.Frame was used for the layout and to separate controls, info labels, and the canvas. 
 
 **Sources that helped**
 
-### Animation, Opponent Logic & Game Flow 
-
+#### Grid vs. Pack & Container design 
 **What I learned**
+Mixing pack and grid in the same parent widget can lead to layout conflicts. 
+Root-level pack allows the container frame to expand and fill the window. 
+Inside the container, grid allows precise placement of labels, canvas and controls. 
+Moreover, maintaining separate containers simplifies cleanup and switching between game states. 
+
+**Key concepts implemented**
+I used a root container frame with pack to isolate all game widgets from the main window. 
+I arranged labels, canvas, input fields and control buttons inside the container using grid for precise layout. 
+I kept the game elements in a single container so that I could easily destroy or reset the game when returning to the menu or starting a new race. 
+
+**Sources that helped**
+
+#### Canvas, animations, opponent logic and game flow
+**What I learned**
+The Canvas widget lets you draw and control game elements.
 To make the race feel dynamic, I needed to break movements into small steps instead of moving characters instantly.
 This required thinking about animation frame-by-frame, as well as managing multiple timers that could overlap or be canceled. 
 
@@ -214,47 +240,66 @@ I implemented animations by creating custom _animate_move() function that gradua
 I scheduled opponent moves with after() so the opponent advances every 8 seconds, regardless of the player's actions. I also created a timeout penalty system: if the player does not answer within 8 seconds, their character still moves forward but with a smaller step size. 
 This system makes the game balanced and prevents players from stalling indefinitely. 
 I added logic to track when either character reaches the finish line and used an outcome variable to determine if the player is the "winner" or the "loser". 
+... 
 
-**Sources that helped**
-
-### Flashcards, Input & Gameplay 
+#### Custom Popup & Stats
 **What I learned**
-I needed to structure the gameplay around flashcards ....
+Initially, I had created the stats and used our design we agreed on yet I realized that I could create one main show_custom_popup so that I wouldn't have to reproduce the whole thing for other popups. 
+Furthermore, custom popups provide more control than messagebox for game-specific needs. 
+
+**Key concepts implemented**
+At the end of a race, I built a custom popup that displays a summary including whether the player was the winner or loser, how many moves they made, how long the game lasted, and how many flashcards they answered correctly. 
+Additionally, when nothing is inserted in the Entry part during the race but SUBMIT is pressed another popup appears. 
+Furthermore, I had to link certain actions/ callbacks to the buttons used on the popup to ensure that that action is fulfilled when pressed. 
+????Toplevel windows with transient and grab_set for modal behaviour
+
+#### Racetrack & Placing Characters 
+**What I learned**
+To ensure a clear visibility I wanted to create a simple racetrack with simple characters and descriptions. 
+I personally think that if I had made the race track more flashy it would distract from the actual idea of revising vocabulary in a fun way. 
+The labels make the distinction between the two characters easier. 
+
+**Key concepts implemented**
+
+#### Flashcards, Next Flashcard, Timeout penalty & Submit Answer
+**What I learned**
+I needed to structure the gameplay around flashcards ...
 
 **Key concepts implemented**
 Flashcards are stored as (id, term, translation) tuples.
 Each round, a new card is selected and displayed as a question. The player types their answer into the Entry widget. Correct, slow, incorrect, or timeout answers all trigger different feedback and movement effects.
 Correct terms are tracked in a list for reporting at the end of the game.
 
-**Sources that helped**
-
-### End Game, Cleanup & Stats 
-
+#### Layout management 
 **What I learned**
-It was important to properly end the game when someone wins so that the timers, input widgets, and animations do not continue running in the background. 
-I also wanted to give players feedback by showing their stats at the end. 
+To ensure the layout worked even if the user resized the race game window ....
+
+**Key concepts implemented**
+I created the _on_resize function to make this possible by....
+Because the ASCII dog is a bit bigger than the ASCII cat I had to provide different offsets in the place_characters function. 
+
+#### Utilities
+**What I learned**
+To ensure a smooth game flow there are a few utilities needed. 
+For instance, resetting the game state ensures a fresh start, cleanup is important to ... and after() helps...
+
+**Key concepts implemented**
+I used the _after() wrapper to track scheduled jobs for safe cancellation. 
+The cleanup() function cancels pending animations, timeouts, and opponent moves. 
+Furthermore, the update_timer() was used to ensure ...
+I created reset_game to restore all positions, labels and counters for a new race. 
+
+### End Game
+**What I learned**
+It was important to properly end the game when someone wins so that the timers, input widgets, and animations do not continue running in the background.
 
 **Key concepts implemented**
 I created a _cleanup() function that cancels all running after() jobs, resets variables, and safely disables or restores widgets. 
-I reused this cleanup logic in _end_game() and reset_game() so that restarting a race does not cause errors or duplicate timers. 
-At the end of a race, I built a custom popup that displays a summary including whether the player was the winner or loser, how many moves they made, how long the game lasted, and how many flashcards they answered correctly. 
+I reused this cleanup logic in _end_game() and reset_game() so that restarting a race does not cause errors or duplicate timers.
 I also integrated streak plants by updating them through their record_activity() method when a game ends. 
 
 **Sources that helped**
 
-
-like the memory game - the race game is very simple. I was inspired to use predefined ASCII characters like we did in class. Yet I used a different one 
-since I didn't want the jokes and the ones I found felt more fitting. For the race track I...
-Regarding the design there were a few obstacles as I had never worked with tkinter before and needed support. Therefore I...
-After understanding, it got easier and easier the more I worked with it and the more ideas I added. 
-- created design within the color scheme we agreed on 
-- wanting movement animations for both ASCII characters 
-- wanting the ASCII opponent to move at the same time in same increments 
-- wanting the ASCII character of the user to move in bigger increments if the user answered faster 
-- wanting the ASCII character of the user to move in smaller increments if the user answered later than 8s 
-- having an Entry field where the user could write the translations 
-- different curser when entering 
-- stats at the end
 
 # Meetings 
 
@@ -420,8 +465,7 @@ After understanding, it got easier and easier the more I worked with it and the 
   Solution: 
   
   ### Paula
-  To Do: Adding images to the documentation
-  and the default sound effect, each time the player clicks.
+  To Do: Adding images to the documentation and the default sound effect, each time the player clicks.
 
 # AI usage 
 For debugging purposes, we pasted error messages into ChatGPT or GitHub Copilot to better understand their causes and explore possible solutions.
