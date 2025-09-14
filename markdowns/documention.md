@@ -190,14 +190,16 @@ I also learned about the importance of checking if widgets still exist before tr
 ## Race Game - Frieda 
 #### ASCII art 
 **What I learned**
-Some functions (like ascii_art) print output directly instead of returning it. To use that output in my program, I had to basically capture it.
-Furthermore, input validation is essential: only specific characters ("cat", "dog") are allowed - (before implementing that sometimes a random other ASCII character appeared on the race track). 
+Some functions print output directly into the console instead of returning it. 
+To use that output in my program, I had to basically capture it.
+Furthermore, character-specific offsets are necessary because different ASCII characters have different heights and widths.
 
 **Key concepts implemented**
-Instead of images, I used predefined ASCII characters (different from the ... library we used in class) - ascii_art_TNH - because they matched my theme better. 
-Because sys.stdout normally sends output to the console I has to redirect it to a buffer (io.StringIO()), so that I could catch the printed ASCII art as a string. 
-After capturing, I had to restore stdout so normal printing worked again. 
-This allowed me to clean the ASCII art (remove unwanted words) and safely use it in the game's UI. 
+Instead of images, I used predefined ASCII characters from cowsay. 
+Because sys.stdout normally sends output to the console I had to redirect it to a buffer (io.StringIO()), so that I could catch the printed ASCII art. 
+After capturing, I restored stdout so normal printing worked again. 
+This allowed me to clean the ASCII art (remove the unwanted speach bubble) and safely use it in the game's UI. 
+The get_ascii_art(character, placeholder) function captures ASCII art and returns only the relevant lines.
 Furthermore, the Exception handling and placeholders ensure that invalid inputs don't break the game. 
 
 **Sources that helped:**
@@ -206,30 +208,33 @@ Furthermore, the Exception handling and placeholders ensure that invalid inputs 
 #### Tkinter Basics 
 **What I learned**
 I had never worked with tkinter before, so I first needed to learn how to build an interactive game using frames, labels, canvases, and buttons.
-Tk.Frame can act as a container to isolate layout and theme changes. 
+Using a container frame isolates the game layout from the main window and makes cleanup easier.
 Furthermore, styling is flexible and can help improve the UI aesthetics. In our case our predefined design helped us to create a similar looking interface.
 
 **Key concepts implemented**
-I used the predefined colors and fonts for consistent theme styling. Furthermore, the buttons also follow the design.  
+I used the predefined colors (cream, brown, sage, lime, dark_green) and fonts for consistent theme styling. 
+Furthermore, the buttons also follow the design and I used layered frames to match the theme.  
 Tk.Frame was used for the layout and to separate controls, info labels, and the canvas. 
 
 **Sources that helped**
 
-#### Grid vs. Pack & Container design 
+#### Layout Management & Grid vs. Pack 
 **What I learned**
 Mixing pack and grid in the same parent widget can lead to layout conflicts. 
 Root-level pack allows the container frame to expand and fill the window. 
 Inside the container, grid allows precise placement of labels, canvas and controls. 
-Moreover, maintaining separate containers simplifies cleanup and switching between game states. 
+Moreover, maintaining separate containers simplifies cleanup and switching between game states.
+Furthermore, resizing the window requires scaling canvas elements and ASCII art proportionally.
 
 **Key concepts implemented**
-I used a root container frame with pack to isolate all game widgets from the main window. 
+Container frame (self.container) packed at root level / I used a root container frame with pack to isolate all game widgets from the main window. 
 I arranged labels, canvas, input fields and control buttons inside the container using grid for precise layout. 
 I kept the game elements in a single container so that I could easily destroy or reset the game when returning to the menu or starting a new race. 
+I used _on_resize() to scale the canvas items and to resize the ASCII art proportionally. 
 
 **Sources that helped**
 
-#### Canvas, animations, opponent logic and game flow
+#### Canvas, animations & opponent logic 
 **What I learned**
 The Canvas widget lets you draw and control game elements.
 To make the race feel dynamic, I needed to break movements into small steps instead of moving characters instantly.
@@ -237,26 +242,28 @@ This required thinking about animation frame-by-frame, as well as managing multi
 
 **Key concepts implemented**
 I implemented animations by creating custom _animate_move() function that gradually shifts a character's position on the canvas over time. 
-I scheduled opponent moves with after() so the opponent advances every 8 seconds, regardless of the player's actions. I also created a timeout penalty system: if the player does not answer within 8 seconds, their character still moves forward but with a smaller step size. 
+I scheduled opponent moves with after() so the opponent advances every 8 seconds, regardless of the player's actions. 
+I also created a timeout penalty system: if the player does not answer within 8 seconds, their character still moves forward but with a smaller step size. 
 This system makes the game balanced and prevents players from stalling indefinitely. 
-I added logic to track when either character reaches the finish line and used an outcome variable to determine if the player is the "winner" or the "loser". 
-... 
+I added logic to track when either character reaches the finish line and used an outcome variable to determine if the player is the "winner" or the "loser".
 
-#### Custom Popup & Stats
+#### Custom Popups & Game Stats
 **What I learned**
 Initially, I had created the stats and used our design we agreed on yet I realized that I could create one main show_custom_popup so that I wouldn't have to reproduce the whole thing for other popups. 
 Furthermore, custom popups provide more control than messagebox for game-specific needs. 
+The Toplevel windows allow creating modal, themed popups with custom buttons. 
+Moreover, proper placement, transient and grab_set() create a modal behavior. 
 
 **Key concepts implemented**
 At the end of a race, I built a custom popup that displays a summary including whether the player was the winner or loser, how many moves they made, how long the game lasted, and how many flashcards they answered correctly. 
 Additionally, when nothing is inserted in the Entry part during the race but SUBMIT is pressed another popup appears. 
-Furthermore, I had to link certain actions/ callbacks to the buttons used on the popup to ensure that that action is fulfilled when pressed. 
-????Toplevel windows with transient and grab_set for modal behaviour
+Here I used show_custom_popup(message, title, buttons) to centralize all popup windows created. 
+Furthermore, I had to link certain actions to the buttons used on the popup to ensure that the action is fulfilled when pressed (reset, return_to_main_menu, ...).
 
 #### Racetrack & Placing Characters 
 **What I learned**
 To ensure a clear visibility I wanted to create a simple racetrack with simple characters and descriptions. 
-I personally think that if I had made the race track more flashy it would distract from the actual idea of revising vocabulary in a fun way. 
+I personally think that if I had made the racetrack more flashy it would distract from the actual idea of revising vocabulary in a fun way. 
 The labels make the distinction between the two characters easier. 
 
 **Key concepts implemented**
