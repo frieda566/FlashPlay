@@ -35,7 +35,6 @@ def get_ascii_art(name: str, placeholder: str = "") -> str:
 
     return art
 
-
 class RaceGame:
     def __init__(self, root, parent, flashcards, on_exit=None, on_streak=None, left_plant=None, right_plant=None):
         # initializes the race game window with UI components and game logic
@@ -168,6 +167,10 @@ class RaceGame:
         )
         self.canvas.pack(fill="both", expand=True, padx=10, pady=10)
 
+        self.base_width = self.canvas_width
+        self.base_height = self.canvas_height
+        self.canvas.bind("<Configure>", self._on_resize)
+
         # draw start and finish lines
         self.canvas.create_text(
             self.start_x - 10, 20,
@@ -234,6 +237,25 @@ class RaceGame:
         self._build_controls()
         self.root.update_idletasks()
         self.root.minsize(self.canvas_width + 100, self.canvas_height + 300)
+
+    def _on_resize(self, event):
+        # scaling factors
+        scale_x = event.width / self.base_width
+        scale_y = event.height / self.base_height
+
+        # rescale everything on canvas
+        self.canvas.scale("all", 0, 0, scale_x, scale_y)
+
+        # update current size so next scale is relative
+        self.base_width = event.width
+        self.base_height = event.height
+
+        # resize ASCII art fonts
+        new_font_size = max(6, int(event.height / 40))
+        if hasattr(self, "player_item"):
+            self.canvas.itemconfig(self.player_item, font=("Courier", new_font_size, "bold"))
+        if hasattr(self, "opponent_item"):
+            self.canvas.itemconfig(self.opponent_item, font=("Courier", new_font_size, "bold"))
 
     def _build_controls(self):
         for w in self.control_frame.winfo_children():
@@ -398,12 +420,13 @@ class RaceGame:
         font_size = 9
         label_font_size = 14
         label_offset = 60  # distance below ASCII art
-        ascii_offset = 15 # for better centering of ASCII characters
+        ascii_offset_cat = 5 # for better centering of cat
+        ascii_offset_dog = -5 # for better centering of dog (bigger than the cat)
 
         # draw ASCII art for player and opponent
         self.player_item = self.canvas.create_text(
             self.player_x,
-            self.lane_y_player + ascii_offset,
+            self.lane_y_player + ascii_offset_cat,
             text=self.player_art,
             anchor="w",
             font=("Courier", font_size, "bold"),
@@ -411,7 +434,7 @@ class RaceGame:
         )
         self.opponent_item = self.canvas.create_text(
             self.opponent_x,
-            self.lane_y_opponent + ascii_offset,
+            self.lane_y_opponent + ascii_offset_dog,
             text=self.opponent_art,
             anchor="w",
             font=("Courier", font_size, "bold"),
