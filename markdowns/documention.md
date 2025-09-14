@@ -470,7 +470,7 @@ I also integrated streak plants by updating them through their record_activity()
   ### Frieda 
 
   To Do: update documentation, finalize streak_plant so that it grows and resets accordingly
-  Solution: 
+  Solution: Creating a 
 
   #### Using cowsay 
   Problem: ascii_art_tnh uses a surprise cow once in a while which then pops up in the race 
