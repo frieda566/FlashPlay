@@ -429,3 +429,6 @@ In cases of exceptions, we used AI to verify the correctness of our approach and
 AI assisted us in improving code structure and formatting, such as reordering functions for readability or identifying unnecessary code segments.
 We also used AI to generate suggestions for meaningful comments, enhancing the clarity and understandability of our code.
 AI assisted in improving our documentation and refining the wording of explanations for clarity and precision.
+
+# next steps
+A logical next step would be the integration of card decks, enabling users to define which cards they wish to study.
