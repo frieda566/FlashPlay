@@ -731,6 +731,7 @@ class FlashcardApp:
             )
         else:
             messagebox.showinfo("No Flashcards", "Add flashcards before playing.")
+            self.setup_main_menu()
 
     # flashcard crud
     def check_duplicate_flashcard(self, term, translation, exclude_id=None):
