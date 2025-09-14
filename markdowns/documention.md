@@ -264,45 +264,44 @@ Furthermore, I had to link certain actions to the buttons used on the popup to e
 **What I learned**
 To ensure a clear visibility I wanted to create a simple racetrack with simple characters and descriptions. 
 I personally think that if I had made the racetrack more flashy it would distract from the actual idea of revising vocabulary in a fun way. 
-The labels make the distinction between the two characters easier. 
+The labels make the distinction between the two characters easier. Furthermore, I realised that the ASCII characters need vertical offsets for a proper alignment. 
 
 **Key concepts implemented**
+I used _place_characters() to position the player and the opponent with correct offsets. Moreover, I created the lane lines, start and finish lines and the character labels on the canvas. 
+Initially I had the idea to keep the speech bubble from cowsay and write you/ your opponent but that didnt look good.
 
-#### Flashcards, Next Flashcard, Timeout penalty & Submit Answer
+#### Flashcards & Game Flow 
 **What I learned**
-I needed to structure the gameplay around flashcards ...
+I needed to structure the gameplay around the flashcards (id, term, translation). To make the game more interesting different outcomes based on different actions can be simple but helpful. 
+Moreover, to improve learning and prevent boredom it was important to avoid a repetition of flashcards. 
 
 **Key concepts implemented**
-Flashcards are stored as (id, term, translation) tuples.
-Each round, a new card is selected and displayed as a question. The player types their answer into the Entry widget. Correct, slow, incorrect, or timeout answers all trigger different feedback and movement effects.
-Correct terms are tracked in a list for reporting at the end of the game.
-
-#### Layout management 
-**What I learned**
-To ensure the layout worked even if the user resized the race game window ....
-
-**Key concepts implemented**
-I created the _on_resize function to make this possible by....
-Because the ASCII dog is a bit bigger than the ASCII cat I had to provide different offsets in the place_characters function. 
+I used next_flashcard to select a new flashcard each time an answer is submitted while avoiding the previous one.
+The player types their answer into the Entry widget. Correct, slow, incorrect, or timeout answers all trigger different feedback and movement effects.
+For instance _timeout_answer_penalty() moves the player a smaller distance if they exceed 8 seconds. I think 8 seconds is realistic because it gives you time to think and to quickly type the answer.
+Moreover, submit_answer() checks the player's answer and applies a further movement logic. If the user answers fast and correct the ASCII turtle moves a bigger step than when the user answers correctly but slower. 
+If the user answers incorrect there is no movement. Correct terms are tracked in a list for reporting at the end of the game.
 
 #### Utilities
 **What I learned**
-To ensure a smooth game flow there are a few utilities needed. 
-For instance, resetting the game state ensures a fresh start, cleanup is important to ... and after() helps...
+To ensure a smooth game flow there are a few utilities needed. These are called throughout the code. 
+A reset and cleanup logic is important and ensures a safe restarting of the games. 
 
 **Key concepts implemented**
-I used the _after() wrapper to track scheduled jobs for safe cancellation. 
+I used the _after() wrapper to track scheduled jobs in self._after_jobs for safe cancellation. 
 The cleanup() function cancels pending animations, timeouts, and opponent moves. 
-Furthermore, the update_timer() was used to ensure ...
+Furthermore, the update_timer() was used to update the displayed Timer in the top right corner every second. 
 I created reset_game to restore all positions, labels and counters for a new race. 
 
 ### End Game
 **What I learned**
 It was important to properly end the game when someone wins so that the timers, input widgets, and animations do not continue running in the background.
+To match the streak_plant logic it is important to integrate this in the end-game-routine so that the user actually has to end a game to receive a streak. 
 
 **Key concepts implemented**
-I created a _cleanup() function that cancels all running after() jobs, resets variables, and safely disables or restores widgets. 
-I reused this cleanup logic in _end_game() and reset_game() so that restarting a race does not cause errors or duplicate timers.
+This part of the code was important to handle the victory or loss, to disable the entry and to enable the reset button.
+The _game_over_popup() was used to show the detailed stats from the game played.
+I used the cleanup logic in _end_game() so that restarting a race does not cause errors or duplicate timers.
 I also integrated streak plants by updating them through their record_activity() method when a game ends. 
 
 **Sources that helped**
@@ -348,7 +347,7 @@ I also integrated streak plants by updating them through their record_activity()
   Furthermore, I added a header an emoji to make the interface more appealing. 
 
   ### Flashcards.py 
-  To Do: Creating a ....
+  To Do: Creating a simple flashcards.py so that it can be used throughout our program 
   
   Solution: 
             
@@ -437,6 +436,7 @@ I also integrated streak plants by updating them through their record_activity()
   Additionally, I needed to update the Race Game, the Memory Game, and the main file to ensure that when the game was played the streak would be updated. 
   
   #### Stats Design 
+  To Do: 
   
   ## 07. September - online meeting
   - planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
@@ -468,8 +468,16 @@ I also integrated streak plants by updating them through their record_activity()
   ## 12. September - online meeting 
   planing final steps, updating the file structure, updating documentation with our AI usage 
   ### Frieda 
+
   To Do: update documentation, finalize streak_plant so that it grows and resets accordingly
   Solution: 
+
+  #### Using cowsay 
+  Problem: ascii_art_tnh uses a surprise cow once in a while which then pops up in the race 
+  To Do: get rid of the cow, find other library 
+  Solution: I thought back to our classes and remembered cowsay. After choosing my two new characters I had to change the part of the code that still used the other ascii characters. 
+  I had the problem that at the beginning the characters were only printed in the console but eventually I found the solution. 
+  Moreover, I had to get rid of the speech bubble and its contents to ensure a better visual. 
   
   ### Paula
   To Do: Adding images to the documentation and the default sound effect, each time the player clicks.
