@@ -9,19 +9,19 @@ import sys
 
 def get_ascii_art(character: str, placeholder: str = "") -> str:
 #
+    old_stdout = sys.stdout # save original stdout
     try:
         if character == "player":
             cow_func = cowsay.turtle
-            char_lines_count = 15  # last 6 lines contain the turtle figure
+            char_lines_count = 15  # last 15 lines contain the turtle figure
         elif character == "opponent":
             cow_func = cowsay.octopus
-            char_lines_count = 15  # last 7 lines contain the octopus figure
+            char_lines_count = 15  # last 15 lines contain the octopus figure
         else:
             return placeholder
 
         # capture stdout
         buf = io.StringIO()
-        old_stdout = sys.stdout
         sys.stdout = buf
 
         cow_func("X")  # use dummy message to force rendering
@@ -29,11 +29,14 @@ def get_ascii_art(character: str, placeholder: str = "") -> str:
         sys.stdout = old_stdout
 
         lines = buf.getvalue().splitlines()
-
-        # take only the last N lines that contain the character
+        # take only the lines that contain the character
         char_only = "\n".join(lines[-char_lines_count:])
 
         return char_only
+
+    except (AttributeError, TypeError, IOError, OSError, IndexError, RuntimeError) as e:
+        sys.stdout = old_stdout
+        return placeholder
 
     except Exception:
         sys.stdout = old_stdout
@@ -53,15 +56,6 @@ class RaceGame:
         # remember original root state to restore after exit
         self._original_bg = self.root.cget("bg")
         self._original_title = self.root.title()
-
-        # exit early if no flashcards are provided
-        if not self.flashcards:
-            messagebox.showinfo(
-                "No flashcards",
-                "No flashcards found. Add some before playing.",
-                parent=self.parent
-            )
-            return
 
         # Theme
         self.colors = {
@@ -546,7 +540,7 @@ class RaceGame:
 
         if not user:
             self.show_custom_popup(
-                title="translation required",
+                title="Translation required",
                 message="No answer, please enter a translation (or close to stop)."
             )
             return
