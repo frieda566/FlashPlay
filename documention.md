@@ -310,13 +310,10 @@ I also integrated streak plants by updating them through their record_activity()
 # Meetings 
 
   ## 18. August - online meeting
-  online meeting together, planing next steps. Paula is responsible for designing the main.py interface and Frieda is reosposible for the flashcards.py interface
-  major problem: Frieda cannot push the old repository and therefore no updates accur. Trying several approchaces to fix the bug however nothing works. No Reddit Account and no AI ChatBot was able to help us -> created a new repositories only way we were able to fix the problem
+  online meeting together, planing next steps. Paula is responsible for designing the main.py interface and Frieda is responsible for the flashcards.py interface
+  major problem: Frieda cannot push the old repository and therefore no updates occur. Trying several approaches to fix the bug however nothing works. No Reddit Account and no AI ChatBot was able to help us -> created a new repositories only way we were able to fix the problem
   - Problem: Flashcard editing not possible
   - established design scheme so both apps will look similar at the end
-  - Frieda: the color scheme of the buttons has to be changed so that it matches Paula's memory game 
-            idea: actually writing (you/ your opponent) to understand who is who under ASCII characters 
-            adding emoji & header "Race Game"
   ### Paula
   #### Designing and Adapting the UI Framework.
   To Do: I needed to adapt the main.py file to the rest of the design scheme.
@@ -353,8 +350,6 @@ I also integrated streak plants by updating them through their record_activity()
             
     
   ## 21. August - online meeting
-      - Frieda: spelling and formatting after # - adding # to better the structure and to make the code more understandable 
-                submit button cursor hand2
   ### Paula
   #### Game Buttons at the Top 
   To Do: I wanted the control buttons (Add New Flashcard, Back to Main Menu) to stay at the top while users scrolled through flashcards.
@@ -435,13 +430,14 @@ I also integrated streak plants by updating them through their record_activity()
   I designed the growth logic so that the plant grows each day (if played every day) until 20 days are reached. 
   Additionally, I needed to update the Race Game, the Memory Game, and the main file to ensure that when the game was played the streak would be updated. 
   
-  #### Stats Design 
-  To Do: 
+  #### Stats Design & popup layout 
+  To Do: create stats that review the game that was just played - who won, how many moves, how much time was needed and how many terms were actually answered correctly
+
+  Solution: 
   
   ## 07. September - online meeting
   - planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
-  - wanting parents or friends to try out our program to see if there are any further ideas to make sure the program is understandable, talking about things that we should change to make our codes more readable and that they align with one another 
-  - Frieda: finding out why streak_plant isn't working -> creating a better grid in setup_main_menu to ensure all aspects of main menu are visible
+  - wanting parents or friends to try out our program to see if there are any further ideas to make sure the program is understandable, talking about things that we should change to make our codes more readable and that they align with one another
 
   ### Paula
   #### Info Side Implementation
@@ -455,7 +451,13 @@ I also integrated streak plants by updating them through their record_activity()
   Sources that helped:
   * tkinter Toplevel documentation - https://docs.python.org/3/library/tkinter.html#tkinter.Toplevel
   * Module importing and error handling - https://docs.python.org/3/tutorial/errors.html
- 
+
+  ### Frieda 
+  #### update streak_plant
+  To Do: finding out why streak_plant isn't working -> creating a better grid in setup_main_menu to ensure all aspects of main menu are visible
+
+  Solution: 
+
   ## 10. September - online meeting
 
   ### Paula
@@ -465,10 +467,16 @@ I also integrated streak plants by updating them through their record_activity()
   In addition, I created a fallback mechanism to return to the main menu whenever an AttributeError occurs.
   Finally, I added more comments throughout the code to improve readability.
 
+  ### Frieda 
+  #### create show_custom_popup
+  To Do: instead of writing all design aspects each time a popup window should be created design a function that can be called with all the necessary info for the popup (title, message, buttons)
+
+  Solution: 
+
   ## 12. September - online meeting 
   planing final steps, updating the file structure, updating documentation with our AI usage 
   ### Frieda 
-
+  #### updating documentation & streak_plant 
   To Do: update documentation, finalize streak_plant so that it grows and resets accordingly
   Solution: Creating a 
 
@@ -482,6 +490,11 @@ I also integrated streak plants by updating them through their record_activity()
   ### Paula
   To Do: Adding images to the documentation and the default sound effect, each time the player clicks.
 
+  ## 14. September - online meeting 
+  updating link in overview, final decision on flashcards for submission, updating README with final project overview, 
+  creating a show_popup() in main.py like in RaceGame to make calling easier for launch_game_memory and launch_game_race,
+  looking over each-others codes for final feedback, thinking about next steps  
+
 # AI usage 
 For debugging purposes, we pasted error messages into ChatGPT or GitHub Copilot to better understand their causes and explore possible solutions.
 In cases of exceptions, we used AI to verify the correctness of our approach and ensure proper handling.
@@ -491,3 +504,6 @@ AI assisted in improving our documentation and refining the wording of explanati
 
 # next steps
 A logical next step would be the integration of card decks, enabling users to define which cards they wish to study.
+A spaced repetition logic (like in Anki) could be introduced, where harder cards appear more often and easier cards are shown less frequently. 
+Also, further mini-games could be created, such as a typing speed challenge, quiz mode or a "hangman"-style game to ensure more variety.
+The streak system could also be expanded, with more detailed statistics and customizable plants as rewards. 
