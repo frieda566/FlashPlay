@@ -346,8 +346,12 @@ I also integrated streak plants by updating them through their record_activity()
   ### Flashcards.py 
   To Do: Creating a simple flashcards.py so that it can be used throughout our program 
   
-  Solution: 
-            
+  Solution: I created a separate python file for a better overview. In the file I implemented a FlashcardManager class that uses SQLite for persistent storage.
+  I ensured that the db/ folder is automatically created with os.makedirs(). sqlite3.connect() was used to create and connect to the database file.
+  This way throughout the whole program the flashcards are up to date automatically depending on editing, creation or if they are deleted.
+  I also defined a flashcards table with id, term and translator field to store all vocabulary consistently. 
+  For the core operations I created different methods - for instance, add_flashcard, update_flashcard, delete_flashcard and get_all_flashcards. 
+  To safely close the database connection I added close().           
     
   ## 21. August - online meeting
   ### Paula
@@ -502,7 +506,7 @@ AI assisted us in improving code structure and formatting, such as reordering fu
 We also used AI to generate suggestions for meaningful comments, enhancing the clarity and understandability of our code.
 AI assisted in improving our documentation and refining the wording of explanations for clarity and precision.
 
-# next steps
+# Next steps
 A logical next step would be the integration of card decks, enabling users to define which cards they wish to study.
 A spaced repetition logic (like in Anki) could be introduced, where harder cards appear more often and easier cards are shown less frequently. 
 Also, further mini-games could be created, such as a typing speed challenge, quiz mode or a "hangman"-style game to ensure more variety.
