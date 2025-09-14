@@ -34,10 +34,6 @@ def get_ascii_art(character: str, placeholder: str = "") -> str:
 
         return char_only
 
-    except (AttributeError, TypeError, IOError, OSError, IndexError, RuntimeError) as e:
-        sys.stdout = old_stdout
-        return placeholder
-
     except Exception:
         sys.stdout = old_stdout
         return placeholder
