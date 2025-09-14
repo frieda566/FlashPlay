@@ -3,37 +3,41 @@ from tkinter import messagebox
 from tkinter import font
 import random
 import time
+import cowsay
 import io
 import sys
-from ascii_art_TNH import ascii_art
 
-def get_ascii_art(name: str, placeholder: str = "") -> str:
-    # generates ASCII art for a character - only allows specific characters (cat/dog)
-    # if generation fails, returns the placeholder
-    allowed_names = {"cat", "dog"}
-    if name not in allowed_names:
-        return placeholder # block any other ASCII character
-
-    buf = io.StringIO()
-    # Redirect stdout to buffer
-    old_stdout = sys.stdout
-    sys.stdout = buf
+def get_ascii_art(character: str, placeholder: str = "") -> str:
+#
     try:
-        ascii_art(name)
-        art = buf.getvalue()
-    except (KeyError, ValueError):
-        art = placeholder
-    else:
-        art = buf.getvalue()
-    finally:
-        sys.stdout = old_stdout
-    # cleans out unwanted words from the ASCII art
-    art = art.replace("meow", "").replace("woof", "")
-    # final check: if somehow the art is empty or still has unwanted content, use placeholder
-    if not art.strip():
-        return placeholder
+        if character == "player":
+            cow_func = cowsay.turtle
+            char_lines_count = 15  # last 6 lines contain the turtle figure
+        elif character == "opponent":
+            cow_func = cowsay.octopus
+            char_lines_count = 15  # last 7 lines contain the octopus figure
+        else:
+            return placeholder
 
-    return art
+        # capture stdout
+        buf = io.StringIO()
+        old_stdout = sys.stdout
+        sys.stdout = buf
+
+        cow_func("X")  # use dummy message to force rendering
+
+        sys.stdout = old_stdout
+
+        lines = buf.getvalue().splitlines()
+
+        # take only the last N lines that contain the character
+        char_only = "\n".join(lines[-char_lines_count:])
+
+        return char_only
+
+    except Exception:
+        sys.stdout = old_stdout
+        return placeholder
 
 class RaceGame:
     def __init__(self, root, parent, flashcards, on_exit=None, on_streak=None, left_plant=None, right_plant=None):
@@ -74,7 +78,7 @@ class RaceGame:
         self.finish_x = 920
         self.lane_y_player = 110
         self.lane_y_opponent = 280
-        self.lane_half_height = 45
+        self.lane_half_height = 55
 
         # speed and timing parameters
         self.opponent_speed_tick = 70
@@ -97,12 +101,8 @@ class RaceGame:
         self._timeout_after_id = None
 
         # define visible placeholders
-        cat_placeholder = "🐱"
-        dog_placeholder = "🐶"
-
-        # load ASCII characters
-        self.player_art = get_ascii_art("cat", placeholder=cat_placeholder)
-        self.opponent_art = get_ascii_art("dog", placeholder=dog_placeholder)
+        player_placeholder = "🐱"
+        opponent_placeholder = "🐶"
 
         # container: only child of root while game is active (use pack here)
         self.container = tk.Frame(self.root, bg=self.colors["cream"])  # isolate layout
@@ -175,6 +175,7 @@ class RaceGame:
         self.canvas.create_text(
             self.start_x - 10, 20,
             text="START",
+            fill=self.colors["dark_green"],
             anchor="w",
             font=("Helvetica", 10, "bold")
         )
@@ -251,7 +252,7 @@ class RaceGame:
         self.base_height = event.height
 
         # resize ASCII art fonts
-        new_font_size = max(6, int(event.height / 40))
+        new_font_size = max(6, int(event.height / 80))
         if hasattr(self, "player_item"):
             self.canvas.itemconfig(self.player_item, font=("Courier", new_font_size, "bold"))
         if hasattr(self, "opponent_item"):
@@ -408,6 +409,9 @@ class RaceGame:
     def _place_characters(self):
         # draws player and opponent ASCII art and labels on the canvas
 
+        self.player_art = get_ascii_art("player")
+        self.opponent_art = get_ascii_art("opponent")
+
         # initial positions
         self.player_x = self.start_x
         self.opponent_x = self.start_x
@@ -417,16 +421,16 @@ class RaceGame:
             if getattr(self, attr, None):
                 self.canvas.delete(getattr(self, attr))
 
-        font_size = 9
+        font_size = 5
         label_font_size = 14
         label_offset = 60  # distance below ASCII art
-        ascii_offset_cat = 5 # for better centering of cat
-        ascii_offset_dog = -5 # for better centering of dog (bigger than the cat)
+        ascii_offset_player = -10
+        ascii_offset_opponent = -20
 
         # draw ASCII art for player and opponent
         self.player_item = self.canvas.create_text(
             self.player_x,
-            self.lane_y_player + ascii_offset_cat,
+            self.lane_y_player + ascii_offset_player,
             text=self.player_art,
             anchor="w",
             font=("Courier", font_size, "bold"),
@@ -434,7 +438,7 @@ class RaceGame:
         )
         self.opponent_item = self.canvas.create_text(
             self.opponent_x,
-            self.lane_y_opponent + ascii_offset_dog,
+            self.lane_y_opponent + ascii_offset_opponent,
             text=self.opponent_art,
             anchor="w",
             font=("Courier", font_size, "bold"),
@@ -452,7 +456,7 @@ class RaceGame:
         )
         self.opponent_label = self.canvas.create_text(
             self.opponent_x,
-            self.lane_y_opponent + label_offset,
+            self.lane_y_opponent + label_offset - 10,
             text="Your Opponent",
             anchor="w",
             font=("Helvetica", label_font_size, "bold"),
