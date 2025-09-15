@@ -121,7 +121,7 @@ class RaceGame:
         header = tk.Frame(self.container, bg=self.colors["cream"], pady=12)
         header.grid(row=0, column=0, sticky="ew")
         title_font = font.Font(family="Helvetica", size=24, weight="bold")
-        # Title
+        # title
         tk.Label(
             header,
             text="🏁Race Game",
@@ -229,6 +229,7 @@ class RaceGame:
         self.root.minsize(self.canvas_width + 100, self.canvas_height + 300)
 
     def _on_resize(self, event):
+        self._resized = True
         # scaling factors
         scale_x = event.width / self.base_width
         scale_y = event.height / self.base_height
@@ -252,7 +253,7 @@ class RaceGame:
             w.destroy()
         button_font = font.Font(family="Helvetica", size=11, weight="bold")
 
-        # Create a container frame to hold both buttons
+        # create a container frame to hold both buttons
         button_container = tk.Frame(self.control_frame, bg=self.colors["cream"])
         button_container.pack(expand=True)
 
@@ -445,6 +446,7 @@ class RaceGame:
     def start_race(self):
         # resets positions and starts the race with first flashcard
         self.running = True
+        self._resized = False
         self.start_time = time.time()
         self.moves = 0
         self.time_elapsed = 0
