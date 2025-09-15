@@ -251,8 +251,8 @@ This required thinking about animation frame-by-frame, as well as managing multi
 I implemented animations by creating custom _animate_move() function that gradually shifts a character's position on the canvas over time. 
 I scheduled opponent moves with my _after() wrapper, which lets me track and manage scheduled jobs for easier cleanup. 
 This ensures the opponent advances every 8 seconds, regardless of the player’s actions.
-I also created a timeout penalty system: if the player does not answer within 8 seconds, their character still moves forward but with a smaller step size. 
-This system makes the game balanced and prevents players from stalling indefinitely. 
+I also created a timeout penalty system: if the player does not answer within 8 seconds, their character doesn't move either. 
+If the player answers correctly and fast the ASCII character moves a bigger step than when answering correctly but not as fast. 
 I added logic to track when either character reaches the finish line and used an outcome variable to determine if the player is the "winner" or the "loser".
 
 **Sources that helped**
