@@ -70,8 +70,8 @@ This was completely new to me since I had only worked with basic rectangular wid
 **Key concepts implemented:**
 The biggest challenge was understanding how to calculate the points for a rounded rectangle mathematically. 
 I had to figure out that you need to define specific coordinates that create smooth curves. 
-I started by looking up how rounded rectangles work geometrically, then implemented the _round_points() function that calculates all the corner positions. T
-he Canvas widget's create_polygon() method with smooth=True was the key to making the corners actually look rounded.
+I started by looking up how rounded rectangles work geometrically, then implemented the _round_points() function that calculates all the corner positions.
+The Canvas widgets create_polygon() method with smooth=True was the key to making the corners actually look rounded.
 I also learned about layering - drawing the shadow first, then outer rim, then inner rim, so they stack properly.
 
 **Sources that helped:**
@@ -111,7 +111,7 @@ This was like creating a layered design in image editing software, but with code
 I learned that drawing order matters - background elements must be drawn first. 
 I implemented a system where I draw the shadow (offset by a few pixels), then outer rim, then inner rim, then the main card background. 
 Each layer uses slightly different sizes and positions to create the visual depth. 
-I had to track the canvas IDs for each layer so I could modify colors later. 
+I had to track the canvas IDs for each layer, so I could modify colors later. 
 The hardest part was getting the mathematical offsets right so all the layers aligned properly.
 
 **Sources that helped:**
@@ -150,7 +150,7 @@ For the logic to work I needed to check the current state before applying color 
 
 **Sources that helped:**
 
-- here I used similar sources as i  number 3, because this bit relies on the same hover recognition
+- here I used similar sources as I  number 3, because this bit relies on the same hover recognition
 
 ### Layout Management and Responsive Design
 
@@ -177,7 +177,7 @@ Preventing memory leaks and crashes required proper cleanup of timers and event 
 This was important for a smooth user experience.
 
 **Key concepts implemented:**
-I learned to track all after() timer IDs in a set so I could cancel them when the game exits. 
+I learned to track all after() timer IDs in a set, so I could cancel them when the game exits. 
 Event bindings also needed to be unbound to prevent orphaned references. 
 The _cleanup() method handles all of this systematically. 
 I also learned about the importance of checking if widgets still exist before trying to update them - the update_timer() method includes this check.
