@@ -82,14 +82,10 @@ I also learned about layering - drawing the shadow first, then outer rim, then i
 
 ### Hover Effects and Dynamic Styling
 
-**What I learned:**
-
-Making cards respond to mouse hover required understanding tkinter's event system. 
+**What I learned:** Making cards respond to mouse hover required understanding tkinter's event system. 
 This was more complex than I initially thought because I had to manage different visual states.
 
-**Key concepts implemented:**
-
-I discovered that tkinter uses specific event names like "<Enter>" and "<Leave>" for mouse hover detection. 
+**Key concepts implemented:** I discovered that tkinter uses specific event names like "<Enter>" and "<Leave>" for mouse hover detection. 
 The tricky part was creating the closure functions (mk_hover) to capture the right widget references - 
 I learned about Python closures here. 
 I had to use configure() to change widget properties dynamically, 
