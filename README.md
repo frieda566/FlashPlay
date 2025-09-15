@@ -1,7 +1,7 @@
 # FlashPlay
 
 ## Description:
-FlashPlay is a gamified vocabulary learning app. Players start by importing or creating a deck of flashcards, which becomes the foundation for a series of interactive mini games. In total, you can choose between two different mini games: 
+FlashPlay is a gamified vocabulary learning app. Players start by creating a deck of flashcards, which becomes the foundation for a series of interactive mini games. In total, you can choose between two different mini games: 
 1. game_memory: The flashcards are upside-down, and you have to find the matching pairs <br>
 2. game_race: You race against a timed opponent. If you answer the question correctly your character moves forward, if you answer incorrectly the character does not move forward. <br>
 
