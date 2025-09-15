@@ -49,6 +49,74 @@ class FlashcardApp:
 
     # UI COMPONENTS
     # create a styled large button for main menu/actions
+    def show_custom (self, message, title, buttons=None):
+        popup = tk.Toplevel(self.root)
+        popup.transient(self.root)
+        popup.grab_set()
+        popup.configure(bg=self.colors["cream"])
+        popup.title(title)
+        popup.resizable(False, False)
+
+        # size and center
+        w, h = 400, 400
+        x = self.root.winfo_rootx() + (self.root.winfo_width() - w) // 2
+        y = self.root.winfo_rooty() + (self.root.winfo_height() - h) // 2
+        popup.geometry(f"{w}x{h}+{x}+{y}")
+
+        label = tk.Label(
+            popup,
+            text=message,
+            font=("Helvetica", 14, "bold"),
+            bg=self.colors["cream"],
+            fg=self.colors["dark_green"],
+            wraplength=360,
+            justify="center"
+        )
+        label.place(relx=0.5, rely=0.35, anchor="center")
+
+        def create_button(parent, text, command):
+            outer = tk.Frame(parent, bg=self.colors["brown"])
+            inner = tk.Frame(outer, bg=self.colors["sage"])
+
+            def on_click():
+                popup.destroy()
+                if callable(command):
+                    command()
+
+            btn = tk.Button(
+                inner,
+                text=text,
+                font=btn_font,
+                bg=self.colors["sage"],
+                fg=self.colors["dark_green"],
+                activebackground=self.colors["lime"],
+                activeforeground=self.colors["dark_green"],
+                relief="flat",
+                bd=0,
+                padx=18,
+                pady=10,
+                cursor="hand2",
+                command=on_click,
+            )
+            btn.pack(expand=True, fill="both", padx=2, pady=2)
+            inner.pack(expand=True, fill="both", padx=3, pady=3)
+            outer.pack(side="left", padx=10)
+
+        button_container = tk.Frame(popup, bg=self.colors["cream"])
+        button_container.place(relx=0.5, rely=0.75, anchor="center")
+        btn_font = font.Font(family="Helvetica", size=11, weight="bold")
+
+        if buttons:
+            for text, cmd in buttons:
+                create_button(button_container, text, cmd)
+        else:
+            create_button(button_container, "Close", lambda: popup.destroy())
+
+        popup.bind('<Escape>', lambda e: popup.destroy())
+        popup.focus_set()
+        popup.wait_window()
+
+
     def create_styled_button(self, parent, text, command, width=25, is_primary=True):
         button_container = tk.Frame(parent, bg=self.colors["cream"])
         button_container.pack(pady=8)
@@ -145,10 +213,15 @@ class FlashcardApp:
             outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
             outer_frame.pack(side="left", padx=10)
             inner_frame = tk.Frame(outer_frame, bg=bg)
-            inner_frame.pack(padx=2, pady=2)
-            btn = tk.Button(inner, text=text, font=("Helvetica", 10, "bold"),
-                            bg=bg, fg=self.colors["dark_green"], relief="flat", bd=0,
-                            padx=15, pady=8, cursor="hand2", command=cmd)
+            inner_frame.pack(padx=3, pady=3)
+
+            btn = tk.Button(
+                inner_frame,
+                text=text, font=("Helvetica", 10, "bold"),
+                bg=bg, fg=self.colors["dark_green"],
+                relief="flat", bd=0, padx=15, pady=8,
+                cursor="hand2", command=cmd
+            )
             btn.pack(padx=3, pady=3)
             return btn
 
@@ -201,16 +274,24 @@ class FlashcardApp:
         btn_row = tk.Frame(inner, bg=self.colors["cream"])
         btn_row.pack(pady=(6, 8))
 
-        def mk_small(text, bg, cmd, fg=None):
-            btn = tk.Button(btn_row, text=text, font=("Helvetica", 12, "bold"),
-                            bg=bg, fg=fg or self.colors["dark_green"], relief="flat", bd=0,
-                            padx=24, pady=10, cursor="hand2", command=cmd,
-                            activebackground=self.colors["sage"])
-            btn.pack(side="left", padx=16)
+        def mk_small(text, bg, cmd):
+            outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
+            outer_frame.pack(side="left", padx=10)
+            inner_frame = tk.Frame(outer_frame, bg=bg)
+            inner_frame.pack(padx=3, pady=3)
+
+            btn = tk.Button(
+                inner_frame,
+                text=text, font=("Helvetica", 10, "bold"),
+                bg=bg, fg=self.colors["dark_green"],
+                relief="flat", bd=0, padx=15, pady=8,
+                cursor="hand2", command=cmd
+            )
+            btn.pack(padx=3, pady=3)
             return btn
 
-        mk_small("✓ Yes", self.colors["sage"], on_yes)
-        mk_small("❌ No", self.colors["lime"], on_no, fg="red")
+        mk_small("✓ OK", self.colors["sage"], on_ok)
+        mk_small("❌ Cancel", self.colors["lime"], on_cancel)
 
         popup.wait_window()
         return value['result']
@@ -698,75 +779,6 @@ class FlashcardApp:
         if self.scrollable_frame is not None:
             self.update_flashcard_display()
 
-    # custom popup for games
-
-    def show_popup(self, message, title, buttons=None):
-        popup = tk.Toplevel(self.root)
-        popup.transient(self.root)
-        popup.grab_set()
-        popup.configure(bg=self.colors["cream"])
-        popup.title(title)
-        popup.resizable(False, False)
-
-        # size and center
-        w, h = 400, 400
-        x = self.root.winfo_rootx() + (self.root.winfo_width() - w) // 2
-        y = self.root.winfo_rooty() + (self.root.winfo_height() - h) // 2
-        popup.geometry(f"{w}x{h}+{x}+{y}")
-
-        label = tk.Label(
-            popup,
-            text=message,
-            font=("Helvetica", 14, "bold"),
-            bg=self.colors["cream"],
-            fg=self.colors["dark_green"],
-            wraplength=360,
-            justify="center"
-        )
-        label.place(relx=0.5, rely=0.35, anchor="center")
-
-        def create_button(parent, text, command):
-            outer = tk.Frame(parent, bg=self.colors["brown"])
-            inner = tk.Frame(outer, bg=self.colors["sage"])
-
-            def on_click():
-                popup.destroy()
-                if callable(command):
-                    command()
-
-            btn = tk.Button(
-                inner,
-                text=text,
-                font=btn_font,
-                bg=self.colors["sage"],
-                fg=self.colors["dark_green"],
-                activebackground=self.colors["lime"],
-                activeforeground=self.colors["dark_green"],
-                relief="flat",
-                bd=0,
-                padx=18,
-                pady=10,
-                cursor="hand2",
-                command=on_click,
-            )
-            btn.pack(expand=True, fill="both", padx=2, pady=2)
-            inner.pack(expand=True, fill="both", padx=3, pady=3)
-            outer.pack(side="left", padx=10)
-
-        button_container = tk.Frame(popup, bg=self.colors["cream"])
-        button_container.place(relx=0.5, rely=0.75, anchor="center")
-        btn_font = font.Font(family="Helvetica", size=11, weight="bold")
-
-        if buttons:
-            for text, cmd in buttons:
-                create_button(button_container, text, cmd)
-        else:
-            create_button(button_container, "Close", lambda: popup.destroy())
-
-        popup.bind('<Escape>', lambda e: popup.destroy())
-        popup.focus_set()
-        popup.wait_window()
-
     # game launchers
     def launch_memory_game(self):
         for w in self.root.winfo_children():
@@ -782,10 +794,10 @@ class FlashcardApp:
                 right_plant=self._right_plant
             )
         else:
-            self.show_popup(
-                message="Add flashcards before playing!",
-                title="Add flashcards",
-                buttons=[("← Back to Menu", self.setup_main_menu())]
+            self.show_custom(
+                message = "No flashcards found!",
+                title = "Add flashcards!",
+                buttons= [("Back to menu", self.setup_main_menu)],
             )
 
     def launch_game_race(self):
@@ -802,10 +814,10 @@ class FlashcardApp:
                 right_plant=self._right_plant
             )
         else:
-            self.show_popup(
-                message="Add flashcards before playing!",
-                title="Add flashcards",
-                buttons=[("← Back to Menu", self.setup_main_menu())]
+            self.show_custom(
+                message="No flashcards found!",
+                title="Add flashcards!",
+                buttons=[("Back to menu", self.setup_main_menu)],
             )
 
     # flashcard crud
@@ -860,7 +872,7 @@ class FlashcardApp:
                  font=("Helvetica", 11, "bold"),
                  bg=self.colors["cream"], fg=self.colors["dark_green"]).pack(pady=(5, 2))
 
-        languages = ["french", "german", "spanish", "italian",
+        languages = ["french", "english", "german", "spanish", "italian",
                      "portuguese", "russian", "japanese", "korean", "chinese (simplified)"]
 
         style = ttk.Style()
@@ -873,7 +885,7 @@ class FlashcardApp:
         lang_var = tk.StringVar()
         ddl = ttk.Combobox(inner, textvariable=lang_var, values=languages,
                            state="readonly", width=32, font=("Helvetica", 11), style='Custom.TCombobox')
-        ddl.set("french")
+        ddl.set("german")
         ddl.pack(pady=(0, 20))
 
         # translation and saving logic
@@ -912,9 +924,14 @@ class FlashcardApp:
             outer_frame.pack(side="left", padx=10)
             inner_frame = tk.Frame(outer_frame, bg=bg)
             inner_frame.pack(padx=2, pady=2)
-            btn = tk.Button(inner, text=text, font=("Helvetica", 10, "bold"),
-                            bg=bg, fg=self.colors["dark_green"], relief="flat", bd=0,
-                            padx=15, pady=8, cursor="hand2", command=cmd)
+
+            btn = tk.Button(
+                inner_frame,
+                text=text, font=("Helvetica", 10, "bold"),
+                bg=bg, fg=self.colors["dark_green"],
+                relief="flat", bd=0, padx=15, pady=8,
+                cursor="hand2", command=cmd
+            )
             btn.pack(padx=3, pady=3)
             return btn
 
