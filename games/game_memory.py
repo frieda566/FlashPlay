@@ -167,7 +167,6 @@ class MemoryGame:
         self._resize_bind_id = self.container.bind("<Configure>", self._on_resize)
 
     # fit button text to a single line, reducing font size if needed
-    @staticmethod
     def _fit_single_line(_self, button, max_width_px):
         txt = button.cget("text") or ""
         if not txt:
@@ -390,7 +389,7 @@ class MemoryGame:
 
     def _layout_cards(self):
         # dynamically size and arrange cards to fit the available area
-        # n = len(self.cards)
+        n = len(self.cards)
         rows, cols = self._rows, self._cols
         area_w, area_h = self._available_area()
         gap = 16  # consistent spacing
@@ -442,7 +441,7 @@ class MemoryGame:
         total_frames = 8
         frame_ms = 22
 
-        # win_id = canvas._window_id
+        win_id = canvas._window_id
         start_w = canvas.itemcget(win_id, "width")
         try:
             start_w = int(start_w)
@@ -567,7 +566,7 @@ class MemoryGame:
         button_container = tk.Frame(popup, bg=self.colors["cream"])
         button_container.place(relx=0.5, rely=0.8, anchor="center")
 
-        # btn_font = font.Font(family="Helvetica", size=11, weight="bold")
+        btn_font = font.Font(family="Helvetica", size=11, weight="bold")
 
         # helper for styled popup buttons
         def create_popup_button(parent, text, command):

@@ -226,25 +226,13 @@ class FlashcardApp:
         btn_row = tk.Frame(inner, bg=self.colors["cream"])
         btn_row.pack(pady=(10, 15))
 
-        # tiny helper for small buttons
-        def mk_small(text, bg, cmd):
-            outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
-            outer_frame.pack(side="left", padx=10)
-            inner_frame = tk.Frame(outer_frame, bg=bg)
-            inner_frame.pack(padx=3, pady=3)
+        btn_row = tk.Frame(inner, bg=self.colors["cream"])
+        btn_row.pack(pady=(10, 15))
 
-            btn = tk.Button(
-                inner_frame,
-                text=text, font=("Helvetica", 10, "bold"),
-                bg=bg, fg=self.colors["dark_green"],
-                relief="flat", bd=0, padx=15, pady=8,
-                cursor="hand2", command=cmd
-            )
-            btn.pack(padx=3, pady=3)
-            return btn
-
-        mk_small("✓ OK", self.colors["sage"], on_ok)
-        mk_small("❌ Cancel", self.colors["lime"], on_cancel)
+        self.create_small_button(btn_row, "✓ OK", on_ok, side="left", padx=10,
+                                 bg=self.colors["sage"], hover_bg=self.colors["lime"])
+        self.create_small_button(btn_row, "❌ Cancel", on_cancel, side="left", padx=10,
+                                 bg=self.colors["lime"], hover_bg=self.colors["sage"])
 
         popup.wait_window()
         return value['result']
@@ -298,38 +286,41 @@ class FlashcardApp:
         btn_row = tk.Frame(inner, bg=self.colors["cream"])
         btn_row.pack(pady=(6, 8))
 
-        # helper for small framed buttons
-        def mk_small(text, bg, cmd):
-            outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
-            outer_frame.pack(side="left", padx=10)
-            inner_frame = tk.Frame(outer_frame, bg=bg)
-            inner_frame.pack(padx=3, pady=3)
+        btn_row = tk.Frame(inner, bg=self.colors["cream"])
+        btn_row.pack(pady=(6, 8))
 
-            btn = tk.Button(
-                inner_frame,
-                text=text, font=("Helvetica", 10, "bold"),
-                bg=bg, fg=self.colors["dark_green"],
-                relief="flat", bd=0, padx=15, pady=8,
-                cursor="hand2", command=cmd
-            )
-            btn.pack(padx=3, pady=3)
-            return btn
-
-        mk_small("✓ OK", self.colors["sage"], on_ok)
-        mk_small("❌ Cancel", self.colors["lime"], on_cancel)
+        self.create_small_button(btn_row, "✓ OK", on_ok, side="left", padx=10,
+                                 bg=self.colors["sage"], hover_bg=self.colors["lime"])
+        self.create_small_button(btn_row, "❌ Cancel", on_cancel, side="left", padx=10,
+                                 bg=self.colors["lime"], hover_bg=self.colors["sage"])
 
         popup.wait_window()
         return value['result']
 
     # small, secondary action button used in list rows
-    def create_small_button(self, parent, text, command, side="left", padx=5):
+    # small/secondary action button with palette-aware hover
+    def create_small_button(
+            self,
+            parent,
+            text,
+            command,
+            side="left",
+            padx=5,
+            bg=None,
+            hover_bg=None,
+    ):
+        # defaultfarben setzen, falls nicht übergeben
+        bg = bg or self.colors["lime"]
+        hover_bg = hover_bg or (self.colors["sage"] if bg == self.colors["lime"] else self.colors["lime"])
+
+        # container + schatten
         btn_container = tk.Frame(parent, bg=self.colors["cream"])
         btn_container.pack(side=side, padx=padx)
 
         shadow_frame = tk.Frame(btn_container, bg=self.colors["brown"])
         shadow_frame.pack()
 
-        bg_frame = tk.Frame(shadow_frame, bg=self.colors["lime"])
+        bg_frame = tk.Frame(shadow_frame, bg=bg)
         bg_frame.pack(padx=2, pady=2)
 
         small_font = font.Font(family="Helvetica", size=10, weight="bold")
@@ -337,27 +328,27 @@ class FlashcardApp:
             bg_frame,
             text=text,
             font=small_font,
-            bg=self.colors["lime"],
+            bg=bg,
             fg=self.colors["dark_green"],
-            activebackground=self.colors["sage"],
+            activebackground=hover_bg,
             activeforeground=self.colors["dark_green"],
             relief="flat",
             bd=0,
-            padx=12,
-            pady=6,
+            padx=15,
+            pady=8,
             cursor="hand2",
             command=command
         )
-        btn.pack(padx=2, pady=2)
+        btn.pack(padx=3, pady=3)
 
-        # hover color
+        # hover
         def on_enter(_):
-            btn.configure(bg=self.colors["sage"])
-            bg_frame.configure(bg=self.colors["sage"])
+            btn.configure(bg=hover_bg)
+            bg_frame.configure(bg=hover_bg)
 
         def on_leave(_):
-            btn.configure(bg=self.colors["lime"])
-            bg_frame.configure(bg=self.colors["lime"])
+            btn.configure(bg=bg)
+            bg_frame.configure(bg=bg)
 
         btn.bind("<Enter>", on_enter)
         btn.bind("<Leave>", on_leave)
@@ -979,25 +970,10 @@ class FlashcardApp:
         btn_row = tk.Frame(inner, bg=self.colors["cream"])
         btn_row.pack(pady=(10, 15))
 
-        # helper for small action buttons
-        def mk_small(text, bg, cmd):
-            outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
-            outer_frame.pack(side="left", padx=10)
-            inner_frame = tk.Frame(outer_frame, bg=bg)
-            inner_frame.pack(padx=2, pady=2)
-
-            btn = tk.Button(
-                inner_frame,
-                text=text, font=("Helvetica", 10, "bold"),
-                bg=bg, fg=self.colors["dark_green"],
-                relief="flat", bd=0, padx=15, pady=8,
-                cursor="hand2", command=cmd
-            )
-            btn.pack(padx=3, pady=3)
-            return btn
-
-        mk_small("🌐 Translate and Save", self.colors["sage"], translate_and_save)
-        mk_small("❌ Cancel", self.colors["lime"], popup.destroy)
+        self.create_small_button(btn_row, "🌐 Translate and Save", translate_and_save,
+                                 side="left", padx=10, bg=self.colors["sage"], hover_bg=self.colors["lime"])
+        self.create_small_button(btn_row, "❌ Cancel", popup.destroy,
+                                 side="left", padx=10, bg=self.colors["lime"], hover_bg=self.colors["sage"])
 
         term_entry.focus_set()
 
