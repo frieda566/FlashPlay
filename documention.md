@@ -540,7 +540,9 @@ We also used AI to generate suggestions for meaningful comments, enhancing the c
 AI assisted in improving our documentation and refining the wording of explanations for clarity and precision.
 
 # Next steps
-A logical next step would be the integration of card decks, enabling users to define which cards they wish to study.
-A spaced repetition logic (like in Anki) could be introduced, where harder cards appear more often and easier cards are shown less frequently. 
-Also, further mini-games could be created, such as a typing speed challenge, quiz mode or a "hangman"-style game to ensure more variety.
-The streak system could also be expanded, with more detailed statistics and customizable plants as rewards. 
+- A logical next step would be the integration of card decks, enabling users to define which cards they wish to study.
+- A spaced repetition logic (like in Anki) could be introduced, where harder cards appear more often and easier cards are shown less frequently. 
+- Also, further mini-games could be created, such as a typing speed challenge, quiz mode or a "hangman"-style game to ensure more variety.
+- The streak system could also be expanded, with more detailed statistics and customizable plants as rewards. 
+- Also, the main.py file got really long and even though we tried to make it shorter through reusable code, it did not always work as we wanted to.
+Therefore another step could be to try to program more reusable code for a clearer structure. 
