@@ -1,5 +1,3 @@
-# info.py - Information content for FlashPlay application
-
 def get_app_info():
     # Returns the main application information text
     return """🌱 WELCOME TO FLASHPLAY! 🌱
