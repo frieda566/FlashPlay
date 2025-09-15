@@ -24,10 +24,10 @@ class PlantTracker:
         self.last_date = None
         self._load_streak()
 
-        # internal frame (this is what you grid into your main layout)
+        # internal frame
         self.frame = tk.Frame(parent, bg=self.colors["cream"])
 
-        # canvas lives inside our frame
+        # canvas that lives inside our frame
         self.canvas = tk.Canvas(self.frame, width=self.width, height=self.height,
                                 bg=self.colors["cream"], highlightthickness=0)
         self.canvas.pack(padx=6, pady=6)
@@ -48,7 +48,7 @@ class PlantTracker:
                     else:
                         self.streak = raw_streak
 
-                    # Validate against last_date
+                    # validate against last_date
                     if self.last_date:
                         last_date_obj = datetime.date.fromisoformat(self.last_date)
                         delta_days = (datetime.date.today() - last_date_obj).days

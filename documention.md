@@ -204,6 +204,10 @@ Furthermore, the Exception handling and placeholders ensure that invalid inputs 
 
 **Sources that helped:**
 - sys.stdout https://docs.python.org/3.12/library/sys.html#sys.stdout
+- cowsay https://pypi.org/project/cowsay/
+- to get a first idea of "How to redirect print statements to Tkinter text widget" & use of sys.stdout https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
+  - https://stackoverflow.com/questions/1218933/can-i-redirect-the-stdout-into-some-sort-of-string-buffer
+- 
 
 #### Tkinter Basics 
 **What I learned**
@@ -308,6 +312,9 @@ I also integrated streak plants by updating them through their record_activity()
 
 
 # Meetings 
+This chapter sums up what we talked about and figured out in our meetings. 
+It doesn’t list every little thing we did, but rather the bigger steps, problems we ran into, and ideas we came up with together. 
+In between there were of course plenty of small fixes, experiments, and back-and-forth messages.
 
   ## 18. August - online meeting
   online meeting together, planing next steps. Paula is responsible for designing the main.py interface and Frieda is responsible for the flashcards.py interface
@@ -334,7 +341,7 @@ I also integrated streak plants by updating them through their record_activity()
   * tkinter Frame and packing documentation -https://docs.python.org/3/library/tkinter.html#tkinter.Frame
   * Text wrapping and layout tutorials - similar resources as used in Memory Game
 
-  ### Frieda 
+  ### Frieda
   #### Design Scheme 
   To Do: Start designing the race game interface so that it aligns with the memory game. 
 
@@ -342,6 +349,7 @@ I also integrated streak plants by updating them through their record_activity()
   Additionally, I adjusted the color scheme of the flashcard buttons to match our initially discussed design. 
   I added UI details: labeling "you/ your opponent" under ASCII characters for clarity and deleted "meow" & "wuff" which was initially under the ASCII characters. 
   Furthermore, I added a header an emoji to make the interface more appealing. 
+  Note: Later on I will use cowsay instead of ascii_art_TNH - here I hadn't noticed the surprise cow. 
 
   ### Flashcards.py 
   To Do: Creating a simple flashcards.py so that it can be used throughout our program 
@@ -398,6 +406,12 @@ I also integrated streak plants by updating them through their record_activity()
 
   Solution: I reformatted the code using consistent heading structure (#, #-------#) for better navigation and to make my further work with my code easier. 
   Furthermore, I updated spelling and formatting issues. To get a clearer interactive experience I set the submit button's cursor style to "hand2". 
+
+  #### Button and Label Styling 
+  To Do: Make the Race Game UI consistent with the design scheme 
+  Solution: Initially, my Race Game buttons were plain grey and did not align with the agreed design. I restyled the buttons to match the layered design we established, using the chosen sage, lime, and brown color palette. 
+  I also added a headline “Race Game” at the top of the interface to provide context and improve the overall layout. 
+  These updates ensured that the Race Game visually fits with the other parts of the program.
   
   ## 31. August - online meeting
   - Frieda: start to implement streak system to track progress 
@@ -430,14 +444,16 @@ I also integrated streak plants by updating them through their record_activity()
   To Do: Implement a streak tracker to visualize player progress in the main menu
   
   Solution: I created a streak_plant() file with two growing plants on each side of the main menu's buttons to represent the daily streaks.
-  Furthermore, the JSON file streak_data.json was created for the updated streak. Python's datetime .... was implemented to ensure.....
+  Furthermore, the JSON file streak_data.json was created for the updated streak. I used Python's datetime to check the daily logins so that the plant could grow or be reset. 
   I designed the growth logic so that the plant grows each day (if played every day) until 20 days are reached. 
   Additionally, I needed to update the Race Game, the Memory Game, and the main file to ensure that when the game was played the streak would be updated. 
   
   #### Stats Design & popup layout 
   To Do: create stats that review the game that was just played - who won, how many moves, how much time was needed and how many terms were actually answered correctly
 
-  Solution: 
+  Solution: I designed a popup that followed our design scheme and that showed the total moves, the time taken and the correct answers. 
+  Here I used Toplevel, transient and grab_set() for a modal behavior. 
+  Note: Later on I implemented a show_custom_popup() - so that I could reuse the method for another popup. 
   
   ## 07. September - online meeting
   - planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
@@ -457,10 +473,20 @@ I also integrated streak plants by updating them through their record_activity()
   * Module importing and error handling - https://docs.python.org/3/tutorial/errors.html
 
   ### Frieda 
-  #### update streak_plant
-  To Do: finding out why streak_plant isn't working -> creating a better grid in setup_main_menu to ensure all aspects of main menu are visible
+  #### Debugging streak_plant visibility 
+  To Do: finding out why streak_plant isn't working 
+  Solution: I rebuilt the setup_main_menu() in main with a better grid distribution. 
+  I think that initially, the plants were printed but the buttons and the rest of the main menu was in the foreground so that you couldn't see them.
 
-  Solution: 
+  #### Update Layout: 
+  To Do: Initially, the Race Game didn't have a clear layout structure. There wasn't an official header, info bar or properly seperated sections for the racetrack, flashcards and controls. 
+  My goal was to build a consistent layout similar to the other parts of our project.
+
+  Solution: I reorganized the _build_ui() method to define a structured layout using frames and grid management.
+  At the top I added a header section and below that I created an info bar that displays the move counter and the timer. 
+  For the main game area, I seperated the racetrack canvas into its own frame and put the start/finish lines and characters in a dedicated space. 
+  The bottom section now contains the flashcard term display, the answer entry field with a submit button and an info label guiding the player by giving feedback if the inserted term is correct or what would have been correct.
+  Finally, I added a control frame with "New Game" and "Back to Menu" buttons. 
 
   ## 10. September - online meeting
 
@@ -475,14 +501,24 @@ I also integrated streak plants by updating them through their record_activity()
   #### create show_custom_popup
   To Do: instead of writing all design aspects each time a popup window should be created design a function that can be called with all the necessary info for the popup (title, message, buttons)
 
-  Solution: 
+  Solution: I built the show_custom_popup() and like in the initial stats popup I used Toplevel, transient and grab_set for the modal behavior. 
+  To make the popup more dynamic I allowed the buttons to be passed in as arguments so that depending on the need it wouldn't always have to be the same buttons. 
+  I replaced the old messagebox.showinfo calls with this new function. 
 
   ## 12. September - online meeting 
   planing final steps, updating the file structure, updating documentation with our AI usage 
-  ### Frieda 
-  #### updating documentation & streak_plant 
+  ### Frieda
+  #### commit history
+  Problem: I realised that all my previous commits were only labeled "update" without providing any meaningful information about the changes made. 
+  Solution: Since rewriting commit history can be risky (it could unintentionally alter code or break the repository), I decided to leave the existing commits as they are. 
+  Instead, I improved my workflow by writing clearer and more descriptive commit messages from this point forward. 
+  This way, future commits will provide better documentation of changes and make collaboration easier.
+
+  #### Updating documentation & streak_plant 
   To Do: update documentation, finalize streak_plant so that it grows and resets accordingly
-  Solution: Creating a 
+  Solution: I refactored the PlantTracker to make the streak logic clearer and more reliable. Here I changed the save file path to use pathlib.Path. 
+  I used raw_streak for safer loading and added that if the JSON file is edited manually and contains an invalid streak, the streak is automatically reset to 0.
+  I also improved the reset logic so that if a day is missed (delta_days > 1) the streak resets to 0. If the streak reaches 20 and another day passes, it should automatically reset back to 0.
 
   #### Using cowsay 
   Problem: ascii_art_tnh uses a surprise cow once in a while which then pops up in the race 
@@ -503,6 +539,7 @@ I also integrated streak plants by updating them through their record_activity()
 For debugging purposes, we pasted error messages into ChatGPT or GitHub Copilot to better understand their causes and explore possible solutions.
 In cases of exceptions, we used AI to verify the correctness of our approach and ensure proper handling.
 AI assisted us in improving code structure and formatting, such as reordering functions for readability or identifying unnecessary code segments.
+Whenever we were unsure how to implement a feature or achieve a specific behavior, we used AI tools to get ideas and explore possible solutions.
 We also used AI to generate suggestions for meaningful comments, enhancing the clarity and understandability of our code.
 AI assisted in improving our documentation and refining the wording of explanations for clarity and precision.
 

@@ -7,8 +7,7 @@ import io
 import sys
 
 def get_ascii_art(character: str, placeholder: str = "") -> str:
-#
-
+# Returns ASCII art for the given character ("player" or "opponent"), or a placeholder if invalid
     old_stdout = sys.stdout # save original stdout
     try:
         if character == "player":
@@ -209,7 +208,7 @@ class RaceGame:
         self.answer_entry.pack(side="left", padx=(0, 10))
         self.answer_entry.bind("<Return>", lambda e: self.submit_answer())
         self.submit_btn = self.create_styled_button(
-            entry_frame, "Submit", self.submit_answer, width=15, is_primary=True, side="left", padx=8, pady=0
+            entry_frame, "Submit", self.submit_answer, width=15, side="left", padx=8, pady=0
         )
 
         # info label
@@ -279,22 +278,12 @@ class RaceGame:
             inner.pack(expand=True, fill="both", padx=3, pady=3)
             outer.pack(side="left", padx=10)
 
-            def on_enter(_):
-                btn.configure(bg=self.colors["lime"])
-                inner.configure(bg=self.colors["lime"])
-
-            def on_leave(_):
-                btn.configure(bg=self.colors["sage"])
-                inner.configure(bg=self.colors["sage"])
-
-            btn.bind("<Enter>", on_enter)
-            btn.bind("<Leave>", on_leave)
             return btn
 
         self.play_again_btn = card_button(button_container, "🔄 New Game", self.reset_game)
         card_button(button_container, "← Back to Menu", self.return_to_main_menu)
 
-    def create_styled_button(self, parent, text, command, width=25, is_primary=True,
+    def create_styled_button(self, parent, text, command, width=25,
                              side="top", padx=0, pady=8):
         # outer container frame
         button_container = tk.Frame(parent, bg=self.colors["cream"])
@@ -305,7 +294,7 @@ class RaceGame:
         outer_frame.pack()
 
         # inner frame
-        bg_color = self.colors["sage"] if is_primary else self.colors["lime"]
+        bg_color = self.colors["sage"]
         inner_frame = tk.Frame(outer_frame, bg=bg_color)
         inner_frame.pack(padx=3, pady=3)
 
@@ -317,7 +306,7 @@ class RaceGame:
             font=button_font,
             bg=bg_color,
             fg=self.colors["dark_green"],
-            activebackground=self.colors["lime"] if is_primary else self.colors["sage"],
+            activebackground=self.colors["lime"],
             activeforeground=self.colors["dark_green"],
             relief="flat",
             bd=0,
@@ -398,7 +387,6 @@ class RaceGame:
     # -------------------- Game Logic -------------------- #
     def _place_characters(self):
         # draws player and opponent ASCII art and labels on the canvas
-
         self.player_art = get_ascii_art("player", self.player_placeholder)
         self.opponent_art = get_ascii_art("opponent", self.opponent_placeholder)
 
@@ -452,7 +440,6 @@ class RaceGame:
             font=("Helvetica", label_font_size, "bold"),
             fill=self.colors["dark_green"],
         )
-
         self.canvas.update()
 
     def start_race(self):
@@ -472,7 +459,6 @@ class RaceGame:
 
     def next_flashcard(self):
         # picks the next flashcard, avoiding repetition of the last one
-
         if not self.running or not self.flashcards:
             return
 
@@ -504,16 +490,13 @@ class RaceGame:
         self._timeout_after_id = self._after(8000, self._timeout_answer_penalty)
 
     def _timeout_answer_penalty(self):
-        # applies a small advance penalty if player does not answer in time
-
+        # # handles when the player fails to answer in time (no movement, just reveal correct answer)
         if not self.running:
             return
         if self.answer_entry.get().strip() == "":
             self.info_label.config(
                 text=f"Time's up! Small advance penalty applied. Correct term would have been: {self.current_flashcard[2]}"
             )
-            self._animate_move(self.player_item, self.player_x, self.player_x + self.player_slow)
-            self.player_x += self.player_slow
             self._check_winner_or_continue()
             # next question
             self.next_flashcard()
@@ -662,10 +645,11 @@ class RaceGame:
 
     # -------------------- utilities -------------------- #
     def _after(self, ms, fn):
+        # wrapper around root.after() that tracks scheduled jobs for easier cleanup
         jid = None
 
         def wrapper():
-            self._after_jobs.discard(jid)
+            self._after_jobs.discard(jid) # remove job from tracking once executed
             fn()
 
         jid = self.root.after(ms, wrapper)
@@ -673,23 +657,30 @@ class RaceGame:
         return jid
 
     def _update_moves_label(self):
+        # updates the moves label on the UI to reflect the current number of player moves
         if self.moves_label and self.moves_label.winfo_exists():
             self.moves_label.config(text=f"Moves: {self.moves}")
 
     def _cleanup(self):
+        # cancels all scheduled after() jobs and stops the race loop
         self.running = False
+        # cancel opponent movement timer
         if self._opponent_after_id:
             try:
                 self.root.after_cancel(self._opponent_after_id)
             except (ValueError, tk.TclError):
                 pass
             self._opponent_after_id = None
+
+        # cancel flashcard timeout
         if self._timeout_after_id:
             try:
                 self.root.after_cancel(self._timeout_after_id)
             except (ValueError, tk.TclError):
                 pass
             self._timeout_after_id = None
+
+        # cancel any other scheduled after() jobs
         for jid in list(self._after_jobs):
             try:
                 self.root.after_cancel(jid)
@@ -697,12 +688,11 @@ class RaceGame:
                 pass
             self._after_jobs.discard(jid)
 
-    # root-level cleanup
     def return_to_main_menu(self):
         # cleanup and restore the root app window
         self._cleanup()
         try:
-            self.container.destroy()
+            self.container.destroy() # remove game container
         except tk.TclError:
             pass
         self.root.configure(bg=self._original_bg)
@@ -717,19 +707,23 @@ class RaceGame:
         self.start_time = time.time()
         self.moves = 0
         self._update_moves_label()
+
+        # reset input entry and info label
         if self.answer_entry and self.answer_entry.winfo_exists():
             self.answer_entry.config(state="normal")
             self.answer_entry.delete(0, tk.END)
         if self.info_label and self.info_label.winfo_exists():
             self.info_label.config(text="Answer as fast as you can! (≤8s = faster)")
+        # reset character positions on canvas
         self._place_characters()
-        # start fresh race
+        # start fresh race after short delay
         self._after(300, self.start_race)
 
     def update_timer(self):
+        # increments the elapsed time counter and updates the timer label every second
         if not self.running:
             return
         self.time_elapsed += 1
         if self.time_label.winfo_exists():
             self.time_label.config(text=f"Time: {self.time_elapsed}s")
-            self._after(1000, self.update_timer)  # update every 1s
+            self._after(1000, self.update_timer)  # reschedule timer updates
