@@ -69,25 +69,25 @@ class RoundedCard(tk.Canvas):
         if self._inner_rim_id is not None:
             self.delete(self._inner_rim_id)
 
-        # Draw shadow (offset by 4 pixels)
+        # draw shadow (offset by 4 pixels)
         shadow_pts = self._round_points(4, 4, width + 2, height + 2, self.radius)
         self._shadow_id = self.create_polygon(
             shadow_pts, smooth=True, fill=self.shadow_color, outline="", width=0
         )
 
-        # Draw outer rim
+        # draw outer rim
         outer_pts = self._round_points(2, 2, width - 2, height - 2, self.radius)
         self._outer_rim_id = self.create_polygon(
             outer_pts, smooth=True, fill=self.outer_rim_color, outline="", width=0
         )
 
-        # Draw inner rim (card background)
+        # draw inner rim (card background)
         inner_pts = self._round_points(6, 6, width - 6, height - 6, self.radius - 4)
         self._inner_rim_id = self.create_polygon(
             inner_pts, smooth=True, fill=self.inner_rim_color, outline="", width=0
         )
 
-        # Draw main card background
+        # draw main card background
         card_pts = self._round_points(10, 10, width - 10, height - 10, self.radius - 8)
         self._card_bg_id = self.create_polygon(
             card_pts, smooth=True, fill=self.bg_color, outline="", width=0
@@ -103,7 +103,7 @@ class RoundedCard(tk.Canvas):
             self.coords(self._window_id, width // 2, height // 2)
             self.itemconfigure(self._window_id, width=inner_w, height=inner_h)
 
-    # public method to reseize card and redraw all layers
+    # public method to resize card and redraw all layers
     def resize(self, width, height):
         self._redraw(width, height)
 
@@ -117,7 +117,7 @@ class RoundedCard(tk.Canvas):
         self.itemconfig(self._outer_rim_id, fill=outer_rim_color)
 
 # MemoryGame Class
-# main game logig and UI for the memory game
+# main game logic and UI for the memory game
 class MemoryGame:
     def __init__(self, root, flashcards, on_exit=None, on_streak=None, left_plant=None, right_plant=None):
         self.root = root
@@ -144,7 +144,7 @@ class MemoryGame:
         self.container = tk.Frame(self.root, bg=self.colors["cream"])
         self.container.pack(fill="both", expand=True)
 
-        # Game state variables
+        # game state variables
         self.cards = []
         self.card_widgets = []
         self.flipped_cards = []
@@ -154,20 +154,21 @@ class MemoryGame:
         self.game_frame = None
         self.control_frame = None
 
-        # Animation / timers
+        # animation / timers
         self.flip_animation_running = False
         self._after_jobs = set()  # track after() ids for clean cancel
         self._layout_job = None
 
-        # Build UI within container
+        # build UI within container
         self._build_layout()
         self.reset_board()
 
-        # Bind resize on container (not root) to avoid global churn
+        # bind resize on container (not root) to avoid global churn
         self._resize_bind_id = self.container.bind("<Configure>", self._on_resize)
 
     # fit button text to a single line, reducing font size if needed
-    def _fit_single_line(self, button, max_width_px):
+    @staticmethod
+    def _fit_single_line(_self, button, max_width_px):
         txt = button.cget("text") or ""
         if not txt:
             return
@@ -234,7 +235,7 @@ class MemoryGame:
             w.destroy()
         button_font = font.Font(family="Helvetica", size=11, weight="bold")
 
-        # Create a container frame to hold both buttons
+        # create a container frame to hold both buttons
         button_container = tk.Frame(self.control_frame, bg=self.colors["cream"])
         button_container.pack(expand=True)
 
@@ -279,9 +280,6 @@ class MemoryGame:
     # data preparation
     def _prepare_cards(self):
         # select up to 10 pairs randomly from flashcards
-        if not self.flashcards:
-            messagebox.showinfo("No cards", "You don't have any flashcards yet.")
-            return False
         # max 10 pairs, at least 1 (if available)
         max_pairs = min(10, len(self.flashcards))
         num_pairs = max_pairs  # later you can expose this as difficulty
@@ -336,7 +334,7 @@ class MemoryGame:
 
         for i in range(n):
             r, c = divmod(i, cols)
-            # Default card visual styling
+            # default card visual styling
             card = RoundedCard(
                 self.game_frame,
                 width=160,
@@ -357,13 +355,13 @@ class MemoryGame:
             def mk_hover(b=btn, cnv=card):
                 def on_enter(_):
                     if not self.flip_animation_running and b.cget("text") == "":
-                        # Hover state: sage inner rim, dark green outer rim
+                        # hover state: sage inner rim, dark green outer rim
                         b.configure(bg=self.colors["sage"])
                         cnv.set_card_colors(self.colors["sage"], self.colors["sage"], self.colors["dark_green"])
 
                 def on_leave(_):
                     if not self.flip_animation_running and b.cget("text") == "":
-                        # Normal state: lime inner rim, sage outer rim
+                        # normal state: lime inner rim, sage outer rim
                         b.configure(bg=self.colors["lime"])
                         cnv.set_card_colors(self.colors["lime"], self.colors["lime"], self.colors["sage"])
 
@@ -392,14 +390,14 @@ class MemoryGame:
 
     def _layout_cards(self):
         # dynamically size and arrange cards to fit the available area
-        n = len(self.cards)
+        # n = len(self.cards)
         rows, cols = self._rows, self._cols
         area_w, area_h = self._available_area()
         gap = 16  # consistent spacing
         card_w = max(100, (area_w - (cols + 1) * gap) // max(1, cols))
         card_h = max(80, (area_h - (rows + 1) * gap) // max(1, rows))
 
-        # keep card aspect ration consistent ~ 1.45 (w/h)
+        # keep card aspect ratio consistent ~ 1.45 (w/h)
         ratio = 1.45
         if card_w / max(1, card_h) > ratio:
             card_w = int(card_h * ratio)
@@ -444,7 +442,7 @@ class MemoryGame:
         total_frames = 8
         frame_ms = 22
 
-        win_id = canvas._window_id
+        # win_id = canvas._window_id
         start_w = canvas.itemcget(win_id, "width")
         try:
             start_w = int(start_w)
@@ -481,7 +479,7 @@ class MemoryGame:
             if reveal:
                 text = self.cards[idx]["content"]
                 btn.configure(text=text)
-                # Flipped state: distinguish term vs. translation visually
+                # flipped state: distinguish term vs. translation visually
                 if self.cards[idx]["type"] == "term":
                     btn.configure(bg=self.colors["sage"], fg=self.colors["dark_green"])
                     canvas.set_card_colors(self.colors["sage"], self.colors["lime"], self.colors["sage"])
@@ -490,7 +488,7 @@ class MemoryGame:
                     canvas.set_card_colors(self.colors["cream"], self.colors["lime"], self.colors["sage"])
                 cw["flipped"] = True
             else:
-                # Back to face-down state
+                # back to face-down state
                 btn.configure(text="", bg=self.colors["lime"], fg=self.colors["dark_green"])
                 canvas.set_card_colors(self.colors["lime"], self.colors["lime"], self.colors["sage"])
                 cw["flipped"] = False
@@ -516,14 +514,14 @@ class MemoryGame:
             self._after(300, lambda: (self._flip(a, reveal=False), self._flip(b, reveal=False)))
         self.flipped_cards.clear()
 
-    # True if all apirs have been matched
+    # true if all pairs have been matched
     def _is_won(self):
         total = len({c["pair_id"] for c in self.cards})
         return len(self.matched_pairs) == total
 
     # game over dialog
     def _game_over(self):
-        #notify plant widget for streak growth
+        # notify plant widget for streak growth
         if hasattr(self, "_left_plant"):
             self._left_plant.record_activity()
         if hasattr(self, "_right_plant"):
@@ -539,7 +537,7 @@ class MemoryGame:
             f"• Pairs: {len(self.matched_pairs)}"
         )
 
-        # Create modal popup for game stats
+        # create modal popup for game stats
         popup = tk.Toplevel(self.root)
         popup.transient(self.root)
         popup.grab_set()
@@ -547,13 +545,13 @@ class MemoryGame:
         popup.title("Game Complete!")
         popup.resizable(False, False)
 
-        # Set fixed size and center the window
+        # set fixed size and center the window
         w, h = 400, 300
         x = self.root.winfo_rootx() + (self.root.winfo_width() - w) // 2
         y = self.root.winfo_rooty() + (self.root.winfo_height() - h) // 2
         popup.geometry(f"{w}x{h}+{x}+{y}")
 
-        # Stats label (centered)
+        # stats label (centered)
         stats_label = tk.Label(
             popup,
             text=stats,
@@ -569,7 +567,7 @@ class MemoryGame:
         button_container = tk.Frame(popup, bg=self.colors["cream"])
         button_container.place(relx=0.5, rely=0.8, anchor="center")
 
-        btn_font = font.Font(family="Helvetica", size=11, weight="bold")
+        # btn_font = font.Font(family="Helvetica", size=11, weight="bold")
 
         # helper for styled popup buttons
         def create_popup_button(parent, text, command):
@@ -633,7 +631,7 @@ class MemoryGame:
 
     # timer and cleanups
     def _after(self, ms, fn):
-        # helper to scedule a delayed callback and track for cleanup
+        # helper to schedule a delayed callback and track for cleanup
         jid = None
 
         def inner():
