@@ -546,3 +546,4 @@ AI assisted in improving our documentation and refining the wording of explanati
 - The streak system could also be expanded, with more detailed statistics and customizable plants as rewards. 
 - Also, the main.py file got really long and even though we tried to make it shorter through reusable code, it did not always work as we wanted to.
 Therefore another step could be to try to program more reusable code for a clearer structure. 
+- being able to sort the vocabulary alphabetically or based on date
