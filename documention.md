@@ -204,6 +204,10 @@ Furthermore, the Exception handling and placeholders ensure that invalid inputs 
 
 **Sources that helped:**
 - sys.stdout https://docs.python.org/3.12/library/sys.html#sys.stdout
+- cowsay https://pypi.org/project/cowsay/
+- to get a first idea of "How to redirect print statements to Tkinter text widget" & use of sys.stdout https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
+  - https://stackoverflow.com/questions/1218933/can-i-redirect-the-stdout-into-some-sort-of-string-buffer
+- 
 
 #### Tkinter Basics 
 **What I learned**
