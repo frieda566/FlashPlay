@@ -213,10 +213,15 @@ class FlashcardApp:
             outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
             outer_frame.pack(side="left", padx=10)
             inner_frame = tk.Frame(outer_frame, bg=bg)
-            inner_frame.pack(padx=2, pady=2)
-            btn = tk.Button(inner, text=text, font=("Helvetica", 10, "bold"),
-                            bg=bg, fg=self.colors["dark_green"], relief="flat", bd=0,
-                            padx=15, pady=8, cursor="hand2", command=cmd)
+            inner_frame.pack(padx=3, pady=3)
+
+            btn = tk.Button(
+                inner_frame,
+                text=text, font=("Helvetica", 10, "bold"),
+                bg=bg, fg=self.colors["dark_green"],
+                relief="flat", bd=0, padx=15, pady=8,
+                cursor="hand2", command=cmd
+            )
             btn.pack(padx=3, pady=3)
             return btn
 
@@ -269,16 +274,24 @@ class FlashcardApp:
         btn_row = tk.Frame(inner, bg=self.colors["cream"])
         btn_row.pack(pady=(6, 8))
 
-        def mk_small(text, bg, cmd, fg=None):
-            btn = tk.Button(btn_row, text=text, font=("Helvetica", 12, "bold"),
-                            bg=bg, fg=fg or self.colors["dark_green"], relief="flat", bd=0,
-                            padx=24, pady=10, cursor="hand2", command=cmd,
-                            activebackground=self.colors["sage"])
-            btn.pack(side="left", padx=16)
+        def mk_small(text, bg, cmd):
+            outer_frame = tk.Frame(btn_row, bg=self.colors["brown"])
+            outer_frame.pack(side="left", padx=10)
+            inner_frame = tk.Frame(outer_frame, bg=bg)
+            inner_frame.pack(padx=3, pady=3)
+
+            btn = tk.Button(
+                inner_frame,
+                text=text, font=("Helvetica", 10, "bold"),
+                bg=bg, fg=self.colors["dark_green"],
+                relief="flat", bd=0, padx=15, pady=8,
+                cursor="hand2", command=cmd
+            )
+            btn.pack(padx=3, pady=3)
             return btn
 
-        mk_small("✓ Yes", self.colors["sage"], on_yes)
-        mk_small("❌ No", self.colors["lime"], on_no, fg="red")
+        mk_small("✓ OK", self.colors["sage"], on_ok)
+        mk_small("❌ Cancel", self.colors["lime"], on_cancel)
 
         popup.wait_window()
         return value['result']
@@ -872,7 +885,7 @@ class FlashcardApp:
         lang_var = tk.StringVar()
         ddl = ttk.Combobox(inner, textvariable=lang_var, values=languages,
                            state="readonly", width=32, font=("Helvetica", 11), style='Custom.TCombobox')
-        ddl.set("french")
+        ddl.set("german")
         ddl.pack(pady=(0, 20))
 
         # translation and saving logic
@@ -911,9 +924,14 @@ class FlashcardApp:
             outer_frame.pack(side="left", padx=10)
             inner_frame = tk.Frame(outer_frame, bg=bg)
             inner_frame.pack(padx=2, pady=2)
-            btn = tk.Button(inner, text=text, font=("Helvetica", 10, "bold"),
-                            bg=bg, fg=self.colors["dark_green"], relief="flat", bd=0,
-                            padx=15, pady=8, cursor="hand2", command=cmd)
+
+            btn = tk.Button(
+                inner_frame,
+                text=text, font=("Helvetica", 10, "bold"),
+                bg=bg, fg=self.colors["dark_green"],
+                relief="flat", bd=0, padx=15, pady=8,
+                cursor="hand2", command=cmd
+            )
             btn.pack(padx=3, pady=3)
             return btn
 
