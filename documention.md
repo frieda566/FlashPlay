@@ -14,8 +14,8 @@ Target users are students and language learners who want a fun and gamified way 
 ![Memory Game](Images/memory.png)
 ![Race Game](Images/race_game.png)
 
-## main.py and flaschcards.py
-## developement process and challenges 
+## main.py and flashcards.py
+## development process and challenges 
 - We first created an overall structure (main.py + flashcards.py) so each team member could work on games individually.
 - A shared color scheme was chosen to make both games and UI consistent.
 - We encountered a Git issue where Paula couldn’t see Frieda’s commits.
@@ -203,7 +203,6 @@ Furthermore, the Exception handling and placeholders ensure that invalid inputs 
 - cowsay https://pypi.org/project/cowsay/
 - to get a first idea of "How to redirect print statements to Tkinter text widget" & use of sys.stdout https://stackoverflow.com/questions/12351786/how-to-redirect-print-statements-to-tkinter-text-widget
   - https://stackoverflow.com/questions/1218933/can-i-redirect-the-stdout-into-some-sort-of-string-buffer
-- 
 
 #### Tkinter Basics 
 **What I learned**
@@ -217,7 +216,12 @@ Furthermore, the buttons also follow the design and I used layered frames to mat
 Tk.Frame was used for the layout and to separate controls, info labels, and the canvas. 
 
 **Sources that helped**
-
+- tkinter https://docs.python.org/3/library/tkinter.html
+  - https://www.geeksforgeeks.org/python/python-gui-tkinter/
+  - https://www.youtube.com/watch?v=epDKamC-V-8
+    - tkinter Frame https://www.geeksforgeeks.org/python/python-tkinter-frame-widget/
+      - https://www.pythonguis.com/tutorials/use-tkinter-to-design-gui-layout/
+      
 #### Layout Management & Grid vs. Pack 
 **What I learned**
 Mixing pack and grid in the same parent widget can lead to layout conflicts. 
@@ -227,12 +231,15 @@ Moreover, maintaining separate containers simplifies cleanup and switching betwe
 Furthermore, resizing the window requires scaling canvas elements and ASCII art proportionally.
 
 **Key concepts implemented**
-Container frame (self.container) packed at root level / I used a root container frame with pack to isolate all game widgets from the main window. 
+I used a root container frame with pack to isolate all game widgets from the main window. 
 I arranged labels, canvas, input fields and control buttons inside the container using grid for precise layout. 
 I kept the game elements in a single container so that I could easily destroy or reset the game when returning to the menu or starting a new race. 
 I used _on_resize() to scale the canvas items and to resize the ASCII art proportionally. 
 
 **Sources that helped**
+- pack https://www.pythonguis.com/tutorials/create-ui-with-tkinter-pack-layout-manager/
+- grid https://www.pythonguis.com/tutorials/create-ui-with-tkinter-grid-layout-manager/
+- resize https://stackoverflow.com/questions/44622243/how-to-change-the-layout-of-a-window-on-changing-its-size-tkinter-python
 
 #### Canvas, animations & opponent logic 
 **What I learned**
@@ -242,10 +249,16 @@ This required thinking about animation frame-by-frame, as well as managing multi
 
 **Key concepts implemented**
 I implemented animations by creating custom _animate_move() function that gradually shifts a character's position on the canvas over time. 
-I scheduled opponent moves with after() so the opponent advances every 8 seconds, regardless of the player's actions. 
+I scheduled opponent moves with my _after() wrapper, which lets me track and manage scheduled jobs for easier cleanup. 
+This ensures the opponent advances every 8 seconds, regardless of the player’s actions.
 I also created a timeout penalty system: if the player does not answer within 8 seconds, their character still moves forward but with a smaller step size. 
 This system makes the game balanced and prevents players from stalling indefinitely. 
 I added logic to track when either character reaches the finish line and used an outcome variable to determine if the player is the "winner" or the "loser".
+
+**Sources that helped**
+- Canvas https://www.geeksforgeeks.org/python/python-tkinter-canvas-widget/
+- Tkinter's after() - I used my _after() wrapper but still read up on the initial idea https://www.pythontutorial.net/tkinter/tkinter-after/
+- winfo_exists() https://www.tutorialspoint.com/how-to-see-if-a-widget-exists-in-tkinter
 
 #### Custom Popups & Game Stats
 **What I learned**
@@ -259,6 +272,13 @@ At the end of a race, I built a custom popup that displays a summary including w
 Additionally, when nothing is inserted in the Entry part during the race but SUBMIT is pressed another popup appears. 
 Here I used show_custom_popup(message, title, buttons) to centralize all popup windows created. 
 Furthermore, I had to link certain actions to the buttons used on the popup to ensure that the action is fulfilled when pressed (reset, return_to_main_menu, ...).
+
+**Sources that helped**
+- messagebox https://www.geeksforgeeks.org/python/python-tkinter-messagebox-widget/
+- Toplevel https://www.geeksforgeeks.org/python/python-tkinter-toplevel-widget/
+- grab_set() https://www.pythontutorial.net/tkinter/tkinter-toplevel/
+- transient https://www.tutorialspoint.com/python/tk_toplevel.htm
+- Buttons https://www.pythonguis.com/tutorials/create-buttons-in-tkinter/
 
 #### Racetrack & Placing Characters 
 **What I learned**
@@ -278,9 +298,14 @@ Moreover, to improve learning and prevent boredom it was important to avoid a re
 **Key concepts implemented**
 I used next_flashcard to select a new flashcard each time an answer is submitted while avoiding the previous one.
 The player types their answer into the Entry widget. Correct, slow, incorrect, or timeout answers all trigger different feedback and movement effects.
-For instance _timeout_answer_penalty() moves the player a smaller distance if they exceed 8 seconds. I think 8 seconds is realistic because it gives you time to think and to quickly type the answer.
+I think 8 seconds is realistic because it gives you time to think and to quickly type the answer.
 Moreover, submit_answer() checks the player's answer and applies a further movement logic. If the user answers fast and correct the ASCII turtle moves a bigger step than when the user answers correctly but slower. 
 If the user answers incorrect there is no movement. Correct terms are tracked in a list for reporting at the end of the game.
+
+**Sources that helped**
+- Entry https://www.geeksforgeeks.org/python/python-tkinter-entry-widget/
+- random.choice - from class  
+- further sources were named already 
 
 #### Utilities
 **What I learned**
@@ -293,6 +318,11 @@ The cleanup() function cancels pending animations, timeouts, and opponent moves.
 Furthermore, the update_timer() was used to update the displayed Timer in the top right corner every second. 
 I created reset_game to restore all positions, labels and counters for a new race. 
 
+**Sources that helped**
+- update timer https://www.w3resource.com/python-exercises/tkinter/python-tkinter-events-and-event-handling-exercise-10.php#:~:text=The%20%22update_timer()%22%20method%20is,mainloop()%22
+- .destroy() https://www.geeksforgeeks.org/python/how-to-clear-out-a-frame-in-the-tkinter/
+- further sources were named already 
+
 ### End Game
 **What I learned**
 It was important to properly end the game when someone wins so that the timers, input widgets, and animations do not continue running in the background.
@@ -302,9 +332,7 @@ To match the streak_plant logic it is important to integrate this in the end-gam
 This part of the code was important to handle the victory or loss, to disable the entry and to enable the reset button.
 The _game_over_popup() was used to show the detailed stats from the game played.
 I used the cleanup logic in _end_game() so that restarting a race does not cause errors or duplicate timers.
-I also integrated streak plants by updating them through their record_activity() method when a game ends. 
-
-**Sources that helped**
+I also integrated streak plants by updating them through their record_activity() method when a game ends.
 
 
 # Meetings 
@@ -346,6 +374,9 @@ In between there were of course plenty of small fixes, experiments, and back-and
   I added UI details: labeling "you/ your opponent" under ASCII characters for clarity and deleted "meow" & "wuff" which was initially under the ASCII characters. 
   Furthermore, I added a header an emoji to make the interface more appealing. 
   Note: Later on I will use cowsay instead of ascii_art_TNH - here I hadn't noticed the surprise cow. 
+  Sources that helped: 
+  * Colors from discussed design scheme 
+  * reference surprise cow https://pypi.org/project/Ascii-Art-TNH/ 
 
   ### Flashcards.py 
   To Do: Creating a simple flashcards.py so that it can be used throughout our program 
@@ -355,7 +386,12 @@ In between there were of course plenty of small fixes, experiments, and back-and
   This way throughout the whole program the flashcards are up to date automatically depending on editing, creation or if they are deleted.
   I also defined a flashcards table with id, term and translator field to store all vocabulary consistently. 
   For the core operations I created different methods - for instance, add_flashcard, update_flashcard, delete_flashcard and get_all_flashcards. 
-  To safely close the database connection I added close().           
+  To safely close the database connection I added close().
+
+  Sources that helped: 
+  * the initial idea for important functions for flashcard.py were presented during our presentation - https://github.com/AlexHettle/Flashcard-Study-App/blob/master/Flashcard_Study_App/Flashcards.py
+  * SQLite3 https://docs.python.org/3/library/sqlite3.html
+  * SQLite create table https://sqlite.org/lang_createtable.html
     
   ## 21. August - online meeting
   ### Paula
@@ -405,9 +441,13 @@ In between there were of course plenty of small fixes, experiments, and back-and
 
   #### Button and Label Styling 
   To Do: Make the Race Game UI consistent with the design scheme 
+
   Solution: Initially, my Race Game buttons were plain grey and did not align with the agreed design. I restyled the buttons to match the layered design we established, using the chosen sage, lime, and brown color palette. 
   I also added a headline “Race Game” at the top of the interface to provide context and improve the overall layout. 
   These updates ensured that the Race Game visually fits with the other parts of the program.
+  Sources that helped: 
+  * Buttons https://www.pythonguis.com/tutorials/create-buttons-in-tkinter/
+  * Colors from discussed design scheme 
   
   ## 31. August - online meeting
   - Frieda: start to implement streak system to track progress 
@@ -442,7 +482,12 @@ In between there were of course plenty of small fixes, experiments, and back-and
   Solution: I created a streak_plant() file with two growing plants on each side of the main menu's buttons to represent the daily streaks.
   Furthermore, the JSON file streak_data.json was created for the updated streak. I used Python's datetime to check the daily logins so that the plant could grow or be reset. 
   I designed the growth logic so that the plant grows each day (if played every day) until 20 days are reached. 
-  Additionally, I needed to update the Race Game, the Memory Game, and the main file to ensure that when the game was played the streak would be updated. 
+  Additionally, I needed to update the Race Game, the Memory Game, and the main file to ensure that when the game was played the streak would be updated.
+  Sources that helped:
+  * tkinter - as mentioned previously 
+  * datetime https://docs.python.org/3/library/datetime.html
+  * creating plant with Canvas (oval, ...) https://www.geeksforgeeks.org/python/python-tkinter-canvas-widget/
+  * JSON https://docs.python.org/3/library/json.html 
   
   #### Stats Design & popup layout 
   To Do: create stats that review the game that was just played - who won, how many moves, how much time was needed and how many terms were actually answered correctly
@@ -450,6 +495,8 @@ In between there were of course plenty of small fixes, experiments, and back-and
   Solution: I designed a popup that followed our design scheme and that showed the total moves, the time taken and the correct answers. 
   Here I used Toplevel, transient and grab_set() for a modal behavior. 
   Note: Later on I implemented a show_custom_popup() - so that I could reuse the method for another popup. 
+  Sources that helped: 
+  * mentioned earlier in Race Game -> Custom Popups & Game Stats
   
   ## 07. September - online meeting
   - planing final steps, adding # comments to make the code more readable, problem: streak_plant somehow doesn't show up in the main menu interface the way it should, "Back to Menu" doesn't work in Frieda's game_race, 
@@ -471,8 +518,11 @@ In between there were of course plenty of small fixes, experiments, and back-and
   ### Frieda 
   #### Debugging streak_plant visibility 
   To Do: finding out why streak_plant isn't working 
+
   Solution: I rebuilt the setup_main_menu() in main with a better grid distribution. 
   I think that initially, the plants were printed but the buttons and the rest of the main menu was in the foreground so that you couldn't see them.
+  Sources that helped:
+  * here I used sources similar to the ones for my layout in Race Game -> see Layout Management & Grid vs. Pack
 
   #### Update Layout: 
   To Do: Initially, the Race Game didn't have a clear layout structure. There wasn't an official header, info bar or properly seperated sections for the racetrack, flashcards and controls. 
@@ -483,11 +533,13 @@ In between there were of course plenty of small fixes, experiments, and back-and
   For the main game area, I seperated the racetrack canvas into its own frame and put the start/finish lines and characters in a dedicated space. 
   The bottom section now contains the flashcard term display, the answer entry field with a submit button and an info label guiding the player by giving feedback if the inserted term is correct or what would have been correct.
   Finally, I added a control frame with "New Game" and "Back to Menu" buttons. 
+  Sources that helped:
+  * again, see Layout Management & Grid vs. Pack
+  * timer, see Utilities 
 
   ## 10. September - online meeting
 
   ### Paula
-
   The last steps focused on final touch-ups, such as implementing a method in main.py to ensure that 
   all popup windows follow the same design scheme as the rest of the application.
   In addition, I created a fallback mechanism to return to the main menu whenever an AttributeError occurs.
@@ -499,22 +551,29 @@ In between there were of course plenty of small fixes, experiments, and back-and
 
   Solution: I built the show_custom_popup() and like in the initial stats popup I used Toplevel, transient and grab_set for the modal behavior. 
   To make the popup more dynamic I allowed the buttons to be passed in as arguments so that depending on the need it wouldn't always have to be the same buttons. 
-  I replaced the old messagebox.showinfo calls with this new function. 
+  I replaced the old messagebox.showinfo calls with this new function.
+  Sources that helped: 
+  * see Custom Popups & Game Stats
 
   ## 12. September - online meeting 
   planing final steps, updating the file structure, updating documentation with our AI usage 
   ### Frieda
   #### commit history
   Problem: I realised that all my previous commits were only labeled "update" without providing any meaningful information about the changes made. 
+
   Solution: Since rewriting commit history can be risky (it could unintentionally alter code or break the repository), I decided to leave the existing commits as they are. 
   Instead, I improved my workflow by writing clearer and more descriptive commit messages from this point forward. 
   This way, future commits will provide better documentation of changes and make collaboration easier.
 
   #### Updating documentation & streak_plant 
   To Do: update documentation, finalize streak_plant so that it grows and resets accordingly
+
   Solution: I refactored the PlantTracker to make the streak logic clearer and more reliable. Here I changed the save file path to use pathlib.Path. 
   I used raw_streak for safer loading and added that if the JSON file is edited manually and contains an invalid streak, the streak is automatically reset to 0.
   I also improved the reset logic so that if a day is missed (delta_days > 1) the streak resets to 0. If the streak reaches 20 and another day passes, it should automatically reset back to 0.
+  Sources that helped: 
+  * pathlib https://docs.python.org/3/library/pathlib.html
+  * os.path https://docs.python.org/3/library/os.path.html 
 
   #### Using cowsay 
   Problem: ascii_art_tnh uses a surprise cow once in a while which then pops up in the race 
@@ -522,7 +581,10 @@ In between there were of course plenty of small fixes, experiments, and back-and
   Solution: I thought back to our classes and remembered cowsay. After choosing my two new characters I had to change the part of the code that still used the other ascii characters. 
   I had the problem that at the beginning the characters were only printed in the console but eventually I found the solution. 
   Moreover, I had to get rid of the speech bubble and its contents to ensure a better visual. 
-  
+  Sources that helped: 
+  * https://pypi.org/project/cowsay/
+  * surprise cow https://pypi.org/project/Ascii-Art-TNH/ 
+
   ### Paula
   To Do: Adding images to the documentation and the default sound effect, each time the player clicks.
 
@@ -545,5 +607,5 @@ AI assisted in improving our documentation and refining the wording of explanati
 - Also, further mini-games could be created, such as a typing speed challenge, quiz mode or a "hangman"-style game to ensure more variety.
 - The streak system could also be expanded, with more detailed statistics and customizable plants as rewards. 
 - Also, the main.py file got really long and even though we tried to make it shorter through reusable code, it did not always work as we wanted to.
-Therefore another step could be to try to program more reusable code for a clearer structure. 
+Therefore, another step could be to try to program more reusable code for a clearer structure. 
 - being able to sort the vocabulary alphabetically or based on date
