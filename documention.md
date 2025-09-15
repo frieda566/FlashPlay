@@ -601,11 +601,15 @@ Whenever we were unsure how to implement a feature or achieve a specific behavio
 We also used AI to generate suggestions for meaningful comments, enhancing the clarity and understandability of our code.
 AI assisted in improving our documentation and refining the wording of explanations for clarity and precision.
 
-# Next steps
+# Next steps & takeaways 
 - A logical next step would be the integration of card decks, enabling users to define which cards they wish to study.
 - A spaced repetition logic (like in Anki) could be introduced, where harder cards appear more often and easier cards are shown less frequently. 
 - Also, further mini-games could be created, such as a typing speed challenge, quiz mode or a "hangman"-style game to ensure more variety.
-- The streak system could also be expanded, with more detailed statistics and customizable plants as rewards. 
+- The streak system could also be expanded, with more detailed statistics and customizable plants as rewards.
 - Also, the main.py file got really long and even though we tried to make it shorter through reusable code, it did not always work as we wanted to.
 Therefore, another step could be to try to program more reusable code for a clearer structure. 
-- being able to sort the vocabulary alphabetically or based on date
+- We tested the race game’s resize behavior and confirmed that the racetrack and general UI scale perfectly when resizing manually. 
+However, we didn’t initially consider pressing “New Game” while the window is already maximized. 
+In that case, the restart logic does not preserve the resized state for the ASCII characters and their “You / Your Opponent” labels—they revert to the initial fonts and positions, causing misalignment. 
+Generally, the program was designed so that running it shouldn’t require a maximized window in any case. 
+This is a takeaway for us: next time, we should pay more attention to maintaining state and scaling when the interface is already adjusted.
