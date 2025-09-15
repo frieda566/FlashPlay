@@ -1,40 +1,49 @@
 # FlashPlay
 
 ## Description:
-FlashPlay is a gamified vocabulary learning app. Players start by importing or creating a deck of flashcards, which becomes the foundation for a series of interactive minigames. In total you can choose between three different mini games: 
+FlashPlay is a gamified vocabulary learning app. Players start by importing or creating a deck of flashcards, which becomes the foundation for a series of interactive minigames. In total you can choose between two different mini games: 
 1. Memory Game: The flashcards are upside-down and youu have to find the matching pairs <br>
-<img width="300" alt="Bildschirmfoto 2025-07-01 um 15 47 53" src="https://github.com/user-attachments/assets/ba6eef85-ba0f-4735-b7bb-6f6f41920889" /> <br>
-3. Snake Race: You race against a timed snake. If you answer the question correctly you get faster, if you answer incorrectly your snake gets slower<br>
-<img width="330" alt="Bildschirmfoto 2025-07-01 um 16 00 17" src="https://github.com/user-attachments/assets/9eb5c364-da85-42a0-b81f-a1e58544c20c" /><br>
+3. Race Game: You race against a timed opponent. If you answer the question correctly your character moves forward, if you answer incorrectly the character does not move forward. <br>
+
+The program assumes that the user enters English vocabulary and can translate it into nine languages.
 
 ## Installation
 ### Libraries:
-1. Pygame for drawing minigames, GUI, game loops, event handling
+1. tkinster 
 2. random
 3. time
-4. os/ sys for running main file and handling paths files
-5. json for saving/ loading user progress or custom decks
+4. math
+5. json 
+6. cowsay
+7. io
+8. sys
 
 ### file structure:
 vocab_flashcards/ 
 
-├── main.py <br>
-├── flashcards.py <br>
-├── game_memory.py <br>
-├── game_race.py <br>
-├── media/ <br>
-│   ├── images/ <br>
-│   └── sounds/    <br>
+├── .idea <br>
+├── images <br>
+│   ├── main.png <br>
+│   ├── memory.png <br>
+│   └── race_game.png <br>
 ├── DB/ <br>
 │   └── flashcards.db    <br>
-├── requirements.txt   <br>
-├── README.md   <br>
-├── LICENCE  <br>
+├── game_resources <br>
+│   ├── flashcards.py <br>
+│   └── info.py <br>
+├── games/ <br>
+│   ├── game_memory.py <br>
+│   └── game_race.py <br>
+├── streak <br>
+│   ├── streak_data.json <br>
+│   └── streak_plants.py <br>
+├── .gitignore <br>
+├── readme.md  <br>
 ├── documentation.md     .<br>
-└── .gitignore<br>
+└── main.py <br>
 
 ## usage
 run from terminal
-python flashplay.py
+python main.py
 
 
