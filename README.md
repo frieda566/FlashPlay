@@ -11,7 +11,7 @@ FlashPlay is a gamified vocabulary learning app. Players start by importing or c
 - flashcards.py defines the basic structure for handling the flashcards
 - flashcards.db saves the created flashcards so the user does not have to type in new ones, everytime entering the application.
 
-*The program assumes that the user enters English vocabulary and can translate it into nine languages.*
+*The program assumes that the user enters English vocabulary and translates it into one of nine languages.*
 
 ## Installation
 ### Libraries:
