@@ -229,7 +229,6 @@ class RaceGame:
         self.root.minsize(self.canvas_width + 100, self.canvas_height + 300)
 
     def _on_resize(self, event):
-        self._resized = True
         # scaling factors
         scale_x = event.width / self.base_width
         scale_y = event.height / self.base_height
@@ -446,7 +445,6 @@ class RaceGame:
     def start_race(self):
         # resets positions and starts the race with first flashcard
         self.running = True
-        self._resized = False
         self.start_time = time.time()
         self.moves = 0
         self.time_elapsed = 0
@@ -706,6 +704,7 @@ class RaceGame:
     def reset_game(self):
         # resets the game to initial state for a new race
         self._cleanup()
+
         self.start_time = time.time()
         self.moves = 0
         self._update_moves_label()
@@ -720,6 +719,7 @@ class RaceGame:
         self._place_characters()
         # start fresh race after short delay
         self._after(300, self.start_race)
+
 
     def update_timer(self):
         # increments the elapsed time counter and updates the timer label every second
